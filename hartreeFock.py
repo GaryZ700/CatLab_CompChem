@@ -1,7 +1,8 @@
 #Python Implementation of the Hartree Fock Method
+#Procedures listed in the code follow as described in Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory, By Attila Szabo and Neil S. Ostlund
 
 #Step 1
-#Specify Molecules, Nuclear Coordinates, Charge of the nucli, Atomic Orbitals basis functions, Number of Electrons
+#Specify Molecules, Nuclear Coordinates, Charge of the nucli, Atomic Orbitals basis functions, Number of Electrons, and a basis set
 
 #Step 2
 #Calculate Integrals
