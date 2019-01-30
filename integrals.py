@@ -14,7 +14,7 @@ def overlap(molecule):
         S.append([])
         for index2, atom2 in enumerate(molecule.atomData):
             S[index1].append(0)			
-
+            
             #prepare basis sets 
             psi1 = atom1.basisSet
             psi2 = atom2.basisSet
@@ -29,10 +29,11 @@ def overlap(molecule):
                     #get overlap contracted guassian 
                     cg3 = cg1.multiply(cg2)
                     
+                    #get constant to multiply overlap integral by 
+                    constant = cg3.constant * cg1.contraction * cg2.contraction
+                 
                     #compute overlap coefficent
-                    S[index1][index2] += cg3.constant * pow((math.pi/cg3.orbitalExponet), 3/2)	
-                    print(str(cg1.constant) + " Constant1")
-                    print(str(cg2.constant) + " Constant2")
-                    print(cg3.orbitalExponet)
-	
+                    S[index1][index2] += constant * pow((math.pi/cg3.orbitalExponet), 3/2) 	
+
+               
     return S
