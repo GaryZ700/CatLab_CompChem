@@ -73,3 +73,49 @@ def kineticEnergy(molecule):
                     T[index1][index2] += constant * c1 * (3 - (2*c1*distanceSquared) ) * c2 * e
     
     return T
+
+##################################################################################
+
+def nuclearAttraction(molecule):
+    
+    #init nuclear attraction matrix 
+    #each nuclear attraction list is composed of 1 matrix for each atom in the molecule, which includes a psi x psi matrix of values from the primative guassian compuatation 
+    V = []
+    
+    #iterate through all atoms for Z
+    for atomIndex, atom in enumerate(molecule.atomData):
+        
+        V.append([])
+        
+        #iterate through all the atoms present and availible
+        for index1, atom1 in enumerate(molecule.atomData):
+            V[atomIndex].append([])
+            for index2, atom2 in enumerate(molecule.atomData):
+                V[atomIndex][index1].append(0)
+                
+                #prepare basis sets
+                psi1 = atom1.basisSet
+                psi2 = atom2.basisSet
+            
+                #iterate through all the primative guassians
+                for cg1 in psi1.contractedGuassians:
+                    for cg2 in psi2.contractedGuassians:
+                        
+                        #compute data needed for the integral
+                        ab = cg1.orbitalExponet * cg2.orbitalExponet
+                        p = cg1.orbitalExponet + cg2.orbitalExponet
+                        e = (-ab/p) * pow((cg1.coord - cg2.coord).magnitude(), 2)
+                        c1 = (-2 * math.pi) / p
+                        cg3 = cg1.multiply(cg2)
+                        
+                        constant = cg1.contraction * cg2.contraction * c1 * atom.Z * math.exp(e)
+                        errorInput = p * math.pow((cg3.coord - atom.coord).magnitude(), 2)
+                    #    print(str(p) + " P")
+                     #   print(" Coord " )
+                      #  atom.coord.display()
+                       # cg3.coord.display()
+                       
+                        error = 0.5 * pow(math.pi/errorInput, 0.5) * math.erf(pow(errorInput, 0.5))
+                        
+                        V[atomIndex][index1][index2] += constant * error * cg3.normalization
+    return V
