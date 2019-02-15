@@ -20,6 +20,18 @@ class vector():
         self.z = z
 
 #--------------------------------------------------------------------------------
+    
+    #multiplication of vector by a scalar constant
+    def __mul__(self, other):
+        
+        if(type(other) == vector ):
+            print("\nVector Multiplication currently not implemented!!!\n")
+        else:
+            return vector(self.x * other,
+                          self.y * other,
+                          self.z * other)
+        
+#--------------------------------------------------------------------------------
 
     #addition of two vectors function
     def __add__(self, other):
@@ -36,7 +48,7 @@ class vector():
         return vector(self.x - other.x,
                       self.y - other.y,
                       self.z - other.z)
-
+    
 #--------------------------------------------------------------------------------
 
     #function to get magnitude of the vector
@@ -52,7 +64,6 @@ class vector():
 
         print("\nX: " + str(self.x) + " Y: " + str(self.y) + " Z: " + str(self.z))
 
-
 ##################################################################################
 
 #class to handle guassian object
@@ -63,6 +74,7 @@ class guassian():
     coord = vector()
     constant = 0
     contraction = 0
+    normalization = 0
 
     #constructor function for the guassian class
     #orbitalExponet, should be guassian exponet for this orbital
@@ -76,6 +88,8 @@ class guassian():
 
         #for normalization, from Szabo on pg. 168
         self.constant = pow((2.0 * orbitalExponet / math.pi), 3/4)
+        self.normalization = self.constant
+        
 #--------------------------------------------------------------------------------
     #All class methods defined here
 
@@ -95,10 +109,12 @@ class guassian():
         K = pow((2.0*ab / (p*math.pi)), 3/4) * e
 
         #compute new position
-        R = self.coord - guassian2.coord
-
+        RA = self.coord * self.orbitalExponet        
+        RB = guassian2.coord * guassian2.orbitalExponet 
+        RC = (RA + RB) * (1/p)
+    
         #create new guassian and multiply K in to the constant
-        multipliedGuassian = guassian(p, R)
+        multipliedGuassian = guassian(p, RC)
         multipliedGuassian.constant *= K
 
         return multipliedGuassian
@@ -114,9 +130,10 @@ class guassianBasis():
     #constructor function for the guassian basis class
     #basisName, string of basis set to use
     #coord is center of atom that basis is attached to, must be a vector
-    def __init__(self, basisName, coord):
+    #Z, integer representing atomic number of atom whose basis set is being gathered
+    def __init__(self, basisName, coord, Z):
         self.contractedGuassians = []
-        self.addBasis(basisName, coord)
+        self.addBasis(basisName, coord, Z)
         
 #--------------------------------------------------------------------------------
     #All class functions defined here
@@ -125,17 +142,31 @@ class guassianBasis():
     #basisName, string of name for basis set
     #at the moment, only sets the STO-3G basis set for hydrogen atoms
     #coord is vector for center of the contracted guassians to be added to this basis set
-    def addBasis(self, basisName, coord):
-
-        contractionCoeffs = [0.15432897, 0.53532814, 0.44463454]
-        orbitalExponets = [3.42525091, 0.62391373, 0.16885540]
-
+    #Z, integer representing atomic number of atom whose basis set is being gathered
+    def addBasis(self, basisName, coord, Z):
+        
+        if(Z == 1):
+            contractionCoeffs = [0.15432897, 0.53532814, 0.44463454]
+            orbitalExponets = [3.42525091, 0.62391373, 0.16885540]
+        elif(Z == 2):
+            contractionCoeffs = [0.15432897, 0.53532814, 0.44463454]
+            orbitalExponets = [ 6.36242139, 1.15892300, 0.31364979]
+                
         #iterate through all wavefunctions specified by the basis
         #and iterate through all contracted guassians that are a part of the wavefunction
         if(len(self.contractedGuassians) == 0):
             for cg in range(len(contractionCoeffs)):
                 self.contractedGuassians.append( guassian(orbitalExponets[cg], coord, contractionCoeffs[cg]))
 
+#--------------------------------------------------------------------------------
+    
+    def display(self):
+        print("GB Len = " + str(len(self.contractedGuassians)))
+        for cg in self.contractedGuassians:
+            cg.coord.display()
+        
+        print("-------------------------------------")
+      
 ##################################################################################
 
 #contains an atom class that is used to build up the molecule class
@@ -207,4 +238,4 @@ class molecule():
     def addBasis(self, basisName):
 
         for atom in range(len(self.atomData)):
-            self.atomData[atom].basisSet = guassianBasis(basisName, self.atomData[atom].coord)
+            self.atomData[atom].basisSet = guassianBasis(basisName, self.atomData[atom].coord, self.atomData[atom].Z)

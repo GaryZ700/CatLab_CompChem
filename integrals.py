@@ -34,8 +34,6 @@ def overlap(molecule):
                  
                     #compute overlap coefficent
                     S[index1][index2] += constant * pow((math.pi/cg3.orbitalExponet), 3/2) 	
-
-               
     return S
 
 ##################################################################################
@@ -76,6 +74,40 @@ def kineticEnergy(molecule):
 
 ##################################################################################
 
+def electronNuclearAttraction(molecule):
+    
+    #compute for the first atom only 
+    Z = molecule.atomData[0].Z
+    atom = molecule.atomData[0]
+    
+    #init electron Nuclear attraction matrix 
+    V = []
+    
+    for index1, atom1 in enumerate(molecule.atomData):
+        V.append([])
+        for index2, atom2, in enumerate(molecule.atomData):
+            V[index1].append(0)
+            
+            psi1 = atom1.basisSet
+            psi2 = atom2.basisSet
+            
+            for cg1 in psi1.contractedGuassians:
+                for cg2 in psi2.contractedGuassians:
+                    
+                     cg3 = cg1.multiply(cg2)
+                     ab = cg1.orbitalExponet * cg2.orbitalExponet
+                     p = cg1.orbitalExponet + cg2.orbitalExponet
+                     c1 = -2 * math.pi / p
+                     e = (-ab/p) * pow( (cg1.coord - cg2.coord).magnitude(), 2)
+                     errorInput = p * math.pow( (cg3.coord - atom.coord).magnitude(), 2)
+                     if(errorInput != 0):
+                         error = 0.5 * pow(math.pi/errorInput, 0.5) * math.erf(math.pow(errorInput, 0.5))
+                     else:
+                        error = 0
+                     
+                     V[index1][index2] += c1 * Z * math.exp(e) * error * cg1.contraction * cg2.contraction * cg1.constant * cg2.constant
+    return V
+   
 def nuclearAttraction(molecule):
     
     #init nuclear attraction matrix 
@@ -86,7 +118,8 @@ def nuclearAttraction(molecule):
     for atomIndex, atom in enumerate(molecule.atomData):
         
         V.append([])
-        
+        atom.basisSet.display()
+       
         #iterate through all the atoms present and availible
         for index1, atom1 in enumerate(molecule.atomData):
             V[atomIndex].append([])
@@ -100,22 +133,37 @@ def nuclearAttraction(molecule):
                 #iterate through all the primative guassians
                 for cg1 in psi1.contractedGuassians:
                     for cg2 in psi2.contractedGuassians:
-                        
+                   
                         #compute data needed for the integral
                         ab = cg1.orbitalExponet * cg2.orbitalExponet
                         p = cg1.orbitalExponet + cg2.orbitalExponet
-                        e = (-ab/p) * pow((cg1.coord - cg2.coord).magnitude(), 2)
+                        e = (-ab/p) *  pow((cg1.coord - cg2.coord).magnitude(), 2)
                         c1 = (-2 * math.pi) / p
                         cg3 = cg1.multiply(cg2)
-                        
+                                             
                         constant = cg1.contraction * cg2.contraction * c1 * atom.Z * math.exp(e)
                         errorInput = p * math.pow((cg3.coord - atom.coord).magnitude(), 2)
-                    #    print(str(p) + " P")
-                     #   print(" Coord " )
-                      #  atom.coord.display()
-                       # cg3.coord.display()
                        
-                        error = 0.5 * pow(math.pi/errorInput, 0.5) * math.erf(pow(errorInput, 0.5))
-                        
-                        V[atomIndex][index1][index2] += constant * error * cg3.normalization
+                        #print("Atom: " + str(atomIndex) + " Index1: " + str(index1) + " index2: " + str(index2))
+                    
+                         
+                        print("Atom: " + str(atomIndex) + " Index1: " + str(index1) + " Index2: " + str(index2))
+                        #error input cutoff and else equation from Szabo pg. 437
+                        #use first error equation to simulate asymptote for very small values
+                        #but, due to numerical errors with python, small numbers only occurs if index1==index2, but sometimes, such values may be larger, resulting in a negative error that is remedied by the second error equation
+                        if((cg3.coord - atom.coord).magnitude() < 1**-6):
+                            error = 1 - (errorInput/3)
+                        else:
+                            error = 0.5 * pow(math.pi/errorInput, 0.5) * math.erf(pow(errorInput, 0.5))
+                   
+                        #debugging code
+                        if(atomIndex == 1 and index1==index2):
+                            print(">>>>>>>>>>>>>>>>>>>>>>>>")
+                            cg3.coord.display()
+                            atom.coord.display()
+                            print((cg3.coord - atom.coord).magnitude())
+                            print("<<<<<<<<<<<<<<<<<<<<<<<<")
+                    
+                        V[atomIndex][index1][index2] += constant * error * cg1.constant * cg2.constant 
+
     return V
