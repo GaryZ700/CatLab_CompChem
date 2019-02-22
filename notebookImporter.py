@@ -34,9 +34,4 @@ def importNotebook(name):
             code = shell.input_transformer_manager.transform_cell(cell.source)
             exec(code, module.__dict__)    
             
-    return module
-
-mod = importNotebook("VT")
-
-mod.a()
-    
+    return module    
