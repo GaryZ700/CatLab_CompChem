@@ -149,8 +149,9 @@ class guassianBasis():
             contractionCoeffs = [0.15432897, 0.53532814, 0.44463454]
             orbitalExponets = [3.42525091, 0.62391373, 0.16885540]
         elif(Z == 2):
-            contractionCoeffs = [0.15432897, 0.53532814, 0.44463454]
-            orbitalExponets = [ 6.36242139, 1.15892300, 0.31364979]
+           c = 2.8
+           contractionCoeffs = [0.15432897 , 0.53532814, 0.44463454 ]
+           orbitalExponets = [3.42525091 * c, 0.62391373 * c, 0.16885540 * c]
                 
         #iterate through all wavefunctions specified by the basis
         #and iterate through all contracted guassians that are a part of the wavefunction
