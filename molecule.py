@@ -233,6 +233,7 @@ class molecule():
     def addAtom(self, atom):
         self.atomData.append(atom)
         self.N += atom.N
+        print("********()())()()()()()()")
 
 #--------------------------------------------------------------------------------
 
