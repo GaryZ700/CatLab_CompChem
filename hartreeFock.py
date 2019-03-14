@@ -3,6 +3,7 @@
 
 from molecule import molecule
 from molecule import atom
+from molecule import vector
 import numpy as np
 import integrals
 
@@ -11,7 +12,8 @@ import integrals
 
 #generate a sole hydrogen ion with 2 electrons
 hydrogenIon = molecule()
-hydrogenIon.addAtom(atom([0,0,0], 1, 2))
+hydrogenIon.addAtom(atom(vector(0,0,0), 1, 2))
+hydrogenIon.addAtom(atom(vector(.5,.5,1.208304597), 1, 2))
 
 moleculerSystem = hydrogenIon
 
@@ -31,7 +33,7 @@ print(S)
 #Step 4
 #Obtain guess Density matrix, P
 
-#Step 5 
+#Step 5
 #Calculate Contraction of Density Matrix with Electron Repulsion, G Matrix
 
 #Step 6
@@ -50,8 +52,6 @@ print(S)
 #From P for next iteration of HF Procedure
 
 #Step 11
-#Determine if current P is close "enough" to previos P, 
+#Determine if current P is close "enough" to previos P,
 #	if no iterate again start from step 5
 #	if yes, then stop iterating, HF procedure completed, and use final C matrix to compute physical properties
-
-

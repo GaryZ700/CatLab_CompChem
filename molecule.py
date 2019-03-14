@@ -61,8 +61,8 @@ class vector():
 
     #function to print the vector to the screen
     def display(self):
-
-        print("\nX: " + str(self.x) + " Y: " + str(self.y) + " Z: " + str(self.z))
+       
+        print("X: " + str(self.x) + " Y: " + str(self.y) + " Z: " + str(self.z))
 
 ##################################################################################
 
@@ -126,7 +126,8 @@ class guassianBasis():
 
     #declare all variables here
     contractedGuassians = []
-
+    basisName = ""
+    
     #constructor function for the guassian basis class
     #basisName, string of basis set to use
     #coord is center of atom that basis is attached to, must be a vector
@@ -134,6 +135,7 @@ class guassianBasis():
     def __init__(self, basisName, coord, Z):
         self.contractedGuassians = []
         self.addBasis(basisName, coord, Z)
+        self.basisName = basisName
         
 #--------------------------------------------------------------------------------
     #All class functions defined here
@@ -192,7 +194,14 @@ class atom():
         #assign atomic number, and electron number
         self.Z = Z
         self.N = N
-
+        
+#--------------------------------------------------------------------------------
+    
+    def display(self):
+        
+        print("Atomic Number: " + str(self.Z) + ", Electrons: " + str(self.N) + ", Coordinate: ", end="")
+        self.coord.display()
+    
 #################################################################################
 
 #class to handle combinations of atoms for atomic simulations
@@ -202,7 +211,8 @@ class molecule():
     #atomData is list to hold atom objects
     atomData = []
     N = 0
-
+    basisName = "No Basis Set Specified"
+    
     #constructor function for the molecule class
     #atoms, can be either list of Chemical Symbols as strings to represent atoms, or list of actual atom objects to add to the molecule
     #coordinates are only used if Chemical symbols supplied to the atoms list, and represent coordinates of the atoms
@@ -233,11 +243,26 @@ class molecule():
     def addAtom(self, atom):
         self.atomData.append(atom)
         self.N += atom.N
-        print("********()())()()()()()()")
-
+        
 #--------------------------------------------------------------------------------
 
     def addBasis(self, basisName):
 
+        self.basisName = basisName
+        
         for atom in range(len(self.atomData)):
             self.atomData[atom].basisSet = guassianBasis(basisName, self.atomData[atom].coord, self.atomData[atom].Z)
+            
+#--------------------------------------------------------------------------------
+    
+    def display(self):
+        
+        print("Molecule")
+        print("Basis Set: " + self.basisName)
+        print("Total Number of Electrons: " + str(self.N))
+        
+        #display all atoms contained within this molecule, use a for loop to iterate over all the atoms
+        print("Atoms: ")
+        for atom in self.atomData:
+            print("     ", end="")
+            atom.display()

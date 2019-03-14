@@ -11,3 +11,5 @@ Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory,
 	Density matrix often guessed as 0, such that the Fock matrix is equal to the core hamiltonian alone. Pg. 163
 
 	Guassin and Slater Determinat Definitions given on pg. 168
+       
+    Guassians less acurate than slater determinats, but faster to compute integrals because multiplying two guassians results in a new guassian times a constant Pg. 169
