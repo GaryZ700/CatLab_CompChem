@@ -218,6 +218,11 @@ class molecule():
     #coordinates are only used if Chemical symbols supplied to the atoms list, and represent coordinates of the atoms
     def __init__(self, atoms=[], coordinates=[]):
 
+        #reset class variables
+        self.atomData = []
+        self.N = 0
+        self.basisName = "No Basis Set Specified"
+        
         stringAtomCounter = 0
 
         #iterate through all atoms passed into the constuctor function
