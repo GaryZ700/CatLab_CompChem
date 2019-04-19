@@ -1,8 +1,12 @@
 #Python Molecule Class to be used for Quantom Mechanical Simulations Purposes
 #Written by Gary Zeri for the Cat Lab Research Group at Chapman University.
-#class handle vectors for atomic coordinates
 
+import sys
 import math
+import json
+
+#folder where the basisset json files are located
+BASIS_SET_FOLDER = "./basisSets/"
 
 class vector():
 
@@ -21,11 +25,12 @@ class vector():
 
 #--------------------------------------------------------------------------------
     
-    #multiplication of vector by a scalar constant
+    #multiplication of vector by a scalar constant or performs the dot product of two vectors
     def __mul__(self, other):
         
+        #if multiplying another vector, perform the dot product
         if(type(other) == vector ):
-            print("\nVector Multiplication currently not implemented!!!\n")
+            return (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
         else:
             return vector(self.x * other,
                           self.y * other,
@@ -85,7 +90,7 @@ class guassian():
         self.orbitalExponet = orbitalExponet
         self.coord = coord
         self.contraction = contraction
-
+        
         #for normalization, from Szabo on pg. 168
         self.constant = pow((2.0 * orbitalExponet / math.pi), 3/4)
         self.normalization = self.constant
@@ -95,7 +100,7 @@ class guassian():
 
     #multipies two guassians together and returns a new guassian
     #takes another guassian as a parameter
-    #located on pg. 169
+    #located on pg. 154
     def multiply(self, guassian2):
 
         #compute new exponet for the guassian
@@ -138,6 +143,23 @@ class guassianBasis():
         self.basisName = basisName
         
 #--------------------------------------------------------------------------------
+    
+    #loadsBasisSet from json basis files that can be downloaded from the Basis Set Exchange
+    #Basis Set Exchange Site: https://www.basissetexchange.org/
+    #if basis name is not valid, or basis set file not in the current directory
+    #Z, atomic number of atom
+    def loadBasisSet(self, basisName, Z):
+        
+        basisFile = open(BASIS_SET_FOLDER+basisName+".json", 'r')
+        basisData = json.load(basisFile)
+        basisFile.close()
+        
+        shellData = basisData['elements'][str(Z)]['electron_shells'][0]
+        
+        #return list of coefficents and exponets as numbers
+        return [float(x) for x in shellData['coefficients'][0]], [float(x) for x in shellData['exponents']]
+        
+#--------------------------------------------------------------------------------
     #All class functions defined here
 
     #function to addBasis to this guassian
@@ -146,23 +168,24 @@ class guassianBasis():
     #coord is vector for center of the contracted guassians to be added to this basis set
     #Z, integer representing atomic number of atom whose basis set is being gathered
     def addBasis(self, basisName, coord, Z):
+       
+        #try-except to load data from json file
+        #meant to handle file not found exception
+        try:
+            contractionCoeffs, orbitalExponets = self.loadBasisSet(basisName.upper(), Z)
+        except:
+            print("Basis '" + basisName + "' not found in '" + BASIS_SET_FOLDER + "'")
+            print("Hartree Code will quit now.")
+            sys.exit()
         
-        if(Z == 1):
-            contractionCoeffs = [0.15432897, 0.53532814, 0.44463454]
-            orbitalExponets = [3.42525091, 0.62391373, 0.16885540]
-        elif(Z == 2):
-           c = 2.8
-           contractionCoeffs = [0.15432897 , 0.53532814, 0.44463454 ]
-           orbitalExponets = [3.42525091 * c, 0.62391373 * c, 0.16885540 * c]
-                
         #iterate through all wavefunctions specified by the basis
         #and iterate through all contracted guassians that are a part of the wavefunction
         if(len(self.contractedGuassians) == 0):
             for cg in range(len(contractionCoeffs)):
                 self.contractedGuassians.append( guassian(orbitalExponets[cg], coord, contractionCoeffs[cg]))
-
+                
 #--------------------------------------------------------------------------------
-    
+   
     def display(self):
         print("GB Len = " + str(len(self.contractedGuassians)))
         for cg in self.contractedGuassians:
@@ -173,7 +196,7 @@ class guassianBasis():
 ##################################################################################
 
 #contains an atom class that is used to build up the molecule class
-#all atomic coordinates are in AU, Szabo Pg. 174
+#all atomic coordinates are in AU, Szabo Pg. 159
 class atom():
 
     #all variables declared here
@@ -181,19 +204,22 @@ class atom():
     Z = 1
     N = 1
     basisSet = 0
+    mass = 0
 
     #constructor fucntion for the atom class
     #coord, vector of atom coordinates
     #atomicNumber, integer that represents atomic number of the element, from 1 to infinity
+    #neutrons, number of neutrons this atom contains, used for mass computation
     #by default creates a hydrogen atom at the (0,0,0)
-    def __init__(self, coord=vector(), Z=1, N=1):
+    def __init__(self, coord=vector(), Z=1, N=1, neutrons=0):
 
         #assign position to coordinates
         self.coord = coord
 
-        #assign atomic number, and electron number
+        #assign atomic number, electron number, and Mass in AU
         self.Z = Z
         self.N = N
+        self.mass = Z + neutrons
         
 #--------------------------------------------------------------------------------
     
@@ -214,35 +240,19 @@ class molecule():
     basisName = "No Basis Set Specified"
     
     #constructor function for the molecule class
-    #atoms, can be either list of Chemical Symbols as strings to represent atoms, or list of actual atom objects to add to the molecule
-    #coordinates are only used if Chemical symbols supplied to the atoms list, and represent coordinates of the atoms
-    def __init__(self, atoms=[], coordinates=[]):
+    #atoms, list of atom objects to add in 
+    def __init__(self, atoms=[]):
 
         #reset class variables
         self.atomData = []
         self.N = 0
         self.basisName = "No Basis Set Specified"
         
-        stringAtomCounter = 0
-
-        #iterate through all atoms passed into the constuctor function
+        #iterate through all atoms passed into the constuctor function,
+        #and add them into the molecule data structure
         for atom in atoms:
-
-            #if string atom name was passed in, then add atom in as string
-            if(type(atom) == str):
-                self.addStringAtom(atom, coordinates[stringAtomCounter])
-                stringAtomCounter += 1
-            #else, add in atom as an atom object
-            else:
                 self.addAtom(atom)
-
-#--------------------------------------------------------------------------------
-    #All class functions defined here
-
-    def addStringAtom(self):
-        #atomData.append(atom(coord, atomStringToNumber()))
-        print("pass")
-
+                
 #--------------------------------------------------------------------------------
 
     def addAtom(self, atom):
