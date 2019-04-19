@@ -1,0 +1,91 @@
+{
+    "name": "STO-5G",
+    "names": [
+        "STO-5G"
+    ],
+    "flags": [],
+    "family": "sto",
+    "description": "STO-5G Minimal Basis (5 functions/AO)",
+    "role": "orbital",
+    "auxiliaries": {},
+    "function_types": [
+        "spherical_gto"
+    ],
+    "version": "1",
+    "revision_description": "Data from Gaussian09",
+    "elements": {
+        "1": {
+            "references": [
+                {
+                    "reference_description": "STO-5G Minimal Basis (5 functions/AO)",
+                    "reference_keys": [
+                        "hehre1969a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.1738354739E+02",
+                        "0.3185489246E+01",
+                        "0.8897299079E+00",
+                        "0.3037874103E+00",
+                        "0.1144784984E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.2214055312E-01",
+                            "0.1135411520E+00",
+                            "0.3318161484E+00",
+                            "0.4825700713E+00",
+                            "0.1935721966E+00"
+                        ]
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "references": [
+                {
+                    "reference_description": "STO-5G Minimal Basis (5 functions/AO)",
+                    "reference_keys": [
+                        "hehre1969a",
+                        "hehre1970a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.3229002972E+02",
+                        "0.5917062849E+01",
+                        "0.1652677933E+01",
+                        "0.5642866953E+00",
+                        "0.2126444063E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.2214055312E-01",
+                            "0.1135411520E+00",
+                            "0.3318161484E+00",
+                            "0.4825700713E+00",
+                            "0.1935721966E+00"
+                        ]
+                    ]
+                }
+            ]
+        }
+    }
+}
