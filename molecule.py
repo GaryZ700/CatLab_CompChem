@@ -134,56 +134,32 @@ class guassianBasis():
     basisName = ""
     
     #constructor function for the guassian basis class
-    #basisName, string of basis set to use
-    #coord is center of atom that basis is attached to, must be a vector
-    #Z, integer representing atomic number of atom whose basis set is being gathered
-    def __init__(self, basisName, coord, Z):
-        self.contractedGuassians = []
-        self.addBasis(basisName, coord, Z)
+    #electronShell, basis data electron shell json object
+    #atom object to which this basisSet is being added to
+    def __init__(self, electronShell, atom, basisName):
+        self.functions = []
+        self.addBasis(electronShell, atom)
         self.basisName = basisName
         
 #--------------------------------------------------------------------------------
     
-    #loadsBasisSet from json basis files that can be downloaded from the Basis Set Exchange
-    #Basis Set Exchange Site: https://www.basissetexchange.org/
-    #if basis name is not valid, or basis set file not in the current directory
-    #Z, atomic number of atom
-    def loadBasisSet(self, basisName, Z):
-        
-        basisFile = open(BASIS_SET_FOLDER+basisName+".json", 'r')
-        basisData = json.load(basisFile)
-        basisFile.close()
-        
-        shellData = basisData['elements'][str(Z)]['electron_shells'][0]
-        
-        #return list of coefficents and exponets as numbers
-        return [float(x) for x in shellData['coefficients'][0]], [float(x) for x in shellData['exponents']]
-        
-#--------------------------------------------------------------------------------
     #All class functions defined here
 
     #function to addBasis to this guassian
-    #basisName, string of name for basis set
-    #at the moment, only sets the STO-3G basis set for hydrogen atoms
-    #coord is vector for center of the contracted guassians to be added to this basis set
-    #Z, integer representing atomic number of atom whose basis set is being gathered
-    def addBasis(self, basisName, coord, Z):
-       
-        #try-except to load data from json file
-        #meant to handle file not found exception
-        try:
-            contractionCoeffs, orbitalExponets = self.loadBasisSet(basisName.upper(), Z)
-        except:
-            print("Basis '" + basisName + "' not found in '" + BASIS_SET_FOLDER + "'")
-            print("Hartree Code will quit now.")
-            sys.exit()
+    #electronShell, electronshell data from json data file
+    #atom, atom to which this basis set is being appened to 
+    def addBasis(self, electronShell, atom):
         
-        #iterate through all wavefunctions specified by the basis
-        #and iterate through all contracted guassians that are a part of the wavefunction
-        if(len(self.contractedGuassians) == 0):
-            for cg in range(len(contractionCoeffs)):
-                self.contractedGuassians.append( guassian(orbitalExponets[cg], coord, contractionCoeffs[cg]))
-                
+        #loop over all the exponets and coefficents in the electron shell
+        for index in range(len(electronShell["exponents"])):
+            
+            #get exponet and coeff from the shell data
+            exponent = float(electronShell["exponents"][index])
+            coefficient = float(electronShell["coefficients"][0][index])
+            
+            #add in a new primative guassian with from the coeffiecent and exponet
+            self.contractedGuassians.append(guassian(exponent, atom.coord, coefficient))
+            
 #--------------------------------------------------------------------------------
    
     def display(self):
@@ -203,7 +179,7 @@ class atom():
     coord = vector()
     Z = 1
     N = 1
-    basisSet = 0
+    basisSet = []
     mass = 0
 
     #constructor fucntion for the atom class
@@ -220,6 +196,7 @@ class atom():
         self.Z = Z
         self.N = N
         self.mass = Z + neutrons
+        self.basisSet = []
         
 #--------------------------------------------------------------------------------
     
@@ -227,6 +204,20 @@ class atom():
         
         print("Atomic Number: " + str(self.Z) + ", Electrons: " + str(self.N) + ", Coordinate: ", end="")
         self.coord.display()
+        
+#--------------------------------------------------------------------------------
+
+    def addBasis(self, basisData, basisName):
+        
+        #try-except statement to make sure the specified atom exists wihtin this basis set
+        #try:
+            #loop over all electron shells used in this basis set
+        for electronShell in basisData[str(self.Z)]["electron_shells"]:
+            self.basisSet.append(guassianBasis(electronShell, self, basisName))
+      
+        #except:
+        #    print("Atom atomic number: " + str(self.Z) + " could not be found in the '" + basisName + "' basis set.")
+        #    sys.exit()
     
 #################################################################################
 
@@ -265,8 +256,20 @@ class molecule():
 
         self.basisName = basisName
         
+        #load the basisSet data 
+        #use a try-execept block to ensure that the basis set exists
+        try:
+            basisFile = open(BASIS_SET_FOLDER+basisName+".json", 'r')
+            basisData = json.load(basisFile)["elements"]
+            basisFile.close()        
+        except:
+            print("Basis '" + basisName + "' not found in '" + BASIS_SET_FOLDER + "'")
+            print("Hartree Code will quit now.")
+            sys.exit()
+        
+        #loop over all the atoms, and have each atom assign a basis set to itself
         for atom in range(len(self.atomData)):
-            self.atomData[atom].basisSet = guassianBasis(basisName, self.atomData[atom].coord, self.atomData[atom].Z)
+            self.atomData[atom].addBasis(basisData, basisName)
             
 #--------------------------------------------------------------------------------
     
