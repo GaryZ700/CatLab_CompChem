@@ -138,9 +138,11 @@ class guassianBasis():
     #atom object to which this basisSet is being added to
     def __init__(self, electronShell, atom, basisName):
         self.functions = []
-        self.addBasis(electronShell, atom)
+        self.contractedGuassians = []
         self.basisName = basisName
-        
+
+        self.addBasis(electronShell, atom)
+
 #--------------------------------------------------------------------------------
     
     #All class functions defined here
@@ -150,15 +152,18 @@ class guassianBasis():
     #atom, atom to which this basis set is being appened to 
     def addBasis(self, electronShell, atom):
         
-        #loop over all the exponets and coefficents in the electron shell
-        for index in range(len(electronShell["exponents"])):
-            
-            #get exponet and coeff from the shell data
-            exponent = float(electronShell["exponents"][index])
-            coefficient = float(electronShell["coefficients"][0][index])
-            
-            #add in a new primative guassian with from the coeffiecent and exponet
-            self.contractedGuassians.append(guassian(exponent, atom.coord, coefficient))
+        #loop over all set of coeffiencts used to define contracted guassians for this basis set
+        for coefficientData in electronShell["coefficients"]:
+        
+            #loop over all the exponets and coefficents in the electron shell
+            for index in range(len(electronShell["exponents"])):
+
+                #get exponet and coeff from the shell data
+                exponent = float(electronShell["exponents"][index])
+                coefficient = float(coefficientData[index])
+
+                #add in a new primative guassian with from the coeffiecent and exponet
+                self.contractedGuassians.append(guassian(exponent, atom.coord, coefficient))
             
 #--------------------------------------------------------------------------------
    
@@ -215,10 +220,6 @@ class atom():
         for electronShell in basisData[str(self.Z)]["electron_shells"]:
             self.basisSet.append(guassianBasis(electronShell, self, basisName))
       
-        #except:
-        #    print("Atom atomic number: " + str(self.Z) + " could not be found in the '" + basisName + "' basis set.")
-        #    sys.exit()
-    
 #################################################################################
 
 #class to handle combinations of atoms for atomic simulations
@@ -271,6 +272,21 @@ class molecule():
         for atom in range(len(self.atomData)):
             self.atomData[atom].addBasis(basisData, basisName)
             
+#--------------------------------------------------------------------------------
+
+    #getBasis functions returns a list of all basis functions used by atoms within this molecule
+    def getBasis(self):
+        
+        basisList = []
+        
+        #loop over all atoms present
+        for atom in self.atomData:
+            #loop over all basis functions used within the atom
+            for basis in atom.basisSet:
+                basisList.append(basis)
+                
+        return basisList   
+    
 #--------------------------------------------------------------------------------
     
     def display(self):
