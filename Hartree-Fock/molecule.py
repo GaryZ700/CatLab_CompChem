@@ -71,8 +71,8 @@ class vector():
 
 ##################################################################################
 
-#class to handle guassian object
-class guassian():
+#class to handle gaussianobject
+class gaussian():
 
     #declare all variables here
     orbitalExponet = 0
@@ -81,10 +81,10 @@ class guassian():
     contraction = 0
     normalization = 0
 
-    #constructor function for the guassian class
-    #orbitalExponet, should be guassian exponet for this orbital
-    #coord should be a new vector object for the guassian center, which is the atomic center
-    #contraction, contraction used in HF method for guassian basis set to weight power of single guassian, default value is 1
+    #constructor function for the gaussianclass
+    #orbitalExponet, should be gaussianexponet for this orbital
+    #coord should be a new vector object for the gaussiancenter, which is the atomic center
+    #contraction, contraction used in HF method for gaussianbasis set to weight power of single gaussian, default value is 1
     def __init__(self, orbitalExponet, coord, contraction=1):
 
         self.orbitalExponet = orbitalExponet
@@ -98,47 +98,47 @@ class guassian():
 #--------------------------------------------------------------------------------
     #All class methods defined here
 
-    #multipies two guassians together and returns a new guassian
-    #takes another guassian as a parameter
+    #multipies two gaussians together and returns a new gaussian
+    #takes another gaussianas a parameter
     #located on pg. 154
-    def multiply(self, guassian2):
+    def multiply(self, gaussian2):
 
-        #compute new exponet for the guassian
-        p = self.orbitalExponet + guassian2.orbitalExponet
+        #compute new exponet for the gaussian
+        p = self.orbitalExponet + gaussian2.orbitalExponet
 
-        #ab is the multiplication of the two guassian orbitals
-        ab = self.orbitalExponet * guassian2.orbitalExponet
+        #ab is the multiplication of the two gaussianorbitals
+        ab = self.orbitalExponet * gaussian2.orbitalExponet
 
-        #e is the e used to calcuate K, the constant difference between the multiplication of two guassians
-        e = math.exp( (-ab/p) * pow( (self.coord - guassian2.coord).magnitude(), 2 ) )
+        #e is the e used to calcuate K, the constant difference between the multiplication of two gaussians
+        e = math.exp( (-ab/p) * pow( (self.coord - gaussian2.coord).magnitude(), 2 ) )
         K = pow((2.0*ab / (p*math.pi)), 3/4) * e
 
         #compute new position
         RA = self.coord * self.orbitalExponet        
-        RB = guassian2.coord * guassian2.orbitalExponet 
+        RB = gaussian2.coord * gaussian2.orbitalExponet 
         RC = (RA + RB) * (1/p)
     
-        #create new guassian and multiply K in to the constant
-        multipliedGuassian = guassian(p, RC)
-        multipliedGuassian.constant *= K
+        #create new gaussianand multiply K in to the constant
+        multipliedGaussian= gaussian(p, RC)
+        multipliedGaussian.constant *= K
 
-        return multipliedGuassian
+        return multipliedGaussian
 
 ##################################################################################
 
-#class to handle basis sets of guassian natures
-class guassianBasis():
+#class to handle basis sets of gaussiannatures
+class gaussianBasis():
 
     #declare all variables here
-    contractedGuassians = []
+    contractedGaussians = []
     basisName = ""
     
-    #constructor function for the guassian basis class
+    #constructor function for the gaussianbasis class
     #electronShell, basis data electron shell json object
     #atom object to which this basisSet is being added to
     def __init__(self, electronShell, atom, basisName):
         self.functions = []
-        self.contractedGuassians = []
+        self.contractedGaussians = []
         self.basisName = basisName
 
         self.addBasis(electronShell, atom)
@@ -147,12 +147,12 @@ class guassianBasis():
     
     #All class functions defined here
 
-    #function to addBasis to this guassian
+    #function to addBasis to this gaussian
     #electronShell, electronshell data from json data file
     #atom, atom to which this basis set is being appened to 
     def addBasis(self, electronShell, atom):
         
-        #loop over all set of coeffiencts used to define contracted guassians for this basis set
+        #loop over all set of coeffiencts used to define contracted gaussians for this basis set
         for coefficientData in electronShell["coefficients"]:
         
             #loop over all the exponets and coefficents in the electron shell
@@ -162,14 +162,14 @@ class guassianBasis():
                 exponent = float(electronShell["exponents"][index])
                 coefficient = float(coefficientData[index])
 
-                #add in a new primative guassian with from the coeffiecent and exponet
-                self.contractedGuassians.append(guassian(exponent, atom.coord, coefficient))
+                #add in a new primative gaussianwith from the coeffiecent and exponet
+                self.contractedGaussians.append(gaussian(exponent, atom.coord, coefficient))
             
 #--------------------------------------------------------------------------------
    
     def display(self):
-        print("GB Len = " + str(len(self.contractedGuassians)))
-        for cg in self.contractedGuassians:
+        print("GB Len = " + str(len(self.contractedgaussians)))
+        for cg in self.contractedgaussians:
             cg.coord.display()
         
         print("-------------------------------------")
@@ -218,7 +218,7 @@ class atom():
         #try:
             #loop over all electron shells used in this basis set
         for electronShell in basisData[str(self.Z)]["electron_shells"]:
-            self.basisSet.append(guassianBasis(electronShell, self, basisName))
+            self.basisSet.append(gaussianBasis(electronShell, self, basisName))
       
 #################################################################################
 
