@@ -8,6 +8,7 @@ import json
 #folder where the basisset json files are located
 BASIS_SET_FOLDER = "./basisSets/"
 
+
 class vector():
 
     #declare all variables here
@@ -68,10 +69,10 @@ class vector():
     def display(self):
        
         print("X: " + str(self.x) + " Y: " + str(self.y) + " Z: " + str(self.z))
-
+        
 ##################################################################################
 
-#class to handle gaussianobject
+#class to handle gaussian objects
 class gaussian():
 
     #declare all variables here
