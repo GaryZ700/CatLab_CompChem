@@ -67,7 +67,6 @@ class vector():
 
     #function to print the vector to the screen
     def display(self):
-       
         print("X: " + str(self.x) + " Y: " + str(self.y) + " Z: " + str(self.z))
         
 ##################################################################################
@@ -215,9 +214,7 @@ class atom():
 
     def addBasis(self, basisData, basisName):
         
-        #try-except statement to make sure the specified atom exists wihtin this basis set
-        #try:
-            #loop over all electron shells used in this basis set
+        #loop over all electron shells used in this basis set
         for electronShell in basisData[str(self.Z)]["electron_shells"]:
             self.basisSet.append(gaussianBasis(electronShell, self, basisName))
       
