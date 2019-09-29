@@ -123,6 +123,18 @@ class gaussian():
         multipliedGaussian.constant *= K
 
         return multipliedGaussian
+    
+#--------------------------------------------------------------------------------
+    
+    #computes the value of this guassian function at the specified r value
+    def compute(self, r):
+        return  self.contraction * self.normalization * math.exp(-self.orbitalExponet * pow(r-self.coord.magnitude(), 2)) 
+    
+#--------------------------------------------------------------------------------
+
+    #computes the value of the 2nd partial derivate of this function 
+    def compute2ndPD(self, r):
+        return 4 * self.normalization * self.contraction * pow(self.orbitalExponet*r, 2) * math.exp(-self.orbitalExponet * pow(r, 2))
 
 ##################################################################################
 
