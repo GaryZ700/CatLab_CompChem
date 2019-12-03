@@ -209,10 +209,10 @@ class atom():
         #assign position to coordinates
         self.coord = coord
 
-        #assign atomic number, electron number, and Mass in AU
+        #assign atomic number, electron number, and Mass in Hartree Atomic Units
         self.Z = Z
         self.N = N
-        self.mass = Z + neutrons
+        self.mass = (Z + neutrons) * 1836
         self.basisSet = []
         
 #--------------------------------------------------------------------------------
@@ -237,9 +237,14 @@ class molecule():
 
     #variables declared here
     #atomData is list to hold atom objects
+    #N is the number of electrons in the system
+    #basisName is the string refereing to the Basic set to be used with the computation
+    #mass is the total mass of the molecule in Hartree Atomic Units
     atomData = []
     N = 0
-    basisName = "No Basis Set Specified"
+    basisName = ""
+    mass = 0
+    u = "Reduced Mass Only Exists for Diatomic Molecules"
     
     #constructor function for the molecule class
     #atoms, list of atom objects to add in 
@@ -254,12 +259,15 @@ class molecule():
         #and add them into the molecule data structure
         for atom in atoms:
                 self.addAtom(atom)
+                self.mass += atom.mass
                 
+        self.computeU()
 #--------------------------------------------------------------------------------
 
     def addAtom(self, atom):
         self.atomData.append(atom)
         self.N += atom.N
+        self.computeU()
         
 #--------------------------------------------------------------------------------
 
@@ -297,6 +305,18 @@ class molecule():
                 
         return basisList   
     
+#--------------------------------------------------------------------------------
+
+    #computes the reduced mass of the system if the sytem has two atoms
+    def computeU(self):
+        
+        if(len(self.atomData) == 2):
+            self.u = self.atomData[0].mass*self.atomData[1].mass / (self.atomData[0].mass + self.atomData[1].mass)
+        else: 
+            self.u = "Reduced Mass Only Exists for Diatomic Molecules"
+            
+        return self.u
+
 #--------------------------------------------------------------------------------
     
     def display(self):
