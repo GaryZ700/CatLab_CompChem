@@ -7,7 +7,6 @@ class extendedRydberg:
     
     import numpy as np
     from scipy import optimize as optimize
-    from lmfit import Model
     
     #Delcare All Global Variables Here
     
@@ -25,6 +24,41 @@ class extendedRydberg:
     c = 0
     curveFitted = False
        
+    #Default Constructor for the Extended Rydberg Class
+    def __init__():
+        pass
+    
+#----------------------------------------------------------------------------------
+
+    #Overloaded Constructor that allows for Passing in Extended Rydberg Values one by one
+    #D: represents the well depth
+    #Re: Equblibrium well depth
+    #a1, a2, a3: constants that determine the curvature and shape of the potential
+    #c: represent constant to be added to shift the potential up or down
+    def __init__(D, Re, a1, a2, a3, c):
+       
+        self.D = D
+        self.Re = Re
+        self.a1 = a1
+        self.a2 = a2
+        self.a3 = a3
+        self.c = c
+        
+        self.curveFitted = True
+#----------------------------------------------------------------------------------
+
+    #Overloaded Constructor that takes in diatomic constants
+    #to compute the Extended-Rydberg Constants
+    #D: represents the well depth
+    #Re: Equblibrium well depth
+    #w0: frequency of classical vibrations at Re
+    def __init__(D, Re, w0):
+        
+        self.D = D
+        self.Re = Re 
+        
+        #How to get c1, c2, c3 from w0???????
+        
 ###################################################################################
 
     #Extended Ryd-Berg Equation Originates From 
@@ -73,7 +107,7 @@ class extendedRydberg:
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
     def fitPotential(self, R, E):
     
-        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, maxfev=pow(10, 4))[0]
+        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, maxfev=pow(10, 8))[0]
     
         self.D = optimizedParameters[0]
         self.Re = optimizedParameters[1]
