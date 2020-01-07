@@ -6,11 +6,12 @@ class RKR:
     #All Imports Done Here
     import math
     import numpy as np
+    import ipywidgets as widgets
     
     #Declare All Global Variables Here
     
     #Is the distance from v that the integration stops at
-    delta = pow(10, -5)
+    delta = pow(10, -2)
 
     #Reduced Molecular Mass
     #In Non Hartree Atomic Units, each proton has an amu of 1
@@ -60,6 +61,34 @@ class RKR:
     def setDelta(self, delta):
         self.delta = delta
         
+###################################################################################       
+    
+    def widgetInput(self):
+        
+        alphaeInput = self.widgets.FloatText(description="$\alpha$ in ${cm}^{-1}$")
+        BeInput = self.widgets.FloatText(description="$B_e$ in ${cm}^{-1}$")
+        weInput = self.widgets.FloatText(description="$\omega_e$ in ${cm}^{-1}$")
+        wxeInput = self.widgets.FloatText(description="$\omega_ex_e$ in ${cm}^{-1}$")
+        wyeInput = self.widgets.FloatText(description="$\omega_ey_e$ in ${cm}^{-1}$")
+        wzeInput = self.widgets.FloatText(description="$\omega_ez_e$ in ${cm}^{-1}$")
+        yeInput = self.widgets.FloatText(description="$y_e$ in ${cm}^{-1}$")
+        
+        uInput = self.widgets.FloatText(description="$\mu$ in Atomic Units", min=pow(10, -10), value=1)
+        
+        return self.widgets.interactive(
+            self.setDiatomicConstants, 
+            alphae = alphaeInput,
+            Be = BeInput,
+            we = weInput,
+            wxe = wxeInput,
+            wye = wyeInput,
+            wze = wzeInput,
+            ye = yeInput
+        ), self.widgets.interactive(
+            self.setReducedMass,
+            u = uInput
+        )   
+    
 ###################################################################################       
 
     def E(self, v):
@@ -131,7 +160,7 @@ class RKR:
     
 ###################################################################################
 
-    def graphData(self, resolution=0.01, endPoint=-0.499):
+    def graphData(self, resolution=0.01, endPoint=-0.49):
 
         if(not self.dataGraphed):
             
@@ -140,6 +169,7 @@ class RKR:
             self.energy = []
             
             for v in self.np.arange(endPoint, 12, resolution):
+                print(v)
                 self.compute(v)
                 
         return self.turningPoints, self.energy
