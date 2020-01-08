@@ -71,7 +71,7 @@ class extendedRydberg:
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
     def fitPotential(self, R, E):
     
-        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, maxfev=pow(10, 8))[0]#, bounds=([-, -50, -50, -50, -50, -50], 50))[0]
+        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, maxfev=pow(10, 8))[0]
     
         self.D = optimizedParameters[0]
         self.Re = optimizedParameters[1]

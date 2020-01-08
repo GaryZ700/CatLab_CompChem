@@ -1,10 +1,13 @@
 #Written by Gary Zeri, Computer Science Major at Chapman University and Member of the LaRue CatLab
 
 #RKR Class to Allow for Simple RKR Calcuations as needed
+#All diatamic constants must in units of wavenumbers, (inverse CM)
+#Resulting energy is in wavenumbers and bond distance is in 
 class RKR:
     
     #All Imports Done Here
     import numpy as np
+    import ipywidgets as widgets
     from tqdm import tqdm 
     
     #Declare All Global Variables Here
@@ -29,6 +32,7 @@ class RKR:
     energy = []
     
     dataGraphed = False
+    createdWidgets = False
 
 ###################################################################################
 
@@ -60,7 +64,41 @@ class RKR:
     def setDelta(self, delta):
         self.delta = delta
         
-###################################################################################       
+###################################################################################
+
+    def widgetInput(self):
+        
+        if(self.createdWidgets == False):
+        
+            alphaeInput = self.widgets.FloatText(description="$alpha_e$ in $cm^{-1}$") 
+            BeInput = self.widgets.FloatText(description="$B_e$ in $cm^{-1}$")
+            weInput = self.widgets.FloatText(description="$w_e$ in $cm^{-1}$")
+            wxeInput = self.widgets.FloatText(description="$w_ex_e$ in $cm^{-1}$")
+            wyeInput = self.widgets.FloatText(description="$w_ey_e$ in $cm^{-1}$")
+            wzeInput = self.widgets.FloatText(description="$w_ez_e$ in $cm^{-1}$")
+            yeInput = self.widgets.FloatText(description="$y_e$ in $cm^{-1}$")
+            uInput = self.widgets.FloatText(description="$\mu$ in AMU", value=1)
+
+            self.createdWidgets = (
+                self.widgets.interactive(
+                    self.setDiatomicConstants,
+                    alphae = alphaeInput, 
+                    Be = BeInput,
+                    we = weInput,
+                    wxe = wxeInput,
+                    wye = wyeInput, 
+                    wze = wzeInput, 
+                    ye = yeInput
+                ),
+                self.widgets.interactive(
+                    self.setReducedMass,
+                    u = uInput,
+                )
+            )
+            
+        return self.createdWidgets
+    
+###################################################################################
 
     def E(self, v):
         term = v + 0.5 
@@ -139,7 +177,7 @@ class RKR:
             self.turningPoints = []
             self.energy = []
             
-            print("\nGenerating RKR Graph")
+            print("\nGenerating RKR Potential")
             for v in self.tqdm(self.np.arange(startPoint, endPoint, resolution)):
                 self.compute(v)
                 
