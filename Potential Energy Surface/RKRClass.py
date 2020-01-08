@@ -4,14 +4,13 @@
 class RKR:
     
     #All Imports Done Here
-    import math
     import numpy as np
-    import ipywidgets as widgets
+    from tqdm import tqdm 
     
     #Declare All Global Variables Here
     
     #Is the distance from v that the integration stops at
-    delta = pow(10, -2)
+    delta = pow(10, -5)
 
     #Reduced Molecular Mass
     #In Non Hartree Atomic Units, each proton has an amu of 1
@@ -62,34 +61,6 @@ class RKR:
         self.delta = delta
         
 ###################################################################################       
-    
-    def widgetInput(self):
-        
-        alphaeInput = self.widgets.FloatText(description="$\alpha$ in ${cm}^{-1}$")
-        BeInput = self.widgets.FloatText(description="$B_e$ in ${cm}^{-1}$")
-        weInput = self.widgets.FloatText(description="$\omega_e$ in ${cm}^{-1}$")
-        wxeInput = self.widgets.FloatText(description="$\omega_ex_e$ in ${cm}^{-1}$")
-        wyeInput = self.widgets.FloatText(description="$\omega_ey_e$ in ${cm}^{-1}$")
-        wzeInput = self.widgets.FloatText(description="$\omega_ez_e$ in ${cm}^{-1}$")
-        yeInput = self.widgets.FloatText(description="$y_e$ in ${cm}^{-1}$")
-        
-        uInput = self.widgets.FloatText(description="$\mu$ in Atomic Units", min=pow(10, -10), value=1)
-        
-        return self.widgets.interactive(
-            self.setDiatomicConstants, 
-            alphae = alphaeInput,
-            Be = BeInput,
-            we = weInput,
-            wxe = wxeInput,
-            wye = wyeInput,
-            wze = wzeInput,
-            ye = yeInput
-        ), self.widgets.interactive(
-            self.setReducedMass,
-            u = uInput
-        )   
-    
-###################################################################################       
 
     def E(self, v):
         term = v + 0.5 
@@ -98,7 +69,7 @@ class RKR:
 ###################################################################################
     
     def integralRadical(self, v, vPrime):
-        return self.math.sqrt( self.E(v) - self.E(vPrime) )
+        return self.np.sqrt( self.E(v) - self.E(vPrime) )
 
 ###################################################################################       
     
@@ -115,7 +86,7 @@ class RKR:
 ###################################################################################           
 
     def correctionFactor(self, v):
-        return 2 * self.math.sqrt(self.delta / self.Q(v))
+        return 2 * self.np.sqrt(self.delta / self.Q(v))
 
 ###################################################################################           
 
@@ -148,9 +119,9 @@ class RKR:
             print("RKR method is now aborting.")
             return
         
-        c0 = 4.1058045 * self.f(v) / self.math.sqrt(self.u)
+        c0 = 4.1058045 * self.f(v) / self.np.sqrt(self.u)
         radicand = 1 / ( self.f(v) * self.g(v) )
-        c1 = self.math.sqrt(1 + radicand)
+        c1 = self.np.sqrt(1 + radicand)
 
         self.energy.extend( [self.E(v)] * 2 )
         self.turningPoints.append( c0 * (c1 + 1) )  
@@ -160,7 +131,7 @@ class RKR:
     
 ###################################################################################
 
-    def graphData(self, resolution=0.01, endPoint=-0.49):
+    def graphData(self, resolution=0.01, startPoint=-0.499, endPoint=12):
 
         if(not self.dataGraphed):
             
@@ -168,8 +139,8 @@ class RKR:
             self.turningPoints = []
             self.energy = []
             
-            for v in self.np.arange(endPoint, 12, resolution):
-                print(v)
+            print("\nGenerating RKR Graph")
+            for v in self.tqdm(self.np.arange(startPoint, endPoint, resolution)):
                 self.compute(v)
                 
         return self.turningPoints, self.energy

@@ -4,8 +4,8 @@
 class RKR:
     
     #All Imports Done Here
-    import math
     import numpy as np
+    from tqdm import tqdm 
     
     #Declare All Global Variables Here
     
@@ -69,7 +69,7 @@ class RKR:
 ###################################################################################
     
     def integralRadical(self, v, vPrime):
-        return self.math.sqrt( self.E(v) - self.E(vPrime) )
+        return self.np.sqrt( self.E(v) - self.E(vPrime) )
 
 ###################################################################################       
     
@@ -86,7 +86,7 @@ class RKR:
 ###################################################################################           
 
     def correctionFactor(self, v):
-        return 2 * self.math.sqrt(self.delta / self.Q(v))
+        return 2 * self.np.sqrt(self.delta / self.Q(v))
 
 ###################################################################################           
 
@@ -119,9 +119,9 @@ class RKR:
             print("RKR method is now aborting.")
             return
         
-        c0 = 4.1058045 * self.f(v) / self.math.sqrt(self.u)
+        c0 = 4.1058045 * self.f(v) / self.np.sqrt(self.u)
         radicand = 1 / ( self.f(v) * self.g(v) )
-        c1 = self.math.sqrt(1 + radicand)
+        c1 = self.np.sqrt(1 + radicand)
 
         self.energy.extend( [self.E(v)] * 2 )
         self.turningPoints.append( c0 * (c1 + 1) )  
@@ -131,7 +131,7 @@ class RKR:
     
 ###################################################################################
 
-    def graphData(self, resolution=0.01, endPoint=-0.499):
+    def graphData(self, resolution=0.01, startPoint=-0.499, endPoint=12):
 
         if(not self.dataGraphed):
             
@@ -139,7 +139,8 @@ class RKR:
             self.turningPoints = []
             self.energy = []
             
-            for v in self.np.arange(endPoint, 12, resolution):
+            print("\nGenerating RKR Graph")
+            for v in self.tqdm(self.np.arange(startPoint, endPoint, resolution)):
                 self.compute(v)
                 
         return self.turningPoints, self.energy
