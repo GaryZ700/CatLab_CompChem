@@ -82,8 +82,8 @@ class extendedRydberg:
             #Re is the Re at the minimum point of the well
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
-            [maxE-minE, Re, .5, .5, .5, minE-maxE], 
-            maxfev=pow(10, 8),)[0]
+            [maxE-minE, Re, .5, .5, .5, maxE-minE], 
+            maxfev=pow(10, 8))[0]
     
         self.D = optimizedParameters[0]
         self.Re = optimizedParameters[1]

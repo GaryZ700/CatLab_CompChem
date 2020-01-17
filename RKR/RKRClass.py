@@ -13,7 +13,7 @@ class RKR:
     #Declare All Global Variables Here
     
     #Is the distance from v that the integration stops at
-    delta = pow(10, -5)
+    delta = pow(10, -15)
 
     #Reduced Molecular Mass
     #In Non Hartree Atomic Units, each proton has an amu of 1
@@ -70,13 +70,14 @@ class RKR:
         
         if(self.createdWidgets == False):
         
-            alphaeInput = self.widgets.FloatText(description="$alpha_e$ in $cm^{-1}$") 
-            BeInput = self.widgets.FloatText(description="$B_e$ in $cm^{-1}$")
-            weInput = self.widgets.FloatText(description="$w_e$ in $cm^{-1}$")
-            wxeInput = self.widgets.FloatText(description="$w_ex_e$ in $cm^{-1}$")
-            wyeInput = self.widgets.FloatText(description="$w_ey_e$ in $cm^{-1}$")
-            wzeInput = self.widgets.FloatText(description="$w_ez_e$ in $cm^{-1}$")
-            yeInput = self.widgets.FloatText(description="$y_e$ in $cm^{-1}$")
+            #Default value is for Br2 from the NIST Webbook
+            alphaeInput = self.widgets.FloatText(description="$alpha_e$ in $cm^{-1}$", value=0.0003187)#3.062) 
+            BeInput = self.widgets.FloatText(description="$B_e$ in $cm^{-1}$", value=0.082107)#60.853)
+            weInput = self.widgets.FloatText(description="$w_e$ in $cm^{-1}$", value=325.321)#4401.21)
+            wxeInput = self.widgets.FloatText(description="$w_ex_e$ in $cm^{-1}$", value=1.0774)#121.33)
+            wyeInput = self.widgets.FloatText(description="$w_ey_e$ in $cm^{-1}$", value=-0.002298)
+            wzeInput = self.widgets.FloatText(description="$w_ez_e$ in $cm^{-1}$", value=0)
+            yeInput = self.widgets.FloatText(description="$y_e$ in $cm^{-1}$", value=-0.000001045)
             uInput = self.widgets.FloatText(description="$\mu$ in AMU", value=1)
 
             self.createdWidgets = (
@@ -133,7 +134,7 @@ class RKR:
         from scipy.integrate import quad as integrate
         
         integrand = lambda vPrime: 1 / self.integralRadical(v, vPrime)
-        return integrate(integrand, -0.5, v-self.delta)[0] + self.correctionFactor(v)
+        return integrate(integrand, -0.5, v-self.delta,)[0] + self.correctionFactor(v)
     
 ###################################################################################
 
@@ -177,8 +178,36 @@ class RKR:
             self.turningPoints = []
             self.energy = []
             
+            #Derivative Lists & Cutoff Computation Variables
+            ddX = []
+            ddX2 = []
+            ddx = []
+            ddx2 = []
+            leftAsympCutOff = False
+            
             print("\nGenerating RKR Potential")
             for v in self.tqdm(self.np.arange(startPoint, endPoint, resolution)):
                 self.compute(v)
                 
+                if(not leftAsympCutOff and len(self.turningPoints) >= 3):
+                    #Compute First Derivative
+                    ddX.append( (self.turningPoints[-1] + self.turningPoints[-3]) / 2 ) 
+                    slope = (self.energy[-1]-self.energy[-3]) / (self.turningPoints[-1] - self.turningPoints[-3]) 
+                    ddx.append( slope )
+        
+                    if(len(ddx) > 1):
+                        #Compute 2nd Derivative
+                        ddX2.append( (ddX[-2] + ddX[-1]) / 2 )
+                        ddx2.append( (ddx[-1] - ddx[-2]) / (ddX[-1] - ddX[-2]) )
+
+                        #Determine if Cutoff should be used
+                        if(ddx2[-1] <= 0):
+                            leftAsympCutOff = True
+                
+                #cutoff the uneeded values to allow the asymptote on the left side to 
+                #continue to infinity instead of flattening out
+                if(leftAsympCutOff):
+                    self.energy.pop()
+                    self.turningPoints.pop()
+                    
         return self.turningPoints, self.energy
