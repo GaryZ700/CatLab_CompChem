@@ -187,7 +187,7 @@ class RKR:
             
             print("\nGenerating RKR Potential")
             for v in self.tqdm(self.np.arange(startPoint, endPoint, resolution)):
-                self.compute(v)
+                data = self.compute(v)
                 
                 if(not leftAsympCutOff and len(self.turningPoints) >= 3):
                     #Compute First Derivative
@@ -202,6 +202,7 @@ class RKR:
 
                         #Determine if Cutoff should be used
                         if(ddx2[-1] <= 0):
+                            print(data)
                             leftAsympCutOff = True
                 
                 #cutoff the uneeded values to allow the asymptote on the left side to 

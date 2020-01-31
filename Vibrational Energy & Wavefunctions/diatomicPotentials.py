@@ -5,7 +5,8 @@
 
 class extendedRydberg:
     
-    import numpy as np
+    from numpy import exp
+    import mpmath
     from scipy import optimize as optimize
     
     #Delcare All Global Variables Here
@@ -22,6 +23,7 @@ class extendedRydberg:
     a2 = 0 
     a3 = 0
     c = 0
+    useMP = False
     curveFitted = False
        
 ###################################################################################
@@ -34,8 +36,15 @@ class extendedRydberg:
     #Re: Equblibrium well depth
     #a1, a2, a3: constants that determine the curvature and shape of the potential
     def internalEquation(self, r, D, Re, a1, a2, a3, c):
+                
         p = r-Re
-        return (-D * ( 1 + (a1*p) + (a2*pow(p, 2)) + (a3*pow(p, 3)) ) * self.np.exp(-a1 * p)) + c
+
+        if(self.useMP):
+            eTerm = self.mpmath.exp(-a1 * p)
+        else:
+            eTerm = self.exp(-a1 * p)
+        
+        return (-D * ( 1 + (a1*p) + (a2*pow(p, 2)) + (a3*pow(p, 3)) ) * eTerm) + c
     
 ###################################################################################
 
@@ -44,7 +53,7 @@ class extendedRydberg:
     def equation(self, r):
         self.checkFitting()
         return self.internalEquation(r, self.D, self.Re, self.a1, self.a2, self.a3, self.c)
-
+        
 ###################################################################################    
     
     #function that returns two lists of x and y data for graphing purposes
@@ -179,5 +188,4 @@ class morsePotential():
 
     def checkFitting(self):
          if(not self.curveFitted):
-            print("Warning! Please fit potential energy surface data to this Extended-Rydberg Potential using ExtendedRydbergInstanceName.fitPotential(xDataList, yDataList)")
-    
+            print("Warning! Please fit potential energy surface data to this Extended-Rydberg Potential using ExtendedRydbergInstanceName.fitPotential(xDataList, yDataList)")    
