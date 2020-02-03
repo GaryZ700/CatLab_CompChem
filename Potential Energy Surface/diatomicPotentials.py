@@ -74,7 +74,7 @@ class extendedRydberg:
         minE = min(E)
         maxE = E[-1]
         Re = R[E.index(minE)]
-    
+        print("TEST TEST")
         optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, 
             
             #Parameter Guess Values

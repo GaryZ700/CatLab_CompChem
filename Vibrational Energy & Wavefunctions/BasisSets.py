@@ -9,6 +9,7 @@ class HOW:
     #Values range from 10^-40 to 10^40
     import mpmath as mpm
     from mpmath import mpf
+    from mpmath import pi
     from tqdm import tqdm
     from scipy import inf
     from scipy.integrate import quad as integrate
@@ -47,7 +48,7 @@ class HOW:
         
         #convert provided parameters internally required units
         self.re = self.mpf(re)   
-        self.w = self.mpf(w) * self.mpf(100) * self.mpf(consts.c)
+        self.w = self.mpf(w) * self.mpf(100) * self.mpf(consts.c) * 2 * self.pi
         self.u = self.mpf(u) * self.mpf(1.6605) * (10 ** self.mpf(-27))
         
         self.hbar = self.mpf(consts.hbar)        
@@ -128,10 +129,10 @@ class HOW:
         
         print("Graphing Data")
         for point in self.tqdm(range(points)):
-            x.append( (point * resolution) + start )
+            x.append( (point * .01) + start )
             
             #For graphing purposes convert Hartrees to Wavenumbers
             for index, basis in enumerate(self.basis): 
-                   y[index].append( float(basis(x[-1])) * 2.2 * pow(10,4) )
+                   y[index].append( float(basis(x[-1])) )#* 2.2 * pow(10,4) )
                 
         return x, y

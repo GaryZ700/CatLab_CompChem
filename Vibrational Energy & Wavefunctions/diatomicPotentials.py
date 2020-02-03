@@ -6,6 +6,7 @@
 class extendedRydberg:
     
     from numpy import exp
+    import numpy as np
     import mpmath
     from scipy import optimize as optimize
     
@@ -23,8 +24,8 @@ class extendedRydberg:
     a2 = 0 
     a3 = 0
     c = 0
-    useMP = False
     curveFitted = False
+    zeroRe = True
        
 ###################################################################################
 
@@ -36,14 +37,14 @@ class extendedRydberg:
     #Re: Equblibrium well depth
     #a1, a2, a3: constants that determine the curvature and shape of the potential
     def internalEquation(self, r, D, Re, a1, a2, a3, c):
-                
+        
         p = r-Re
 
-        if(self.useMP):
-            eTerm = self.mpmath.exp(-a1 * p)
-        else:
-            eTerm = self.exp(-a1 * p)
+        eTerm = self.exp(-a1 * p)
         
+        if(not self.zeroRe):
+            c = 0 
+            
         return (-D * ( 1 + (a1*p) + (a2*pow(p, 2)) + (a3*pow(p, 3)) ) * eTerm) + c
     
 ###################################################################################
@@ -79,11 +80,12 @@ class extendedRydberg:
     
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
     def fitPotential(self, R, E):
-        
+
         minE = min(E)
-        maxE = E[-1]
+        maxE = max(E)
         Re = R[E.index(minE)]
-    
+        DE = maxE - minE 
+
         optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, 
             
             #Parameter Guess Values
@@ -91,8 +93,10 @@ class extendedRydberg:
             #Re is the Re at the minimum point of the well
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
-            [maxE-minE, Re, .5, .5, .5, maxE-minE], 
-            maxfev=pow(10, 8))[0]
+            p0 = [DE, Re, 0, 0, 0, DE],
+            bounds=[(DE-.5, Re-.5, -self.np.inf, -self.np.inf, -self.np.inf, DE-.5), 
+                   (DE+.5, Re+.5, self.np.inf, self.np.inf, self.np.inf, DE+.5)],
+            maxfev=pow(10, 9)*2)[0]
     
         self.D = optimizedParameters[0]
         self.Re = optimizedParameters[1]
