@@ -105,12 +105,12 @@ class extendedRydberg:
         self.a3 = optimizedParameters[4]
         self.c = optimizedParameters[5]
         
-        print(self.D)
-        print(self.Re)
-        print(self.a1)
-        print(self.a2)
-        print(self.a3)
-        print(self.c)
+        #print(self.D)
+        #print(self.Re)
+        #print(self.a1)
+        #print(self.a2)
+        #print(self.a3)
+        #print(self.c)
         
         self.curveFitted = True
         

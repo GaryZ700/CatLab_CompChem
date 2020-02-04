@@ -202,7 +202,6 @@ class RKR:
 
                         #Determine if Cutoff should be used
                         if(ddx2[-1] <= 0):
-                            print(data)
                             leftAsympCutOff = True
                 
                 #cutoff the uneeded values to allow the asymptote on the left side to 
