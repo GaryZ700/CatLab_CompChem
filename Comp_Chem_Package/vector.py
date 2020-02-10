@@ -1,4 +1,4 @@
-import math
+import numpy as np
 
 class vector():
 
@@ -52,7 +52,7 @@ class vector():
     def magnitude(self):
 
         randicand = (self.x ** 2) + (self.y ** 2) + ( self.z ** 2)
-        return math.sqrt(randicand)
+        return np.sqrt(randicand)
 
 #--------------------------------------------------------------------------------
 

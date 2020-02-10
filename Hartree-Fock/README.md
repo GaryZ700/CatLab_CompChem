@@ -21,6 +21,8 @@ Has support functions used to clean up the SCF code for the Hartree-Fock method,
 ## Hartree_Class
 Contains a class of the hartree-method that can be leveraged to seamlessly run a multitude of simulations one after the other, without needing to be concerned about the inner-workings of the theory.
 
+# Supporting Comp_Chem_Package Classes
+
 ## molecule
 Contains fundamental helper functions for the Hartree-Fock method, including classes to define molecules, atoms, and vectors. Does not contain any pedagogical information.
 

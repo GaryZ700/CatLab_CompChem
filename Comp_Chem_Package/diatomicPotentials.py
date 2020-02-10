@@ -3,9 +3,12 @@
 
 #This Python File contains class definition for various Diatomic Surface Potentials, such as the Extended Rydberg Equation
 
+import numpy as np
+
 class extendedRydberg:
     
-    import numpy as np
+    from numpy import exp
+    import mpmath
     from scipy import optimize as optimize
     
     #Delcare All Global Variables Here
@@ -23,6 +26,7 @@ class extendedRydberg:
     a3 = 0
     c = 0
     curveFitted = False
+    zeroRe = True
        
 ###################################################################################
 
@@ -34,8 +38,15 @@ class extendedRydberg:
     #Re: Equblibrium well depth
     #a1, a2, a3: constants that determine the curvature and shape of the potential
     def internalEquation(self, r, D, Re, a1, a2, a3, c):
+        
         p = r-Re
-        return (-D * ( 1 + (a1*p) + (a2*pow(p, 2)) + (a3*pow(p, 3)) ) * self.np.exp(-a1 * p)) + c
+
+        eTerm = self.exp(-a1 * p)
+        
+        if(not self.zeroRe):
+            c = 0 
+            
+        return (-D * ( 1 + (a1*p) + (a2*pow(p, 2)) + (a3*pow(p, 3)) ) * eTerm) + c
     
 ###################################################################################
 
@@ -44,7 +55,7 @@ class extendedRydberg:
     def equation(self, r):
         self.checkFitting()
         return self.internalEquation(r, self.D, self.Re, self.a1, self.a2, self.a3, self.c)
-
+        
 ###################################################################################    
     
     #function that returns two lists of x and y data for graphing purposes
@@ -70,11 +81,12 @@ class extendedRydberg:
     
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
     def fitPotential(self, R, E):
-        
+
         minE = min(E)
-        maxE = E[-1]
+        maxE = max(E)
         Re = R[E.index(minE)]
-        print("TEST TEST")
+        DE = maxE - minE 
+
         optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, 
             
             #Parameter Guess Values
@@ -82,8 +94,10 @@ class extendedRydberg:
             #Re is the Re at the minimum point of the well
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
-            [maxE-minE, Re, .5, .5, .5, minE-maxE], 
-            maxfev=pow(10, 8),)[0]
+            p0 = [DE, Re, 0, 0, 0, DE],
+            bounds=[(DE-.5, Re-.5, -np.inf, -np.inf, -np.inf, DE-.5), 
+                   (DE+.5, Re+.5, np.inf, np.inf, np.inf, DE+.5)],
+            maxfev=pow(10, 9)*2)[0]
     
         self.D = optimizedParameters[0]
         self.Re = optimizedParameters[1]
@@ -92,12 +106,12 @@ class extendedRydberg:
         self.a3 = optimizedParameters[4]
         self.c = optimizedParameters[5]
         
-        print(self.D)
-        print(self.Re)
-        print(self.a1)
-        print(self.a2)
-        print(self.a3)
-        print(self.c)
+        #print(self.D)
+        #print(self.Re)
+        #print(self.a1)
+        #print(self.a2)
+        #print(self.a3)
+        #print(self.c)
         
         self.curveFitted = True
         
@@ -110,9 +124,7 @@ class extendedRydberg:
 #-----------------------------------------------------------------------------------
 
 class morsePotential():
-    
-    import numpy as np
-    
+       
     #Define All Global Variables Here
     
     #D: Dissociation Energy 
@@ -179,5 +191,4 @@ class morsePotential():
 
     def checkFitting(self):
          if(not self.curveFitted):
-            print("Warning! Please fit potential energy surface data to this Extended-Rydberg Potential using ExtendedRydbergInstanceName.fitPotential(xDataList, yDataList)")
-    
+            print("Warning! Please fit potential energy surface data to this Extended-Rydberg Potential using ExtendedRydbergInstanceName.fitPotential(xDataList, yDataList)")    

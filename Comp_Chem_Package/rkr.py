@@ -1,14 +1,13 @@
 #Written by Gary Zeri, Computer Science Major at Chapman University and Member of the LaRue CatLab
 
+import numpy as np
+import ipywidgets as widgets
+from tqdm import tqdm 
+
 #RKR Class to Allow for Simple RKR Calcuations as needed
 #All diatamic constants must in units of wavenumbers, (inverse CM)
 #Resulting energy is in wavenumbers and bond distance is in 
-class RKR:
-    
-    #All Imports Done Here
-    import numpy as np
-    import ipywidgets as widgets
-    from tqdm import tqdm 
+class rkr:
     
     #Declare All Global Variables Here
     
@@ -71,17 +70,17 @@ class RKR:
         if(self.createdWidgets == False):
         
             #Default value is for Br2 from the NIST Webbook
-            alphaeInput = self.widgets.FloatText(description="$alpha_e$ in $cm^{-1}$", value=0.0003187)#3.062) 
-            BeInput = self.widgets.FloatText(description="$B_e$ in $cm^{-1}$", value=0.082107)#60.853)
-            weInput = self.widgets.FloatText(description="$w_e$ in $cm^{-1}$", value=325.321)#4401.21)
-            wxeInput = self.widgets.FloatText(description="$w_ex_e$ in $cm^{-1}$", value=1.0774)#121.33)
-            wyeInput = self.widgets.FloatText(description="$w_ey_e$ in $cm^{-1}$", value=-0.002298)
-            wzeInput = self.widgets.FloatText(description="$w_ez_e$ in $cm^{-1}$", value=0)
-            yeInput = self.widgets.FloatText(description="$y_e$ in $cm^{-1}$", value=-0.000001045)
-            uInput = self.widgets.FloatText(description="$\mu$ in AMU", value=1)
+            alphaeInput = widgets.FloatText(description="$alpha_e$ in $cm^{-1}$", value=0.0003187)#3.062) 
+            BeInput = widgets.FloatText(description="$B_e$ in $cm^{-1}$", value=0.082107)#60.853)
+            weInput = widgets.FloatText(description="$w_e$ in $cm^{-1}$", value=325.321)#4401.21)
+            wxeInput = widgets.FloatText(description="$w_ex_e$ in $cm^{-1}$", value=1.0774)#121.33)
+            wyeInput = widgets.FloatText(description="$w_ey_e$ in $cm^{-1}$", value=-0.002298)
+            wzeInput = widgets.FloatText(description="$w_ez_e$ in $cm^{-1}$", value=0)
+            yeInput = widgets.FloatText(description="$y_e$ in $cm^{-1}$", value=-0.000001045)
+            uInput = widgets.FloatText(description="$\mu$ in AMU", value=1)
 
             self.createdWidgets = (
-                self.widgets.interactive(
+                widgets.interactive(
                     self.setDiatomicConstants,
                     alphae = alphaeInput, 
                     Be = BeInput,
@@ -91,7 +90,7 @@ class RKR:
                     wze = wzeInput, 
                     ye = yeInput
                 ),
-                self.widgets.interactive(
+                widgets.interactive(
                     self.setReducedMass,
                     u = uInput,
                 )
@@ -108,7 +107,7 @@ class RKR:
 ###################################################################################
     
     def integralRadical(self, v, vPrime):
-        return self.np.sqrt( self.E(v) - self.E(vPrime) )
+        return np.sqrt( self.E(v) - self.E(vPrime) )
 
 ###################################################################################       
     
@@ -125,7 +124,7 @@ class RKR:
 ###################################################################################           
 
     def correctionFactor(self, v):
-        return 2 * self.np.sqrt(self.delta / self.Q(v))
+        return 2 * np.sqrt(self.delta / self.Q(v))
 
 ###################################################################################           
 
@@ -158,9 +157,9 @@ class RKR:
             print("RKR method is now aborting.")
             return
         
-        c0 = 4.1058045 * self.f(v) / self.np.sqrt(self.u)
+        c0 = 4.1058045 * self.f(v) / np.sqrt(self.u)
         radicand = 1 / ( self.f(v) * self.g(v) )
-        c1 = self.np.sqrt(1 + radicand)
+        c1 = np.sqrt(1 + radicand)
 
         self.energy.extend( [self.E(v)] * 2 )
         self.turningPoints.append( c0 * (c1 + 1) )  
@@ -186,7 +185,7 @@ class RKR:
             leftAsympCutOff = False
             
             print("\nGenerating RKR Potential")
-            for v in self.tqdm(self.np.arange(startPoint, endPoint, resolution)):
+            for v in tqdm(np.arange(startPoint, endPoint, resolution)):
                 self.compute(v)
                 
                 if(not leftAsympCutOff and len(self.turningPoints) >= 3):
