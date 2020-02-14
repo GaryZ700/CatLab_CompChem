@@ -126,5 +126,4 @@ class wavefunction:
         for n in tqdm(range(self.maxN)):
             wavefunctionData.append( self.compute(r, n) )
             
-        
         return r, wavefunctionData

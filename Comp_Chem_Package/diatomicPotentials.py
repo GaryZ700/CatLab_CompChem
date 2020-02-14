@@ -86,7 +86,7 @@ class extendedRydberg:
         maxE = max(E)
         Re = R[E.index(minE)]
         DE = maxE - minE 
-
+        flex = 0.0001
         optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, 
             
             #Parameter Guess Values
@@ -95,8 +95,8 @@ class extendedRydberg:
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
             p0 = [DE, Re, 0, 0, 0, DE],
-            bounds=[(DE-.5, Re-.5, -np.inf, -np.inf, -np.inf, DE-.5), 
-                   (DE+.5, Re+.5, np.inf, np.inf, np.inf, DE+.5)],
+            bounds=[(DE-flex, Re-flex, 0, 0, 0, DE-flex), 
+                   (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
             maxfev=pow(10, 9)*2)[0]
     
         self.D = optimizedParameters[0]
@@ -115,6 +115,15 @@ class extendedRydberg:
         
         self.curveFitted = True
         
+###################################################################################
+        
+    def buildPotential(self, DC):
+        self.D = DC.D
+        self.Re = DC.re
+        self.a1 = optimizedParameters[2]
+        self.a2 = optimizedParameters[3]
+        self.a3 = optimizedParameters[4]
+    
 ###################################################################################
 
     def checkFitting(self):
@@ -186,7 +195,7 @@ class morsePotential():
         self.c = optimizedParameters[3]
         
         self.curveFitted = True
-        
+
 ###################################################################################
 
     def checkFitting(self):
