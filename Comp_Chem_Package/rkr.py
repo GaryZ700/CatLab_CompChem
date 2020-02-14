@@ -1,8 +1,8 @@
 #Written by Gary Zeri, Computer Science Major at Chapman University and Member of the LaRue CatLab
 
-import numpy as np
-import ipywidgets as widgets
 from tqdm import tqdm 
+import numpy as np
+from diatomicConstants import diatomicConstants as dc
 
 #RKR Class to Allow for Simple RKR Calcuations as needed
 #All diatamic constants must in units of wavenumbers, (inverse CM)
@@ -19,13 +19,7 @@ class rkr:
     u = 0
 
     #Diatomic Constants, must be in Wavenumbers (1 / cm)
-    we = 0
-    wxe = 0
-    wye = 0
-    wze = 0
-    Be = 0
-    alphae = 0
-    ye = 0
+    diatomicConstants = 0
     
     turningPoints = []
     energy = []
@@ -35,16 +29,11 @@ class rkr:
 
 ###################################################################################
 
-    def setDiatomicConstants(self, alphae, Be, we, wxe, wye, wze, ye):
+    def setDiatomicConstants(self, DC):
+    
+        self.diatomicConstants = DC
         
-        self.alphae = alphae
-        self.Be = Be
-        self.we = we
-        self.wxe = wxe
-        self.wye = wye
-        self.wze = wze
-        self.ye = ye
-        
+        self.u = DC.u
         self.dataGraphed = False
         self.turningPoints = []
         self.energy = []
@@ -62,47 +51,12 @@ class rkr:
 
     def setDelta(self, delta):
         self.delta = delta
-        
-###################################################################################
-
-    def widgetInput(self):
-        
-        if(self.createdWidgets == False):
-        
-            #Default value is for Br2 from the NIST Webbook
-            alphaeInput = widgets.FloatText(description="$alpha_e$ in $cm^{-1}$", value=0.0003187)#3.062) 
-            BeInput = widgets.FloatText(description="$B_e$ in $cm^{-1}$", value=0.082107)#60.853)
-            weInput = widgets.FloatText(description="$w_e$ in $cm^{-1}$", value=325.321)#4401.21)
-            wxeInput = widgets.FloatText(description="$w_ex_e$ in $cm^{-1}$", value=1.0774)#121.33)
-            wyeInput = widgets.FloatText(description="$w_ey_e$ in $cm^{-1}$", value=-0.002298)
-            wzeInput = widgets.FloatText(description="$w_ez_e$ in $cm^{-1}$", value=0)
-            yeInput = widgets.FloatText(description="$y_e$ in $cm^{-1}$", value=-0.000001045)
-            uInput = widgets.FloatText(description="$\mu$ in AMU", value=1)
-
-            self.createdWidgets = (
-                widgets.interactive(
-                    self.setDiatomicConstants,
-                    alphae = alphaeInput, 
-                    Be = BeInput,
-                    we = weInput,
-                    wxe = wxeInput,
-                    wye = wyeInput, 
-                    wze = wzeInput, 
-                    ye = yeInput
-                ),
-                widgets.interactive(
-                    self.setReducedMass,
-                    u = uInput,
-                )
-            )
-            
-        return self.createdWidgets
     
 ###################################################################################
 
     def E(self, v):
         term = v + 0.5 
-        return (self.we * term) - (self.wxe*pow(term, 2)) + (self.wye*pow(term, 3)) + (self.wze*pow(term,4))
+        return (self.diatomicConstants.w * term) - (self.diatomicConstants.wx*pow(term, 2)) + (self.diatomicConstants.wy*pow(term, 3)) + (self.diatomicConstants.wz*pow(term,4))
 
 ###################################################################################
     
@@ -113,13 +67,13 @@ class rkr:
     
     def B(self, v):
         term = v + 0.5
-        return self.Be - (self.alphae * term)  + self.ye*pow(term, 2)
+        return self.diatomicConstants.B - (self.diatomicConstants.a * term)  + self.diatomicConstants.y*pow(term, 2)
 
 ###################################################################################       
 
     def Q(self, v):
         term = v + 0.5
-        return self.we - (2*self.wxe*term) + (3*self.wye*pow(term, 2)) + (4*self.wze*pow(term,3))
+        return self.diatomicConstants.w - (2*self.diatomicConstants.wx*term) + (3*self.diatomicConstants.wy*pow(term, 2)) + (4*self.diatomicConstants.wz*pow(term,3))
     
 ###################################################################################           
 
