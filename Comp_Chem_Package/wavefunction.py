@@ -4,6 +4,8 @@
 
 import numpy as np
 from tqdm import tqdm
+from rkr import rkr as RKR
+from ipywidgets import HTMLMath
 from scipy.misc import derivative as ddx
 from scipy.integrate import quad as integrate
 
@@ -15,6 +17,7 @@ class wavefunction:
     energies = []
     scaling = []
     maxN = 0
+    diatomicConstants = 0
     
     def __init__(self, diatomicConstants=0, V=0, basis=0):
         
@@ -43,6 +46,8 @@ class wavefunction:
         self.scaling = [350, energies]
     
         self.maxN = self.basisSet.size
+        
+        self.diatomicConstants = diatomicConstants
         
 #--------------------------------------------------------------------------------    
 
@@ -127,3 +132,23 @@ class wavefunction:
             wavefunctionData.append( self.compute(r, n) )
             
         return r, wavefunctionData
+    
+#--------------------------------------------------------------------------------
+
+    #Displays a table with the Wavefunction energy 
+    #and the the percent difference from the Taylor Series approximation for the energy
+    def displayEnergy(self):
+
+        rkr = RKR()
+        rkr.setDiatomicConstants(self.diatomicConstants)
+        
+        mathString = "<font size='5'>Energy Levels</font><br>"
+        mathString += "<font size='3'>Energy Levels $(n) \qquad$ Energy in $cm^{-1} \qquad$ Difference from Taylor Series Energy <br>"
+
+        for n, energy in enumerate(self.energies):
+            mathString += "$\qquad\:" + "{:02d}".format(n) + " \qquad\qquad\quad\;\;\:"
+            mathString += "{:.2f}".format(round(energy, 2)) + "\qquad\qquad\quad"
+            mathString +=  "{:.4f}".format(round( abs(rkr.E(n) - energy) / rkr.E(n) * 100, 4)) + "$%<br>"
+
+        mathString += "</font>"
+        display(HTMLMath(mathString))
