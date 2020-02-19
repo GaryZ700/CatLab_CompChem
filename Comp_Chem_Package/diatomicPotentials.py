@@ -80,13 +80,15 @@ class extendedRydberg:
 ###################################################################################
     
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
-    def fitPotential(self, R, E):
+    def fitPotential(self, R, E, flex=.00001):
 
         minE = min(E)
         maxE = max(E)
         Re = R[E.index(minE)]
         DE = maxE - minE 
-        flex = 0.0001
+       
+        #def internalEquation(self, r, D, Re, a1, a2, a3, c):
+        #optimizeEquation = lambda r, a1, a2, a3 : self.internalEquation(r, DE, Re, a1, a2, a3, DE)
         optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, 
             
             #Parameter Guess Values
@@ -94,17 +96,17 @@ class extendedRydberg:
             #Re is the Re at the minimum point of the well
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
-            p0 = [DE, Re, 0, 0, 0, DE],
-            bounds=[(DE-flex, Re-flex, 0, 0, 0, DE-flex), 
-                   (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
-            maxfev=pow(10, 9)*2)[0]
+            p0 = [DE, Re,  0, 0, 0, DE],
+            bounds = [(DE-flex, Re-flex, -np.inf, -np.inf, -np.inf, DE-flex), 
+                         (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
+            maxfev = pow(10, 9)*2)[0]
     
         self.D = optimizedParameters[0]
         self.Re = optimizedParameters[1]
         self.a1 = optimizedParameters[2]
         self.a2 = optimizedParameters[3]
         self.a3 = optimizedParameters[4]
-        self.c = optimizedParameters[5]
+        self.c =  optimizedParameters[5]
         
         #print(self.D)
         #print(self.Re)

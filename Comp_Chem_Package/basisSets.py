@@ -3,6 +3,10 @@
 
 #Written by Gary Zeri, Computer Science Student at Chapman University and Member of the LaRue CatLab.
 
+from ipywidgets import HTMLMath
+from scipy.integrate import quad as integrate
+from numpy import inf
+
 #Harmonic Oscillator Wavefunction
 class how: 
     
@@ -37,7 +41,7 @@ class how:
     #w expected in units of wavenumbers
     #u expected in units of AMU
     #checkOrtho: bool that represents whether or not the orthonormality of the basis set should be checked
-    def __init__(self, re, w, u, size, checkOrtho=False):
+    def __init__(self, re, w, u, size, checkOrtho=True):
         
         #set numerical accuracy
         self.mpm.mp.prec = 200
@@ -90,25 +94,41 @@ class how:
 ###################################################################################
 
     #Function to determine if the basis set is orthonormal
-    def isOrtho(self):
+    def isOrtho(self, shouldDisplay=False):
+                
+        overlapString = ""
         
         for index1, b1 in enumerate(self.basis):
+            overlapString += "$\quad \psi_" + str(index1) + "$"
             for index2, b2 in enumerate(self.basis):
                 
-                overlap = abs(round(integrate(0, inf), 7))
+                integrand = lambda r : b1(r) * b2(r) 
+                overlap = abs(round(integrate(integrand, 0, inf)[0], 7))
+                overlapString += "$\quad " + str(overlap) + "$" 
                 
-                if(index1 == index2 and (overlap < .98 or overlap > 1.001)):
-                   return (false, index1, index2) 
+                #Check to ensure that the basis functions are orthnormal
+                if(index1 == index2):
+                   if(overlap < .98 or overlap > 1.001):
+                       return (False, index1, index2) 
                 elif(overlap != 0):
-                   return (false, index1, index2)
-                
-        return (True)
+                   return (False, index1, index2)
+            
+            overlapString += "<br>"
+         
+        if(shouldDisplay):
+            mathString = "<font size='5'> $\quad\quad"
+            for b in range(len(self.basis)):
+                mathString += "\quad\: \psi_" + str(b)
+            mathString += "$<br>" + overlapString + "</font>"
+            display(HTMLMath(mathString))
+        
+        return [True]
 
 ###################################################################################
 
     #generates the basis of the specified size
     #checkOrtho: bool that states whether the program should check if the basisSet is orthonormal
-    def buildBasis(self, checkOrtho=False):
+    def buildBasis(self, checkOrtho=True):
         
         self.basis = []
         
