@@ -6,7 +6,7 @@ from diatomicConstants import diatomicConstants as dc
 
 #RKR Class to Allow for Simple RKR Calcuations as needed
 #All diatamic constants must in units of wavenumbers, (inverse CM)
-#Resulting energy is in wavenumbers and bond distance is in 
+#Resulting energy is in wavenumbers and bond distance is in Angstroms
 class rkr:
     
     #Declare All Global Variables Here

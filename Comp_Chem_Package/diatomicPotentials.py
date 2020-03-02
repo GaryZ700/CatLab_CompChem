@@ -96,7 +96,7 @@ class extendedRydberg:
             #Re is the Re at the minimum point of the well
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
-            p0 = [DE, Re,  0, 0, 0, DE],
+            p0 = [DE, Re,  5, 5, 5, DE],
             bounds = [(DE-flex, Re-flex, -np.inf, -np.inf, -np.inf, DE-flex), 
                          (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
             maxfev = pow(10, 9)*2)[0]
