@@ -27,6 +27,11 @@ class rkr:
     dataGraphed = False
     createdWidgets = False
 
+    #DC: Refers to the Diatomic Constants Named Tuple containg diatomic constants
+    def __init__(self, DC=None):
+        if(DC != None):
+            self.setDiatomicConstants(DC)
+    
 ###################################################################################
 
     def setDiatomicConstants(self, DC):
@@ -110,8 +115,13 @@ class rkr:
             print("Please use the setReducedMass(muValue) method on the RKR class instance to fix this issue.")
             print("RKR method is now aborting.")
             return
-        
+   
         c0 = 4.1058045 * self.f(v) / np.sqrt(self.u)
+    
+        #automatically return NAN since V was larger than the RKR method could handle
+        if(np.isnan(c0)):
+            return [c0, c0]
+    
         radicand = 1 / ( self.f(v) * self.g(v) )
         c1 = np.sqrt(1 + radicand)
 
@@ -123,7 +133,7 @@ class rkr:
     
 ###################################################################################
 
-    def graphData(self, resolution=0.01, startPoint=-0.499, endPoint=12):
+    def graphData(self, resolution=0.01, startPoint=-0.499, endPoint=1000):
 
         if(not self.dataGraphed):
             
@@ -140,7 +150,9 @@ class rkr:
             
             print("\nGenerating RKR Potential")
             for v in tqdm(np.arange(startPoint, endPoint, resolution)):
-                self.compute(v)
+                
+                if(np.isnan(self.compute(v))[0]):
+                    break
                 
                 if(not leftAsympCutOff and len(self.turningPoints) >= 3):
                     #Compute First Derivative

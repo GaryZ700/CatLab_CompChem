@@ -19,7 +19,7 @@ class wavefunction:
     maxN = 0
     diatomicConstants = 0
     
-    def __init__(self, diatomicConstants=0, V=0, basis=0):
+    def __init__(self, diatomicConstants=0, V=00, basis=0):
         
         if(diatomicConstants == 0 or V == 0 or basis == 0):
             return

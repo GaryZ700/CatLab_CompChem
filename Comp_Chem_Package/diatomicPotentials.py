@@ -28,6 +28,13 @@ class extendedRydberg:
     curveFitted = False
     zeroRe = True
        
+    #Extended Rydberg Equation Constructor Function
+    #Fitting Data: Is a list containing two other lists that respectivly contain the diatomic bond distances and energy at each bond distance level
+    def __init__(self, fittingData=[], flex=.00001):
+        
+        if(len(fittingData) == 2):
+            self.fitPotential(fittingData[0], fittingData[1], flex)
+            
 ###################################################################################
 
     #Extended Ryd-Berg Equation Originates From 
@@ -80,39 +87,43 @@ class extendedRydberg:
 ###################################################################################
     
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
-    def fitPotential(self, R, E, flex=.00001):
-
+    def fitPotential(self, R, E, flex=.0000001):
+        
+        #internalEquation(self, r, D, Re, a1, a2, a3, c):
+        
         minE = min(E)
         maxE = max(E)
         Re = R[E.index(minE)]
         DE = maxE - minE 
-       
+    
+        optimizationFunction = lambda r, a1, a2, a3 : self.internalEquation(r, DE, Re, a1, a2, a3, DE)
+
+        print("Preparing to Optimize the function")
         #def internalEquation(self, r, D, Re, a1, a2, a3, c):
         #optimizeEquation = lambda r, a1, a2, a3 : self.internalEquation(r, DE, Re, a1, a2, a3, DE)
-        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, 
-            
+        optimizedParameters = self.optimize.curve_fit(optimizationFunction, R, E, maxfev = pow(10, 9)*2)[0]   
             #Parameter Guess Values
             #D guessed as the min - the max
             #Re is the Re at the minimum point of the well
             #a1 2, and 3 choosen as random numbers
             #c choosen as well min difference from zero
-            p0 = [DE, Re,  5, 5, 5, DE],
-            bounds = [(DE-flex, Re-flex, -np.inf, -np.inf, -np.inf, DE-flex), 
-                         (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
-            maxfev = pow(10, 9)*2)[0]
-    
-        self.D = optimizedParameters[0]
-        self.Re = optimizedParameters[1]
-        self.a1 = optimizedParameters[2]
-        self.a2 = optimizedParameters[3]
-        self.a3 = optimizedParameters[4]
-        self.c =  optimizedParameters[5]
+           # p0 = [DE, Re,  1, 1, 1, DE],
+           # bounds = [(DE-flex, Re-flex, -np.inf, -np.inf, -np.inf, DE-flex), 
+           #              (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
+           # maxfev = pow(10, 9)*2)[0] 
+        
+        self.D = DE#optimizedParameters[0]
+        self.Re = Re#optimizedParameters[3]
+        self.a1 = optimizedParameters[0]
+        self.a2 = optimizedParameters[1]
+        self.a3 = optimizedParameters[2]
+        self.c = DE #optimizedParameters[5]
         
         #print(self.D)
         #print(self.Re)
-        #print(self.a1)
-        #print(self.a2)
-        #print(self.a3)
+        print(self.a1)
+        print(self.a2)
+        print(self.a3)
         #print(self.c)
         
         self.curveFitted = True
@@ -136,6 +147,9 @@ class extendedRydberg:
 
 class morsePotential():
        
+    import numpy as np
+    from scipy import optimize as optimize
+
     #Define All Global Variables Here
     
     #D: Dissociation Energy 
@@ -153,7 +167,7 @@ class morsePotential():
     def internalEquation(self, r, D, Re, a, c):
         
         p = r-Re
-        return (D * self.np.exp(-2 * a * p)) - (2 * D * self.np.exp(-a * p)) 
+        return (D * self.np.exp(-2 * a * p)) - (2 * D * self.np.exp(-a * p)) + c
     
 ###################################################################################
 
@@ -189,12 +203,19 @@ class morsePotential():
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
     def fitPotential(self, R, E):
     
-        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, maxfev=pow(10, 4))[0]
+        minE = min(E)
+        maxE = max(E)
+        Re = R[E.index(minE)]
+        DE = maxE - minE 
+        
+        optimizationFunction = lambda r, a : self.internalEquation(r, DE, Re, a, DE)
+        
+        optimizedParameters = self.optimize.curve_fit(optimizationFunction, R, E, maxfev=pow(10, 4))[0]
     
-        self.D = optimizedParameters[0]
-        self.Re = optimizedParameters[1]
-        self.a = optimizedParameters[2]
-        self.c = optimizedParameters[3]
+        self.D = DE
+        self.Re = Re
+        self.a = optimizedParameters[0]
+        self.c = DE
         
         self.curveFitted = True
 
