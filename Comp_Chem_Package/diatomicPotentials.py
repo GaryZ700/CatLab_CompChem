@@ -78,7 +78,9 @@ class extendedRydberg:
         while(r < rMax):
             
             R.append(r)
-            E.append(self.equation(r))
+            E.append(
+                self.equation(r)
+            )
         
             r += dx
             
@@ -93,12 +95,11 @@ class extendedRydberg:
         
         minE = min(E)
         maxE = max(E)
-        Re = R[E.index(minE)]
-        DE = maxE - minE 
-    
+        Re = (R[0] + R[1]) / 2
+        DE = maxE
+        
         optimizationFunction = lambda r, a1, a2, a3 : self.internalEquation(r, DE, Re, a1, a2, a3, DE)
 
-        print("Preparing to Optimize the function")
         #def internalEquation(self, r, D, Re, a1, a2, a3, c):
         #optimizeEquation = lambda r, a1, a2, a3 : self.internalEquation(r, DE, Re, a1, a2, a3, DE)
         optimizedParameters = self.optimize.curve_fit(optimizationFunction, R, E, maxfev = pow(10, 9)*2)[0]   
@@ -160,12 +161,19 @@ class morsePotential():
     Re = 0 
     a = 0
     c = 0
+    R = [0]
     curveFitted = False
     
+    #Morse Potential Equation Constructor Function
+    #Fitting Data: Is a list containing two other lists that respectivly contain the diatomic bond distances and energy at each bond distance level
+    def __init__(self, fittingData=[], useInterpolation=False):
+        
+        if(len(fittingData) == 2):
+            self.fitPotential(fittingData[0], fittingData[1], useInterpolation)
+            
 ###################################################################################    
     
     def internalEquation(self, r, D, Re, a, c):
-        
         p = r-Re
         return (D * self.np.exp(-2 * a * p)) - (2 * D * self.np.exp(-a * p)) + c
     
@@ -174,8 +182,19 @@ class morsePotential():
     #Eqaution is the eqaution that is to be called by the outside user to call the function 
     #as this will auto-fill the constants for the Extended rydberg
     def equation(self, r):
+        
         self.checkFitting()
-        return self.internalEquation(r, self.D, self.Re, self.a, self.c)
+        
+        if(self.useInterpolation):
+            deltaFunction = lambda discreteR : abs(discreteR - r)
+            a = self.a[self.R.index(min(self.R, key=deltaFunction))]
+            
+            if(a == self.a[len(self.a)-1]):
+                r = max(self.R)
+        else:
+            a = self.a[0]
+        
+        return self.internalEquation(r, self.D, self.Re, a, self.c)
 
 ###################################################################################    
     
@@ -201,22 +220,24 @@ class morsePotential():
 ###################################################################################
     
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
-    def fitPotential(self, R, E):
+    def fitPotential(self, R, E, useInterpolation=False):
     
-        minE = min(E)
-        maxE = max(E)
-        Re = R[E.index(minE)]
-        DE = maxE - minE 
-        
-        optimizationFunction = lambda r, a : self.internalEquation(r, DE, Re, a, DE)
-        
-        optimizedParameters = self.optimize.curve_fit(optimizationFunction, R, E, maxfev=pow(10, 4))[0]
+        self.Re = (R[0] + R[1]) / 2
+        self.D = max(E)
+        a = []
     
-        self.D = DE
-        self.Re = Re
-        self.a = optimizedParameters[0]
-        self.c = DE
+        if(useInterpolation):
+            for index, r in enumerate(R):
+                a.append(self.buildA(r, E[index]))
+        else:
+            optimizationFunction = lambda r, a : self.internalEquation(r, self.D, self.Re, a, self.D)
+            a.extend(self.optimize.curve_fit(optimizationFunction, R, E, maxfev=pow(10, 4))[0])
+    
+        self.a = a
+        self.c = self.D
+        self.R = R
         
+        self.useInterpolation = useInterpolation
         self.curveFitted = True
 
 ###################################################################################
@@ -224,3 +245,14 @@ class morsePotential():
     def checkFitting(self):
          if(not self.curveFitted):
             print("Warning! Please fit potential energy surface data to this Extended-Rydberg Potential using ExtendedRydbergInstanceName.fitPotential(xDataList, yDataList)")    
+            
+###################################################################################
+
+    def buildA(self, r, E):
+        
+        squareRoot = self.np.sqrt(E / self.D)
+        
+        if(r > self.Re and squareRoot != 1):
+            squareRoot *= -1
+        
+        return -self.np.log(1 + squareRoot) / (r - self.Re)
