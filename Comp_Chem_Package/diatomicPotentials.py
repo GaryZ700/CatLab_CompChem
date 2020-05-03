@@ -102,7 +102,7 @@ class extendedRydberg:
 
         #def internalEquation(self, r, D, Re, a1, a2, a3, c):
         #optimizeEquation = lambda r, a1, a2, a3 : self.internalEquation(r, DE, Re, a1, a2, a3, DE)
-        optimizedParameters = self.optimize.curve_fit(optimizationFunction, R, E, maxfev = pow(10, 9)*2)[0]   
+        optimizedParameters = self.optimize.curve_fit(self.internalEquation, R, E, maxfev = pow(10, 9)*2)[0]   
             #Parameter Guess Values
             #D guessed as the min - the max
             #Re is the Re at the minimum point of the well
@@ -113,12 +113,12 @@ class extendedRydberg:
            #              (DE+flex, Re+flex, np.inf, np.inf, np.inf, DE+flex)],
            # maxfev = pow(10, 9)*2)[0] 
         
-        self.D = DE#optimizedParameters[0]
-        self.Re = Re#optimizedParameters[3]
-        self.a1 = optimizedParameters[0]
-        self.a2 = optimizedParameters[1]
-        self.a3 = optimizedParameters[2]
-        self.c = DE #optimizedParameters[5]
+        self.D = optimizedParameters[0]
+        self.Re = optimizedParameters[1]
+        self.a1 = optimizedParameters[2]
+        self.a2 = optimizedParameters[3]
+        self.a3 = optimizedParameters[4]
+        self.c = optimizedParameters[5]
         
         #print(self.D)
         #print(self.Re)
