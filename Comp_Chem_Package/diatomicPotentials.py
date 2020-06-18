@@ -231,7 +231,7 @@ class morsePotential():
                 a.append(self.buildA(r, E[index]))
         else:
             optimizationFunction = lambda r, a : self.internalEquation(r, self.D, self.Re, a, self.D)
-            a.extend(self.optimize.curve_fit(optimizationFunction, R, E, maxfev=pow(10, 4))[0])
+            a.extend(self.optimize.curve_fit(optimizationFunction, R, E, maxfev=pow(10, 5))[0])
     
         self.a = a
         self.c = self.D
