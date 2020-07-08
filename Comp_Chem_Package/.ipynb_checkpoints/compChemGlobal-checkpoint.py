@@ -30,6 +30,9 @@ from numpy import sqrt
 def superSqrt(x):
     return pow(x, 0.5)
 
+#@log general log function
+from numpy import log 
+
 #@factorial
 from math import factorial
 
@@ -61,4 +64,4 @@ from tqdm import tqdm
 import plot
 
 #import ipython widgets
-import ipywidgets as widgets
+from plot import widgets
