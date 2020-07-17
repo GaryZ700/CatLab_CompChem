@@ -3,19 +3,19 @@
 #Diatomic Constants Class is meant to provide a convient method to access all of the Diatomic Constants
 #for a particular diatomic molecule
 
-from compChemGlobal.plot import widgets
+#from compChemGlobal.plot import widgets
 from collections import namedtuple
 
 diatomicConstants = namedtuple(
     "diatomicConstants", 
-    "state T w wx wy wz B a y D re u"
+    "name state T w wx wy wz B a y D re u"
 )
 
 ###################################################################################
 
-def buildDiatomicConstant(state, T, a, B, w, wx, wy, wz, y, D, re, u):
+def buildDiatomicConstant(name, state, T, a, B, w, wx, wy, wz, y, D, re, u):
     return diatomicConstants(
-        state, T, w, wx, wy, wz, B, a, y, D, re, u
+        name, state, T, w, wx, wy, wz, B, a, y, D, re, u
     )
 
 ###################################################################################
@@ -38,18 +38,3 @@ def diatomicConstantsWidget(state="ground", T=0, w=2169.81358, wx=13.28831, wy=0
             reInput = widgets.FloatText(description="$r_e$  in $\stackrel{\circ}{A}$", value=re)
             uInput = widgets.FloatText(description="$\mu$ in AMU", value=u)
 
-            return widgets.interactive(
-                    bindingFunction,
-                    state = stateInput,
-                    T = TInput,
-                    w = wInput, 
-                    wx = wxInput,
-                    wy = wyInput,
-                    wz = wzInput,
-                    B = BInput,
-                    a = aInput,
-                    y = yInput,
-                    D = DInput,
-                    re = reInput,
-                    u = uInput
-                )
