@@ -61,7 +61,8 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
    #     return False
 
 ###################################################################################
-
+    #Section to find the specifed diatomic state
+    
     #iterate over all of the raw rows from NIST
     #to find the row with the specified state
     foundState = False
@@ -100,13 +101,14 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         rowState = rowState.strip()
         
         #determine if the specified state was found
-        if( (state == "ground" and "X" in rowState) or
+        if( (state.lower() == "ground" and "X" in rowState) or
              state == rowState):                
     
             foundState = True
             break
     
 ###################################################################################    
+    #State was found, proceed to parse out all the needed diatomic data for the state
     
     #if the correct state was found then begin the process of building the diatomics constants object
     #from the data on the nist site
@@ -135,25 +137,64 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
             else:
                 values.append(float(value))
 
-        #Parse the molecular mass of the molecule 
+###################################################################################
+        #Pull Mass data for the most common isotope from NIST to 
+        #compute the reduced atomic mass for the diatomic molecule
+
+        #Parse the atomic formula for the diatomic molecule
         moleculeName = main.find("ul").find("li").text.split(":")[1].strip()
         atoms = []
         for atomChar in moleculeName:
-            if atomChar.islower():
-                atoms[-1] += atomChar
+            
+            #if is a character, decided if it is a new atom, or an older atom
+            if(atomChar.isalpha()):
+                if atomChar.islower():
+                    atoms[-1] += atomChar
+                else:
+                    atoms.append(atomChar)
+            #if is a number, then duplicate the first atom
+            elif(atomChar.isnumeric()):
+                atoms.append(atoms[-1])
+            #else to ignore charge values
             else:
-                atoms.append(atomChar)
+                break
         
         #get the individual masses of each of the atoms from NIST
+        masses = []
         for atom in atoms: 
-            soup(requests.get(url[0] + diatomicIdentifier.upper() + url[1]).text, "lxml")
+            data = soup(requests.get("https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=" + atom + "&ascii=ascii2&isotype=some").text, "lxml").find("pre")
+            
+            #create a list of lists containing the following data [string relative mass, string isotope percentage]
+            parsedData = [ textBlock.split("\n")[3:5] for textBlock in data.text.strip().split("Atomic Number")[1:] ]
+            
+            #create the relative mass and isotopic percentage data lists
+            #all even values are mass values, while odd values are isotope values
+            isotopeMassData = []
+            for data in parsedData:
+                for innerData in data: 
+                   
+                    #try except to deal with cases where there is no value provided
+                    try: 
+                        isotopeMassData.append(float(innerData.split("=")[1].split("(")[0]))
+                    except: 
+                        isotopeMassData.append(0)
+            
+            #pull out the isotope and mass data from the combined isotope/mass data list
+            isotopeData = isotopeMassData[1::2]
+            massData = isotopeMassData[0::2]
         
-        return diatomicConstants(diatomicIdentifier, state, 
+            masses.append(massData[isotopeData.index(max(isotopeData))])
+            
+###################################################################################
+        #webscraping has been completed 
+        #returns a diatomicConstants object with all the parsed data
+            
+        return diatomicConstants(moleculeName, state, 
             
     #T          w          wx         wy         wz B         a           y          D 
      values[0], values[1], values[2], values[3], 0, values[4], values[5], values[6], values[7], 
-    #re        u
-     values[9], 0 ) 
+    #re        u, reduced atomic mass
+     values[9], (masses[0] * masses[1]) / sum(masses) ) 
     
     else:
         print('Warning!! Could not find state "' + state + '"! ' +
