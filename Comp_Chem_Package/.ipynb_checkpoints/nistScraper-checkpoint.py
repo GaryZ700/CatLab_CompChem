@@ -75,6 +75,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
             
         #Parse the state from the row
         rowState = ""
+        endingHrefNum = ""
         for stateComponents in dataRow.contents:
             stateComponents = str(stateComponents)
             
@@ -89,6 +90,8 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
                         #check if tag is an img, and convert img to text
                         if("img" in component):
                             rowState += greekLetters[ component.split(".")[0].split("/")[-1] ]
+                        elif("href=" in component):
+                            endingHrefNum = component.split("<")[1].split(">")[-1]
                         #assume <sub>/<sup> tag
                         else:
                             rowState += component.split("<")[1].split(">")[-1]                            
@@ -98,11 +101,12 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
                 rowState += stateComponents
                 
         #Remove extra starting and ending spaces from the rowState string
+        rowStateWithHref = (rowState + endingHrefNum).strip()
         rowState = rowState.strip()
         
         #determine if the specified state was found
         if( (state.lower() == "ground" and "X" in rowState) or
-             state == rowState):                
+             state == rowState or state == rowStateWithHref):                
     
             foundState = True
             break
@@ -130,7 +134,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
 
             #use regex to clean up the data
             value = re.sub("<.*?>.*?<.*?>|[^0-9.E\-]", "", value)
-            
+            1
             #determine if the data type has a valid value or if it should be none
             if(value == ""):
                 values.append(None)
