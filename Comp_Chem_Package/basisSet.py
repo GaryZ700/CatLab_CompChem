@@ -51,20 +51,24 @@ class basisSet():
     ###################################################################################
     
     def graph(self, showGraph=True):
-        
+                
         fig = plot.go.FigureWidget(layout=dict(
                                                title="Basis Set", 
                                                xaxis_title = "r in Angstroms", 
-                                               yaxis_title = "Basis Function Output"
+                                               yaxis_title = "Basis Function Output",
+                                               showlegend = True
                                               ))
         
         traces = [] 
         functions = []
         
-        for n in range(self.basisSize):          
+        for n in range(self.basisSize):     
+            
+                #Add regular trace
                 fig.add_trace(self.basisFunctions[n].graph(showGraph=False))
                 traces.append(fig.data[-1])
                 
+                #Add Squared Trace
                 squaredTrace = self.basisFunctions[n].graph(showGraph=False, squared=True)
                 squaredTrace.visible = False
                 fig.add_trace(squaredTrace)
@@ -73,6 +77,9 @@ class basisSet():
                 basisFunction = self.basisFunctions[n]
                 functions.append(basisFunction.compute)
                 functions.append(basisFunction.computeSquare)
+        
+                traces[-1]["uid"] = ""
+                traces[-2]["uid"] = ""
         
         if(showGraph):
             display(self.getFigureWidgets(
@@ -83,7 +90,7 @@ class basisSet():
      ###################################################################################
     
     def getFigureWidgets(self, figure, traces, functions):
-        
+                
         figureWidgets = self.basisFunctions[0].getFigureWidgets(figure, traces, functions)
         
         visibleWavefunctions = widgets.Text(
@@ -91,7 +98,8 @@ class basisSet():
             description = '<p style="font-family:verdana;font-size:15px">Visible Ψs</p>'
         )
         visibleWavefunctions.observe(
-            lambda change: self.figureWidgetUpdate(visibleWavefunctions.value, traces, figure)
+            lambda change: self.figureWidgetUpdate(visibleWavefunctions.value, traces, figure, change),
+                                                   "value"
         )
         
         figureWidgets.children[1].children += tuple([visibleWavefunctions])
@@ -100,15 +108,15 @@ class basisSet():
     
     ###################################################################################
     
-    def figureWidgetUpdate(self, value, traces, figure):
-        
+    def figureWidgetUpdate(self, value, traces, figure, change):
+                        
         visibility = []
                 
         try:
             for startEnd in value.split(";"):
                 if("-" in startEnd):
                     startEnd = [int(value) for value in startEnd.split("-")]
-                    visibility.extend( range(startEnd[0], startEnd[1]))
+                    visibility.extend( range(startEnd[0], startEnd[1]+1))
                 else:
                     visibility.append(int(startEnd))
         except:
@@ -118,9 +126,9 @@ class basisSet():
             index -= (index % 2) + (index // 2)
 
             if index in visibility: 
-                trace.visible = True
-                trace["uid"] = ""
-            else:
+                if("mode" not in trace["uid"]):
+                    trace.visible = True
+                trace["uid"] = trace["uid"].replace("!", "")
+            elif("!" not in trace["uid"]):
                 trace.visible = False
-                trace["uid"] = "!"
-                
+                trace["uid"] += "!"

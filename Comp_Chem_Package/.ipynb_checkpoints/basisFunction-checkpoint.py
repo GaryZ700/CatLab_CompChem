@@ -45,7 +45,9 @@ class basisFunction(ABC):
                                        title_text = self.functionName + " Basis Function",
                                        xaxis_title = "r in Angstroms", 
                                        yaxis_title = "Basis Function Output"),
-                                       data = [self.internalGraph(), self.internalGraph(squared=True)]                                      )
+                                       data = [self.internalGraph(), self.internalGraph(squared=True)], 
+                                       layout_showlegend = True 
+                                       )
             figure.data[-1].visible = False
             
             display(self.getFigureWidgets(figure, [figure.data[-2], figure.data[-1]] ))
@@ -96,17 +98,21 @@ class basisFunction(ABC):
     ###################################################################################
     
     def widgetUpdate(self, traces, value):
-    
+        
         for index, trace in enumerate(traces):
-            
-            if(trace["uid"] != "!"):
+              
+            if("!" not in trace["uid"]):
                 if(index % 2 == 0):
                     if("Standard" in value):
                          trace.visible = True
-                    else:
+                         trace["uid"] = trace["uid"].replace("mode", "") 
+                    elif("mode" not in trace["uid"]):
                         trace.visible = False
+                        trace["uid"] += "mode"
                 else:
                     if("Probability" in value):
                         trace.visible = True
-                    else:
+                        trace["uid"] = trace["uid"].replace("mode", "")
+                    elif("mode" not in trace["uid"]):
                         trace.visible = False
+                        trace["uid"] += "mode"
