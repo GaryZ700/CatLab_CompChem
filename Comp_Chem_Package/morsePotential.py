@@ -5,17 +5,18 @@
 
 #All code in this file based upon theory from Diatomic Molecules According to the Wave Mechanics. II. Vibrational Levels, by Philip M. Morse, and Franck-Condon Factors, R-Centroids, Electronic Transition Moments, and Einstein Coefficients for Many Nitrogen and Oxygen Band Systems, by F.R. Gilmore, R.R. Laher, and P.J. Espy
 
-from PESFitter import *
+from diatomicPotential import *
 
-class morsePotential(PESFitter):
+class morsePotential(DiatomicPotential):
     
     #Declare and override global variables as needed here
     name = "Morse Potential"
     a = []
-    D = 0
+    PESData = []
     
     def implementation(self, r):
-        return self.D * ( pow(1 - exp(-self.a * (r - self.diatomicConstants.re)), 2) - 1)
+        a = self.a[self.a.index(min(self.PESData["r"], key = lambda i : abs(self.PESData["r"][i] - r)))]
+        return self.PESData["D"] * ( pow(1 - exp(-a * (r - self.diatomicConstants.re)), 2) - 1)
 
 ###################################################################################
 
@@ -25,11 +26,17 @@ class morsePotential(PESFitter):
     #by F.R. Gilmore, R.R. Laher, and P.J. Espy
     def internalFit(self, data):
         
-        #Get the Well Depth
-        self.D = data["E"][data["r"].index(max(data["r"]))] - min(data["E"])
+        self.PESData = data
         
         for index, r in enumerate(data["r"]):
             
-            E = data["E"][index]
+            squareRoot = sqrt(data["E"][index] / self.D)
+            if(r > self.diatomicConstants.re and squareRoot != 1):
+                squareRoot *= -1
             
-            
+            self.a.append( -log(1 + squareRoot) / (r - self.diatomicConstants.re) ) 
+
+###################################################################################
+
+    def getWidgets(self):
+        return False

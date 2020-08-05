@@ -32,7 +32,7 @@ pio.templates[pio.templates.default].layout.update(dict(
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
 def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
-                 xTitle="x", yTitle="y"):
+                 xTitle="x", yTitle="y", rawData=False):
     
     x = []
     y = []
@@ -43,6 +43,15 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
         x.append(start + (step * dx))
         y.append(function(x[-1]))
     
+    if(rawData):
+        return (x, y)
+    else:
+        return buildTrace(x, y, title, precision, xTitle, yTitle)
+
+###################################################################################
+
+def buildTrace(x, y, title, precision, xTitle, yTitle):
+    
     precision = "0." + str(precision)
     return go.Scatter(
         x = x, y = y,
@@ -52,7 +61,7 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
                         "<b>" + yTitle + "= %{y:" + precision + "f}</b>",
         hoverlabel_font_size = 16
     )
-    
+
 ###################################################################################
 
 #returns the ipython widgets needed f

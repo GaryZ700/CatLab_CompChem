@@ -65,3 +65,6 @@ import plot
 
 #import ipython widgets
 from plot import widgets
+
+#import graphable 
+from graphable import *

@@ -1,7 +1,6 @@
 #Written by Gary Zeri
 #Member of the LaRue CatLab at Chapman University
-#Diatomic Constants Class is meant to provide a convient method to access all of the Diatomic Constants
-#for a particular diatomic molecule
+#Diatomic Constants Class is meant to provide a convient method to access all of the Diatomic Constants for a particular diatomic molecule
 
 #from compChemGlobal.plot import widgets
 from collections import namedtuple

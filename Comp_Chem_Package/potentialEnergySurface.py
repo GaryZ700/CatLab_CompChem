@@ -4,35 +4,35 @@
 #Class to create a potential energy surface given a computation and fitting method
 
 from compChemComputation import *
+from graphable import *
+from morsePotential import *
+from rkr import *
 
-class potentialEnergySurface():
+class potentialEnergySurface(Graphable):
     
     #Declare all global variables here
     fitting = 0
     
-    def __init__(self, method=rkr, fitting=morse):
-        self.fitting = fitting
+    def __init__(self, diatomicConstants, method=rkr, fitting=morsePotential):
         
-        self.fitting.fit(method)
+        method = method(diatomicConstants)
         
-###################################################################################
-
-    def graph(self, showGraph=True):
+        self.fitting = fitting()
+        self.fitting.fit(method.getResult())
         
-        title = self.fitting.name + " fit " + self.method.name + "PES"
-        trace = plot.graphFunction(self.compute, title)
+        #Set up graphable variables
+        self.graphTitle = "Potential Energy Surface using " + method.name + " and " + fitting.name 
+        self.xTitle = "r in Angstroms"
+        self.yTitle = "Wavenumbers"
         
-        if(showGraph):
-            fig = plot.Figure(title, layout_showlegend=True)
-            fig.add_trace(trace)
-            
-            display(plot.getGraphFunctionWidgets(fig, [trace], [self.compute]))
-            
-        else:
-            return trace
+        self.graphableObjects = [method, self.fitting]
         
 ###################################################################################
 
     def compute(self, r):
-        return self.fitting(r)
-        
+        return self.fitting.compute(r)
+
+###################################################################################
+
+    def getWidgets(self):
+        Return False
