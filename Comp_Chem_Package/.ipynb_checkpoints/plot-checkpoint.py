@@ -38,12 +38,12 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
     y = []
     
     dx = 1 / resolution
-    precision = "0." + str(precision)
     
     for step in range(int(abs( (end-start)/dx ))):
         x.append(start + (step * dx))
         y.append(function(x[-1]))
-
+    
+    precision = "0." + str(precision)
     return go.Scatter(
         x = x, y = y,
         name = title,

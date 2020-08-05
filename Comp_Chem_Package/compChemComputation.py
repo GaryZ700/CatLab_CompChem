@@ -42,11 +42,3 @@ class compChemComputation(ABC):
     @abstractmethod
     def compute(self):
         pass
-    
-    ###################################################################################
-    
-    #Function to return the output of the program once the compute method has been 
-    #called
-    @abstractmethod
-    def getOutput(self):
-        pass
