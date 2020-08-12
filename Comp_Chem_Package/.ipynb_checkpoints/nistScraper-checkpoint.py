@@ -5,7 +5,6 @@
 
 import requests
 from bs4 import BeautifulSoup as soup
-from diatomicConstants import diatomicConstants 
 import re
 
 #Returns a diatomics constants object if the operation was sucessful
@@ -193,13 +192,14 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         #webscraping has been completed 
         #returns a diatomicConstants object with all the parsed data
             
-        return diatomicConstants(moleculeName, state, 
-            
-    #T          w          wx         wy         wz B         a           y          D 
-     values[0], values[1], values[2], values[3], 0, values[4], values[5], values[6], values[7], 
-    #re        u, reduced atomic mass
-     values[9], (masses[0] * masses[1]) / sum(masses) ) 
-    
+        return dict(name = moleculeName, state = state,           
+                    T = values[0], w = values[1], wx = values[2], 
+                    wy = 0 if values[3] == None else  values[3], 
+                    wz = 0, B = values[4], a = values[5], 
+                    y = 0 if values[6] == None else values[6], 
+                    D = values[7], re = values[9], 
+                    u = (masses[0] * masses[1]) / sum(masses) 
+                   ) 
     else:
         print('Warning!! Could not find state "' + state + '"! ' +
               'Please check to ensure the state you specified exists for ' +

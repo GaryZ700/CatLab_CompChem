@@ -8,12 +8,12 @@
 
 #@Functions Import Section
 #@pow
-#using default python pow
+#uses default python pow
 
 #@integrate
 from scipy.integrate import quad as internalIntegrate
 def integrate(f, lowerBound, upperBound):
-    return internalIntegrate(f, lowerBound, upperBound, limit=pow(10, 5))[0]
+    return internalIntegrate(f, lowerBound, upperBound)[0]
 
 #@ddx
 from scipy.misc import derivative as internalDdx
@@ -39,6 +39,12 @@ from math import factorial
 #hermitePolynomials
 from scipy.special import eval_hermite as hermitePolynomials
 
+#@floor
+from math import floor
+
+#@ceil
+from math import ceil
+
 #@Constant Variables Section
 #@pi
 from scipy.constants import pi
@@ -54,6 +60,15 @@ from scipy.constants import h
 
 #@mToA converts meters to Angstroms
 mToA = pow(10, 10)
+
+#@aToM2 converts Angstroms to meters squared
+aToM2 = pow(10, -20)
+
+#@jToWavenumbers
+jToWavenumbers = 5.034116 * pow(10, 22)
+
+#@inf
+from numpy import inf
 
 #Default Imports and Constants that the user will not be modifying
 

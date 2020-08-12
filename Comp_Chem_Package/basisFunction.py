@@ -14,7 +14,7 @@ class basisFunction(ABC):
     functionName = ""
     
     @abstractmethod
-    def __init__(self, n, diatomicConstants):
+    def __init__(self, diatomicConstants, n):
         super().__init__()
         self.functionName = "Basis Function Name"
     
@@ -36,28 +36,30 @@ class basisFunction(ABC):
     
     #graphs the wavefunction
     #figure bool that represents weather or not the graph or figure trace should be added to a figure object
-    def graph(self, showGraph=True, squared=False):
-        
-        trace = self.internalGraph()
+    def graph(self, showGraph=True, squared=False, resolution=100, start=0.8, end=1.5, precision=2):
         
         if(showGraph):
             figure = plot.go.FigureWidget(layout = dict(
                                        title_text = self.functionName + " Basis Function",
                                        xaxis_title = "r in Angstroms", 
                                        yaxis_title = "Basis Function Output"),
-                                       data = [self.internalGraph(), self.internalGraph(squared=True)], 
+                                       data = [self.internalGraph(resolution=resolution, precision=precision, 
+                                                                  start=start, end=end), 
+                                               self.internalGraph(resolution=resolution, precision=precision, 
+                                                                  start=start, end=end, squared=True)], 
                                        layout_showlegend = True 
                                        )
             figure.data[-1].visible = False
             
-            display(self.getFigureWidgets(figure, [figure.data[-2], figure.data[-1]] ))
+            display(self.getFigureWidgets(figure, [figure.data[-2], figure.data[-1]], 
+                                         resolution=resolution, start=start, end=end, precision=precision))
             
         else:
-            return self.internalGraph(squared=squared)
+            return self.internalGraph(squared=squared, resolution=resolution, start=start, end=end, precision=precision)
         
     ###################################################################################
     
-    def internalGraph(self, resolution=100, precision=2, start=0, end=5, squared=False):
+    def internalGraph(self, resolution=100, precision=2, start=1, end=3, squared=False):
         
         traces = []
         
@@ -76,12 +78,15 @@ class basisFunction(ABC):
         
     ###################################################################################
     
-    def getFigureWidgets(self, figure, traces, functions = []):
+    def getFigureWidgets(self, figure, traces, functions=[], resolution=100, start=.25, end=3, precision=2):
         
             if(len(functions) == 0):
                 functions = [self.compute, lambda r: self.compute(r) ** 2]
         
-            figureWidgets = plot.getGraphFunctionWidgets(figure, traces, functions)
+            figureWidgets = plot.getGraphFunctionWidgets(figure, traces, functions,
+                                                         resolution=resolution, start=start,
+                                                         end=end, precision=precision
+                                                        )
             
             probability = widgets.Dropdown(
                 options = ["Standard", "Probability Distribution", "Standard & Probability"],

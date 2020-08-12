@@ -11,8 +11,12 @@ class DiatomicPotential(Graphable):
     #Need to provide a value for name in the deriving class by declaring the same variable
     name = "Potential Energy Surface Fitter"
     
+    #Local Global Variables
+    
     #used to determine if the fitter has been fit to data
     isFit = False
+    
+    pesData = []
     
     diatomicConstants = None
     
@@ -43,13 +47,13 @@ class DiatomicPotential(Graphable):
         self.diatomicConstants = diatomicConstants
         
         if(data != None):
-            self.fit(method)
+            self.fit(data)
             
         #set up graphable parent class
         self.graphTitle = self.name
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavenumbers"
-
+    
 ###################################################################################
     
     def compute(self, r):
@@ -62,5 +66,10 @@ class DiatomicPotential(Graphable):
 
     #data must be data dictionary from a PES Method object from its getResult method
     def fit(self, data):
+        
+        self.addGraphableData(dict(x=data["r"], y=data["E"]), "Fitting Data")
+        self.start = floor( (min(data["r"]) - 0.025) * 100) / 100 
+        self.end = ceil(max(data["r"]) + 1)
         self.internalFit(data)
         self.isFit = True
+        return self

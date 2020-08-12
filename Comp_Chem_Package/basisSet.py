@@ -4,18 +4,19 @@
 #Class that specifies the methods and functionality of a basis set composed of basisfunctions
 
 from compChemGlobal import plot, widgets
+from how import *
 
 class basisSet():
     
     #Declare all global variables here
     basisFunctionClass = 0
-    basisSize = 0
+    size = 0
     basisFunctions = []
     diatomicConstants = 0
     
-    def __init__(self, basisFunctionClass, basisSize, diatomicConstants):
+    def __init__(self, diatomicConstants, basisFunctionClass=how, size=10):
         
-        self.basisSize = basisSize
+        self.size = size
         self.basisFunctionClass = basisFunctionClass
         self.diatomicConstants = diatomicConstants
         
@@ -27,8 +28,8 @@ class basisSet():
         
         self.basisSet = []
         
-        for n in range(self.basisSize):
-            self.basisFunctions.append(self.basisFunctionClass(n, self.diatomicConstants) )  
+        for n in range(self.size):
+            self.basisFunctions.append(self.basisFunctionClass(self.diatomicConstants, n))  
    
     ###################################################################################
     
@@ -50,7 +51,7 @@ class basisSet():
     
     ###################################################################################
     
-    def graph(self, showGraph=True):
+    def graph(self, showGraph=True, resolution=100, start=0.8, end=1.5, precision=2):
                 
         fig = plot.go.FigureWidget(layout=dict(
                                                title="Basis Set", 
@@ -62,14 +63,16 @@ class basisSet():
         traces = [] 
         functions = []
         
-        for n in range(self.basisSize):     
+        for n in range(self.size):     
             
                 #Add regular trace
-                fig.add_trace(self.basisFunctions[n].graph(showGraph=False))
+                fig.add_trace(self.basisFunctions[n].graph(showGraph=False, resolution=resolution, 
+                                                           start=start, end=end, precision=precision))
                 traces.append(fig.data[-1])
                 
                 #Add Squared Trace
-                squaredTrace = self.basisFunctions[n].graph(showGraph=False, squared=True)
+                squaredTrace = self.basisFunctions[n].graph(showGraph=False, squared=True, resolution=resolution, 
+                                                            start=start, end=end, precision=precision)
                 squaredTrace.visible = False
                 fig.add_trace(squaredTrace)
                 traces.append(fig.data[-1])
@@ -83,15 +86,18 @@ class basisSet():
         
         if(showGraph):
             display(self.getFigureWidgets(
-                    fig, traces, functions))
+                    fig, traces, functions, resolution, start, end, precision))
         else:
             return traces
         
      ###################################################################################
     
-    def getFigureWidgets(self, figure, traces, functions):
+    def getFigureWidgets(self, figure, traces, functions, resolution, start, end, precision):
                 
-        figureWidgets = self.basisFunctions[0].getFigureWidgets(figure, traces, functions)
+        figureWidgets = self.basisFunctions[0].getFigureWidgets(figure, traces, functions, 
+                                                                resolution=resolution, 
+                                                                start=start, end=end, 
+                                                                precision=precision)
         
         visibleWavefunctions = widgets.Text(
             value = "0-" + str(len(functions) // 2),
@@ -132,3 +138,17 @@ class basisSet():
             elif("!" not in trace["uid"]):
                 trace.visible = False
                 trace["uid"] += "!"
+ ###################################################################################
+    
+    def __iter__(self):
+        self._index=0
+        return self
+
+###################################################################################
+
+    def __next__(self):
+        if(self._index == self.size):
+            raise StopIteration
+        
+        self._index += 1
+        return self.basisFunctions[self._index-1]

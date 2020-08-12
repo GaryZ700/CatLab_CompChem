@@ -12,12 +12,13 @@ class morsePotential(DiatomicPotential):
     #Declare and override global variables as needed here
     name = "Morse Potential"
     a = []
-    PESData = []
+    pesData = []
+    end = 20
     
     def implementation(self, r):
-        a = self.a[self.a.index(min(self.PESData["r"], key = lambda i : abs(self.PESData["r"][i] - r)))]
-        return self.PESData["D"] * ( pow(1 - exp(-a * (r - self.diatomicConstants.re)), 2) - 1)
-
+        a = self.a[self.pesData["r"].index(min(self.pesData["r"], key = lambda rTest : abs(rTest - r)))]
+        return self.pesData["D"] if a == 0 else self.pesData["D"] * pow(1 - exp(-a * (r - self.diatomicConstants["re"])), 2) 
+             
 ###################################################################################
 
     #Fitting method based on the method described in 
@@ -26,15 +27,23 @@ class morsePotential(DiatomicPotential):
     #by F.R. Gilmore, R.R. Laher, and P.J. Espy
     def internalFit(self, data):
         
-        self.PESData = data
+        self.pesData = data
         
         for index, r in enumerate(data["r"]):
             
-            squareRoot = sqrt(data["E"][index] / self.D)
-            if(r > self.diatomicConstants.re and squareRoot != 1):
+            if(self.diatomicConstants["re"] == r):
+                self.a.append(1)
+                continue
+            
+            squareRoot = sqrt(data["E"][index] / self.pesData["D"])
+            if(squareRoot == 1):
+                self.a.append(0)
+                continue
+                
+            if(r > self.diatomicConstants["re"]):
                 squareRoot *= -1
             
-            self.a.append( -log(1 + squareRoot) / (r - self.diatomicConstants.re) ) 
+            self.a.append( -log(1 + squareRoot) / (r - self.diatomicConstants["re"]) )
 
 ###################################################################################
 
