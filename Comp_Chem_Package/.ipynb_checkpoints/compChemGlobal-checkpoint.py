@@ -13,12 +13,12 @@
 #@integrate
 from scipy.integrate import quad as internalIntegrate
 def integrate(f, lowerBound, upperBound):
-    return internalIntegrate(f, lowerBound, upperBound)[0]
+    return internalIntegrate(f, lowerBound, upperBound, limit=1000)[0]
 
 #@ddx
 from scipy.misc import derivative as internalDdx
-def ddx(f, x, n=1, dx=pow(10, -5)):
-    return internalDdx(f, x, n=n, dx=dx)
+def ddx(f, x, n=1, dx=0.001):
+    return internalDdx(f, x, n=n, dx=dx, order=21)
 
 #@exp
 from numpy import exp
@@ -45,6 +45,14 @@ from math import floor
 #@ceil
 from math import ceil
 
+#@eigh returns tuple/list with following data [ev, evc], with the ev and the evc being ordered
+from scipy.linalg import eigh as internalEigh 
+def eigh(matrix):
+    ev, evc = internalEigh(matrix)
+    evc = evc.transpose()
+    
+    return ev, evc
+
 #@Constant Variables Section
 #@pi
 from scipy.constants import pi
@@ -67,13 +75,13 @@ aToM2 = pow(10, -20)
 #@jToWavenumbers
 jToWavenumbers = 5.034116 * pow(10, 22)
 
+#@amuToKg
+amuToKg = 1.6605 * pow(10, -27)
+
 #@inf
 from numpy import inf
 
 #Default Imports and Constants that the user will not be modifying
-
-#used for loading bars in python
-from tqdm import tqdm
 
 #import plotly graphing file
 import plot
@@ -81,5 +89,5 @@ import plot
 #import ipython widgets
 from plot import widgets
 
-#import graphable 
+#allow things to be graphable
 from graphable import *

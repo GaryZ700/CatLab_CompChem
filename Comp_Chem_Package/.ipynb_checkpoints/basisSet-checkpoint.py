@@ -152,3 +152,34 @@ class basisSet():
         
         self._index += 1
         return self.basisFunctions[self._index-1]
+    
+###################################################################################
+
+    class _iterator:
+        
+        basisSetSelf = None
+        index = 0
+        
+        def __init__(self, basisSetSelf):
+            self.basisSetSelf = basisSetSelf
+            
+        #---------------------------------------------------
+        
+        def __next__(self):
+            if(self.index == self.basisSetSelf.size):
+                raise StopIteration
+            self.index += 1
+            return self.basisSetSelf.basisFunctions[self.index-1]
+
+    def __iter__(self):
+        return self._iterator(self)
+
+###################################################################################
+
+    def __len__(self):
+        return self.size
+    
+###################################################################################
+
+    def __getitem__(self, key):
+        return self.basisFunctions[key]

@@ -121,3 +121,8 @@ class basisFunction(ABC):
                     elif("mode" not in trace["uid"]):
                         trace.visible = False
                         trace["uid"] += "mode"
+                        
+    ###################################################################################
+    
+    def __call__(self, r):
+        return self.compute(r)

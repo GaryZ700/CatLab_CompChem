@@ -29,5 +29,3 @@ class how(basisFunction):
     def compute(self, r):
         r = r-self.re
         return self.constant * hermitePolynomials(self.n, sqrt(self.alpha)*r) * exp(-self.alpha * pow(r,2) / 2)
-    
-        
