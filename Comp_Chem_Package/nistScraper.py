@@ -191,7 +191,6 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
 ###################################################################################
         #webscraping has been completed 
         #returns a diatomicConstants object with all the parsed data
-        print(masses)
 
         return dict(name = moleculeName, state = state,           
                     T = values[0], w = values[1], wx = values[2], 

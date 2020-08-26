@@ -30,7 +30,7 @@ from numpy import sqrt
 def superSqrt(x):
     return pow(x, 0.5)
 
-#@log general log function
+#@log general log function as base e
 from numpy import log 
 
 #@factorial

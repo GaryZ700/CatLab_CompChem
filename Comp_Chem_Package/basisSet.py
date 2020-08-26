@@ -14,6 +14,11 @@ class basisSet():
     basisFunctions = []
     diatomicConstants = 0
     
+    #Graphing Variables
+    graphTitle = ""
+    start = 0 
+    end = 0
+    
     def __init__(self, diatomicConstants, basisFunctionClass=how, size=10):
         
         self.size = size
@@ -26,16 +31,28 @@ class basisSet():
     
     def buildBasisSet(self):
         
-        self.basisSet = []
+        self.basisFunctions = []
         
         for n in range(self.size):
             self.basisFunctions.append(self.basisFunctionClass(self.diatomicConstants, n))  
+        
+        #get needed graphing data
+        function =  self.basisFunctions[-1]
+        self.graphTitle = function.name + " Basis Set"
+        self.start = function.start 
+        self.end = function.end
    
     ###################################################################################
     
     #computes the value of the nth basisfunction at position r
-    def compute(self, n, r):
-        return self.basisFunctions[n].compute(r)
+    def value(self, n, r):
+        
+        if(n >= self.size):
+            print("Warning! Basis function n=" + str(n) + " can not be found. Max n is " + str(n-1) + ".")
+        elif(n < 0):
+            print("Warning! Can retrive basis function n=" + str(n) + " lowest n is 0.")
+        else:
+            return self.basisFunctions[n].value(r)
    
     ###################################################################################
   
@@ -51,10 +68,15 @@ class basisSet():
     
     ###################################################################################
     
-    def graph(self, showGraph=True, resolution=100, start=0.8, end=1.5, precision=2):
+    def graph(self, showGraph=True, resolution=100, start=None, end=None, precision=2):
                 
+        if(start == None):
+            start = self.start 
+        if(end == None):
+            end = self.end
+    
         fig = plot.go.FigureWidget(layout=dict(
-                                               title="Basis Set", 
+                                               title=self.graphTitle, 
                                                xaxis_title = "r in Angstroms", 
                                                yaxis_title = "Basis Function Output",
                                                showlegend = True
@@ -78,8 +100,8 @@ class basisSet():
                 traces.append(fig.data[-1])
                 
                 basisFunction = self.basisFunctions[n]
-                functions.append(basisFunction.compute)
-                functions.append(basisFunction.computeSquare)
+                functions.append(basisFunction.value)
+                functions.append(basisFunction.squaredValue)
         
                 traces[-1]["uid"] = ""
                 traces[-2]["uid"] = ""

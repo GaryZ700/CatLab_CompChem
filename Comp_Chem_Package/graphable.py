@@ -15,10 +15,13 @@ class Graphable(ABC):
     yTitle = "y"
     start = 0 
     end = 5
+    forcedStart = None
+    forcedEnd = None
     precision = 2
-    resolution = 100
+    resolution = 200
     graphableObjects = []
     graphableData = []
+    isGraphable = True
 
     #Provide appropriate values for the global variables here in the child class
     @abstractmethod
@@ -43,14 +46,14 @@ class Graphable(ABC):
 
     #compute method that must be somewhere in the parent class in order to allow for graphing to occur
     @abstractmethod
-    def compute(self, r):
+    def value(self, r):
         pass
 
 ###################################################################################
 
     #method to return a list of widgets for this graphable object
-    #if the graphable object should not have any widgets, then implement to return false
-    @abstractmethod
+    #if the graphable object is to have widgets beyond those which normally 
+    #come with graphable objects
     def getWidgets(self):
         return False
     
@@ -68,10 +71,13 @@ class Graphable(ABC):
             end = self.end
         if(precision == None):
             precision = self.precision
-            
-        trace = plot.graphFunction(self.compute, title=self.graphTitle, resolution=resolution, 
-                                   start=start, end=end, precision=precision, 
-                                   xTitle=self.xTitle, yTitle=self.yTitle)
+        
+        if(self.isGraphable):
+            trace = plot.graphFunction(self.value, title=self.graphTitle, resolution=resolution, 
+                                       start=start, end=end, precision=precision, 
+                                       xTitle=self.xTitle, yTitle=self.yTitle)
+        else: 
+            trace = None
 
         if(not showGraph):
             return trace
@@ -83,7 +89,7 @@ class Graphable(ABC):
     #This is a private function that should not be overriden in the child class
     def buildGraph(self, trace):
 
-        data, functions, widgets = self.getGraphData(trace, self.compute)
+        data, functions, widgets = self.getGraphData(trace, self.value)
          
         fig = plot.go.FigureWidget(layout = dict( xaxis_title = self.xTitle, 
                                                   yaxis_title = self.yTitle, 
@@ -108,15 +114,23 @@ class Graphable(ABC):
 ###################################################################################
 
     #This is private function that should not be overriden in the child class
-    def getGraphData(self, trace, function):
-        traces = [trace]
-        functions = [function]
+    def getGraphData(self, trace=None, function=None):
+        if(trace == None):
+            traces = []
+            functions = [] 
+        else: 
+            traces = [trace]
+            functions = [function]
+
         widgets = []
                                    
         for graphableObject in self.graphableObjects:
             
-            traces.append(graphableObject.graph(showGraph=False))
-            functions.append(graphableObject.compute)
+            traces.append(graphableObject.graph(showGraph=False, 
+   start=self.start if graphableObject.forcedStart == None else graphableObject.forcedStart,      end=self.end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
+   precision=self.precision))
+            
+            functions.append(graphableObject.value)
             widgets.append(graphableObject.getWidgets())
 
         traces.extend(self.graphableData)

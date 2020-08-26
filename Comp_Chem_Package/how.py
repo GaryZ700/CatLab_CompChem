@@ -18,14 +18,18 @@ class how(basisFunction):
         self.re = diatomicConstants["re"]
         
         self.functionName = "Harmonic Oscillator n=" + str(n)
+        self.name = "Harmonic Oscillator"
         
         #calculate alpha and then the constant for the wavefunction
         self.alpha = (diatomicConstants["w"] * 200 * pi * c * diatomicConstants["u"]) / (hbar * 6.022 * pow(10, 46))
         
         self.constant = (pow(self.alpha/pi, 0.25)) / (superSqrt( pow(2, n) * factorial(n)))
+        
+        self.start = round(diatomicConstants["re"] - sqrt(-2 * log(pow(10, -10-n)) / self.alpha), 2)
+        self.end = round(-self.start + 2*diatomicConstants["re"], 2)
     
     ###################################################################################
     
-    def compute(self, r):
+    def value(self, r):
         r = r-self.re
         return self.constant * hermitePolynomials(self.n, sqrt(self.alpha)*r) * exp(-self.alpha * pow(r,2) / 2)

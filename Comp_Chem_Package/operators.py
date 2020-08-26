@@ -6,7 +6,6 @@ from schrodinger import *
 from abc import ABC, abstractmethod
 import numpy as np
 
-
 #All operators are in units of 1/cm
 class Operator(ABC):
     
@@ -14,18 +13,23 @@ class Operator(ABC):
     matrix = None
     
     @abstractmethod
+    def __init__(self):
+        pass
+    
+###################################################################################  
+    @abstractmethod
     def operatesOn(self, other):
         pass
 
 ###################################################################################
 
-    def __getitem__(self, i, j):
-        return self.matrix[i,j]
+    def __getitem__(self, coord):
+        return self.matrix[coord[0],coord[1]]
 
 #----------------------------------------------------------------------------------
 
 #Kinetic Energy 
-class T(Operator):
+class TOperator(Operator):
 
     def __init__(self, basisSet=None):
         if(basisSet != None):
@@ -42,9 +46,9 @@ class T(Operator):
 
         for i, b1 in enumerate(basisSet):
             for j, b2 in enumerate(basisSet):
-                
+
                 if(abs(i-j) == 2 or i == j):
-                    self.matrix[i, j] = round(integrate( lambda r : b1.compute(r) * constant * ddx(b2.compute, r, n=2), 0, inf), precision)
+                    self.matrix[i, j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), 0, inf), precision)
                 else: 
                     self.matrix[i, j] = 0
         return self
@@ -53,16 +57,20 @@ class T(Operator):
 
     def __add__(self, other):
         
-        if(type(other) == V):
-            return H()._setMatrix(self.matrix + other.matrix)
+        if(type(other) == VOperator):
+            return HOperator()._setMatrix(self.matrix + other.matrix)
         
 #----------------------------------------------------------------------------------
 
 #Potential Energy
-class V(Operator):
+class VOperator(Operator):
     
     #Declare global variables here
     matrix = None
+    
+    def __init__(self, basisSet=None, pes=None):
+        if(basisSet != None and pes != None):
+            self.operatesOn(basisSet, pes)
     
     def operatesOn(self, basisSet, pes):
         
@@ -75,22 +83,22 @@ class V(Operator):
                 if(i > j):
                     self.matrix[i, j] = self.matrix[j,i]
                 else:
-                    self.matrix[i, j] = integrate(lambda r : b1.compute(r) * pes.compute(r) * b2.compute(r), 0, inf)
+                    self.matrix[i, j] = integrate(lambda r : b1.value(r) * pes.value(r) * b2.value(r), 0, inf)
         
         return self
     
 ###################################################################################
 
     def __add__(self, other):
-        if(type(other) == T):
-            return H()._setMatrix(self.matrix + other.matrix)
+        if(type(other) == TOperator):
+            return HOperator()._setMatrix(self.matrix + other.matrix)
         else: 
             return 0
         
 #----------------------------------------------------------------------------------
 
 #Hamiltonian
-class H():
+class HOperator(Operator):
     
     #Declare global variables here
     matrix = None
@@ -102,8 +110,8 @@ class H():
 
 ###################################################################################
         
-    def operatesOn(arg1, arg2, precision=pow(10,10)):
-        if(type(arg1) == V or type(arg1) == T):
+    def operatesOn(self, arg1, arg2, precision=pow(10,10)):
+        if(type(arg1) == VOperator or type(arg1) == TOperator):
                 self.matrix = (arg1 + arg2).matrix
         else: 
             if(type(arg1) == basisSet):
@@ -118,7 +126,7 @@ class H():
 
             for i, b1 in enumerate(basis):
                 for j, b2 in enumerate(basis):
-                    self.matrix[i,j] = round(integrate( lambda r : b1.compute(r) * constant * ddx(b2.compute, r, n=2), 0, inf), precision) + integrate(lambda r : b1.compute(r) * pes.compute(r) * b2.compute(r), 0, inf)
+                    self.matrix[i,j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), 0, inf), precision) + integrate(lambda r : b1.value(r) * pes.value(r) * b2.value(r), 0, inf)
     
 ###################################################################################
 
@@ -129,7 +137,7 @@ class H():
 ###################################################################################
 
     def __mul__(self, basis):
-        return schrod(H)
+        return schrod(self, basis)
         
 # Tmatrix = T.operatesOn(basisSet)
 # Vmatrix = V.operatesOn(basisSet, pes)

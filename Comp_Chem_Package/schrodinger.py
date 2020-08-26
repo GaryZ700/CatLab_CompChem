@@ -3,46 +3,57 @@
 
 #Class to solve the Schrodinger Equation and provide a solution to said equation
 
-from compChemGlobal import plot
-from operators import *
+from compChemGlobal import *
+import operators
 from graphable import *
 import numpy as np
+from wavefunction import *
 
-class schrod():
+class schrod(Graphable):
     
     #declare global variables here
-    wavefunctions = None
     eigenValues = None 
     eigenVectors = None
+    basis = None
     
-    def __init__(self, arg1, basis):
+    def __init__(self, arg1=None, basis=None, pes=None):
+
+        self.xTitle = "r in Angstroms"
+        self.yTitle = "Wavenumbers"
+        self.isGraphable = False
         
-        if(type(arg1) == str):
-            pass
-        elif(type(arg1) == H):
-            self.solve(arg1, basis)
+        if(type(arg1) == operators.HOperator):
+            self.solve(arg1, basis, pes)
 
 ###################################################################################
 
-    def solve(self, H, basis):
+    def solve(self, H, basis, pes=None):
         
-        print(H.matrix)
+        self.graphTitle = basis.diatomicConstants["name"] + " Schrödinger Solution"
+        
         ev, evc = eigh(H.matrix)
         
         self.wavefunctions = []
         self.eigenVectors = evc 
         self.eigenValues = ev
         self.basis = basis
-            
+        
+        for index, vector in enumerate(evc):
+            wf = wavefunction(vector, ev[index], basis, index).scale()            
+            wf.forcedEnd = None if pes == None else 3
+            self.addGraphableObject(wf)
+        
+        if(pes != None):
+            self.start = pes.start
+            self.addGraphableObject(pes)
+        
 ###################################################################################
 
-    def graph(self):
-        
-        data = []
-        
-        for index, vector in enumerate(self.eigenVectors):
-            data.append(plot.graphFunction(lambda r: sum([self.basis[i](r) * vector[i] for i in range(len(vector))]) + index * 5, title = "Wavefunction"))
-        
-        fig = plot.go.FigureWidget(data=data)
-        
-        display(fig)
+    def value(self, r):
+        return False
+
+###################################################################################
+
+    def getWaveFunctions(self):
+        return [wavefunction(vector, self.eigenValues[index], self.basis, index) for index, vector in enumerate(self.eigenVectors)]
+            

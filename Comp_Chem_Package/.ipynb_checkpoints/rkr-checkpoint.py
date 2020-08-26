@@ -109,8 +109,7 @@ class rkr(PESMethod):
 
     #Ovride the compute method due to the special needs of the RKR Method
     def compute(self, start=None, resolution=None, delta=None):
-        
-            print(2)
+
             #Set up variables needed for the computation
             if(start == None):
                 start = self.start

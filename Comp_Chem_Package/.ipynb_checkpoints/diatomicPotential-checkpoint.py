@@ -56,7 +56,7 @@ class DiatomicPotential(Graphable):
     
 ###################################################################################
     
-    def compute(self, r):
+    def value(self, r):
         if(self.isFit):
             return self.implementation(r)
         else:
