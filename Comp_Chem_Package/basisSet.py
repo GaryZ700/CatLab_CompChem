@@ -26,8 +26,7 @@ class basisSet():
         self.diatomicConstants = diatomicConstants
         
         self.buildBasisSet()
-
-    ###################################################################################
+ ###################################################################################
     
     def buildBasisSet(self):
         
@@ -68,7 +67,7 @@ class basisSet():
     
     ###################################################################################
     
-    def graph(self, showGraph=True, resolution=100, start=None, end=None, precision=2):
+    def graph(self, showGraph=True, resolution=200, start=None, end=None, precision=2):
                 
         if(start == None):
             start = self.start 

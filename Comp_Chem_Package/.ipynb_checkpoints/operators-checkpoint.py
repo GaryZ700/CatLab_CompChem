@@ -11,10 +11,12 @@ class Operator(ABC):
     
     #Declare global variables here
     matrix = None
+    integrationStart = 0
     
     @abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self, integrationStart=0):
+        self.integrationStart = integrationStart
+        
     
 ###################################################################################  
     @abstractmethod
@@ -25,13 +27,21 @@ class Operator(ABC):
 
     def __getitem__(self, coord):
         return self.matrix[coord[0],coord[1]]
+    
+###################################################################################
 
+    def __str__(self):
+        return str(self.matrix)
+    
 #----------------------------------------------------------------------------------
 
 #Kinetic Energy 
 class TOperator(Operator):
 
-    def __init__(self, basisSet=None):
+    def __init__(self, basisSet=None, integrationStart=0):
+
+        self.integrationStart = integrationStart
+        
         if(basisSet != None):
             self.operatesOn(basisSet)
             
@@ -68,14 +78,23 @@ class VOperator(Operator):
     #Declare global variables here
     matrix = None
     
-    def __init__(self, basisSet=None, pes=None):
-        if(basisSet != None and pes != None):
-            self.operatesOn(basisSet, pes)
+    def __init__(self, basisSet=None, pes=None, potentialFunction=None, integrationStart=0):
+        
+        self.integrationStart = integrationStart
+        
+        if(basisSet != None):
+            if(pes != None):
+                self.operatesOn(basisSet, pes)
+            elif(potentialFunction != None):
+                self.operatesOn(basisSet, potentialFunction=potentialFunction)
     
-    def operatesOn(self, basisSet, pes):
+    def operatesOn(self, basisSet, pes=None, potentialFunction=None):
         
         #Declare variables needed for the computation
         self.matrix = np.zeros([basisSet.size, basisSet.size])
+        
+        if(potentialFunction == None):
+            potentialFunction = lambda r : pes.value(r)
         
         for i, b1 in enumerate(basisSet):
             for j, b2 in enumerate(basisSet):
@@ -83,7 +102,7 @@ class VOperator(Operator):
                 if(i > j):
                     self.matrix[i, j] = self.matrix[j,i]
                 else:
-                    self.matrix[i, j] = integrate(lambda r : b1.value(r) * pes.value(r) * b2.value(r), 0, inf)
+                    self.matrix[i, j] = integrate(lambda r : b1.value(r) * potentialFunction(r) * b2.value(r), self.integrationStart, inf)
         
         return self
     
@@ -126,7 +145,7 @@ class HOperator(Operator):
 
             for i, b1 in enumerate(basis):
                 for j, b2 in enumerate(basis):
-                    self.matrix[i,j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), 0, inf), precision) + integrate(lambda r : b1.value(r) * pes.value(r) * b2.value(r), 0, inf)
+                    self.matrix[i,j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), 0, inf), precision) + integrate(lambda r : b1.value(r) * pes.value(r) * b2.value(r), self.integrationStart, inf)
     
 ###################################################################################
 

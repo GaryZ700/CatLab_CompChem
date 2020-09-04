@@ -36,12 +36,22 @@ class DiatomicPotential(Graphable):
     
 ###################################################################################
 
-    @abstractmethod
     def getWidgets(self):
         return False
     
-###################################################################################   
-    
+###################################################################################
+
+    #Inverts the wavefunction equation to get the r values for a specified E value
+    #Is optional to implement but is recomended
+    #Answer will be either 0 or 1 and if 0 will return the smaller answer, and if 1 will return the larger answer
+    def invert(self, E, answer):
+        if (answer == 0):
+            return -2
+        else: 
+            return 2
+
+###################################################################################
+
     #data must be the dictionary output from a PES Method Computation
     def __init__(self, diatomicConstants, data=None):
         self.diatomicConstants = diatomicConstants

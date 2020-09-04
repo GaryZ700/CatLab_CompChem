@@ -34,17 +34,31 @@ pio.templates[pio.templates.default].layout.update(dict(
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
 def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
-                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False):
-        
+                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None):
+    
+    print("Graph Function Called!")
+    
     x = []
     y = []
     
-    dx = 1 / resolution
+    dx = 1 / resolution 
     
-    for step in range(int(abs( (end-start)/dx ))):
-        x.append(start + (step * dx))
-        y.append(function(x[-1]))
-    
+    if(startBoundary == None):
+        for step in range(int(abs( (end-start)/dx ))):
+            x.append(start + step * dx)
+            y.append(function(x[-1]))
+    else: 
+        for step in range(int(abs(end-start)/dx)):
+            xValue = start + step * dx
+            yValue = function(xValue)
+            
+            if(yValue >= startBoundary(xValue)):
+                if(yValue <= endBoundary(xValue)):
+                    x.append(xValue)
+                    y.append(yValue)
+                else: 
+                    break
+
     if(rawData):
         return (x, y)
     else:
@@ -55,7 +69,7 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
 def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines"):
     
     precision = "0." + str(precision)
-
+    
     return go.Scatter(
         x = x, y = y,
         name = title,
@@ -70,7 +84,7 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines"):
 
 #returns the ipython widgets needed f
 def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
-                            resolution=100, start=0, end=5, precision=2, graphableData=0):
+                            resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None):
     
     fontFamily = pio.templates[pio.templates.default]["layout"]["font"]["family"]
     startDescription = '<p style="font-family:' + fontFamily + ';font-size:15px">'
@@ -124,7 +138,7 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                             title = trace.name,
                                                                             resolution = resolutionWidget.value,
                                                                             precision = precisionWidget.value,
-                                                                            start = startWidget.value, end = endWidget.value, 
+                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary[index], endBoundary = endBoundary[index]
                                                                            )) 
                                                 for index, trace in enumerate(functionTraces)]
     
