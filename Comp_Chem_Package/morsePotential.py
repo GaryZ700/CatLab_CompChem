@@ -52,6 +52,6 @@ class morsePotential(DiatomicPotential):
 
 ###################################################################################
 
-    def getWidgets(self):
+    def getWidgets(self, a, b):
         return False
 

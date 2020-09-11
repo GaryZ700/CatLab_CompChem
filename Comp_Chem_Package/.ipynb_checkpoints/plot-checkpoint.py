@@ -36,7 +36,7 @@ pio.templates[pio.templates.default].layout.update(dict(
 def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
                  xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None):
     
-    print("Graph Function Called!")
+    #print("Graph Function Called!")
     
     x = []
     y = []

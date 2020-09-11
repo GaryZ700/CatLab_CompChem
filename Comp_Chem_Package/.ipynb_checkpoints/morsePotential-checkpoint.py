@@ -18,7 +18,12 @@ class morsePotential(DiatomicPotential):
     def implementation(self, r):
         a = self.a[self.pesData["r"].index(min(self.pesData["r"], key = lambda rTest : abs(rTest - r)))]
         return self.pesData["D"] if a == 0 else self.pesData["D"] * pow(1 - exp(-a * (r - self.diatomicConstants["re"])), 2) 
+    
+###################################################################################
              
+    def invert(self, r, answer):
+        return 
+
 ###################################################################################
 
     #Fitting method based on the method described in 
@@ -47,5 +52,6 @@ class morsePotential(DiatomicPotential):
 
 ###################################################################################
 
-    def getWidgets(self):
+    def getWidgets(self, a, b):
         return False
+

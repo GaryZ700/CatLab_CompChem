@@ -57,14 +57,14 @@ class Graphable(ABC):
     #if the graphable object is to have widgets beyond those which normally 
     #come with graphable objects
     #traces will be a list of traces availble to update as needed from the widgets end
-    def getWidgets(self):
+    def getWidgets(self, x=None, y=None):
         return False
     
 ###################################################################################
 
     #showGraph: if True, graph wil be generated, if False, graph trace will be returned instead
     #rawData: if True, dictionary of x,y data will be returned instead
-    def graph(self, showGraph=True, resolution=None, start=None, end=None, precision=None, startBoundary=None, endBoundary=None):
+    def graph(self, showGraph=True, resolution=None, start=None, end=None, precision=None, startBoundary=None, endBoundary=None, getGraph=False):
         
         if(resolution == None):
             resolution = self.resolution 
@@ -90,14 +90,14 @@ class Graphable(ABC):
         if(not showGraph):
             return trace
                 
-        self.buildGraph(trace)
+        return self.buildGraph(trace, getGraph)
         
 ###################################################################################
 
     #This is a private function that should not be overriden in the child class
-    def buildGraph(self, trace):
+    def buildGraph(self, trace, getGraph=False):
 
-        data, functions, widgets, boundaries = self.getGraphData(trace, self.value, self.startBoundary, self.endBoundary)
+        data, functions, widgetObjs, boundaries = self.getGraphData(trace, self.value, self.startBoundary, self.endBoundary)
          
         fig = plot.go.FigureWidget(layout = dict( xaxis_title = self.xTitle, 
                                                   yaxis_title = self.yTitle, 
@@ -108,24 +108,36 @@ class Graphable(ABC):
         
         widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, resolution=self.resolution, 
                                              start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1])
+        
         graph = widgetData[0]
         
-        parentWidgets = self.getWidgets(data, widgetData[1])
-        #if(parentWidgets != False):
-            #widgets.append(parentWidgets)
-            
-        for index, widgetList in enumerate(widgets):
+        parentWidgets = self.getWidgets(graph.children[0].data, widgetData[1])
+        if(parentWidgets != False):
+            if(type(parentWidgets[0]) == list):
+                for sublist in parentWidgets: 
+                    widgetObjs.append(sublist)
+            else: 
+                widgetObjs.append(parentWidgets)
+        
+        index = 1
+        for widgetList in widgetObjs:
             if(widgetList == False):
                 continue
             
+            if(index > len(graph.children)-1):
+                graph.children += tuple([plot.widgets.HBox([])])
             graph.children[index].children += tuple(widgetList)
-                
-        display(graph)
+            index += 1
+        
+        if(getGraph):
+            return graph
+        else:
+            display(graph)
         
 ###################################################################################
 
     #This is private function that should not be overriden in the child class
-    def getGraphData(self, trace=None, function=None, startBoundary=None, endBoundary=None):
+    def getGraphData(self, trace=None, function=None, startBoundary=None, endBoundary=None, graph=None):
         if(trace == None):
             traces = []
             functions = [] 
@@ -146,7 +158,7 @@ class Graphable(ABC):
             boundaries[0].append(graphableObject.startBoundary)
             boundaries[1].append(graphableObject.endBoundary)
             functions.append(graphableObject.value)
-            widgets.append(graphableObject.getWidgets())
+            widgets.append(graphableObject.getWidgets(0, 0))
 
         traces.extend(self.graphableData)
         return (traces, functions, widgets, boundaries)
