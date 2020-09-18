@@ -4,8 +4,9 @@
 #Code to scrape the NIST Webook for diatomic constants data
 
 import requests
-from bs4 import BeautifulSoup as soup
 import re
+from bs4 import BeautifulSoup as soup
+from diatomicConstants import *
 
 #Returns a diatomics constants object if the operation was sucessful
 #Otherwise returns false
@@ -192,7 +193,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         #webscraping has been completed 
         #returns a diatomicConstants object with all the parsed data
 
-        return dict(name = moleculeName, state = state,           
+        return buildDiatomicConstants(name = moleculeName, state = state,           
                     T = values[0], w = values[1], wx = values[2], 
                     wy = 0 if values[3] == None else  values[3], 
                     wz = 0, B = values[4], a = values[5], 

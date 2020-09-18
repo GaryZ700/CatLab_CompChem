@@ -24,6 +24,9 @@ class Graphable(ABC):
     isGraphable = True
     startBoundary = None
     endBoundary = None
+    dash = "solid"
+    group = ""
+    graphCondition = None
     
     #Provide appropriate values for the global variables here in the child class
     @abstractmethod
@@ -64,7 +67,7 @@ class Graphable(ABC):
 
     #showGraph: if True, graph wil be generated, if False, graph trace will be returned instead
     #rawData: if True, dictionary of x,y data will be returned instead
-    def graph(self, showGraph=True, resolution=None, start=None, end=None, precision=None, startBoundary=None, endBoundary=None, getGraph=False):
+    def graph(self, showGraph=True, resolution=None, start=None, end=None, precision=None, startBoundary=None, endBoundary=None, getGraph=False, graphCondition=None):
         
         if(resolution == None):
             resolution = self.resolution 
@@ -78,12 +81,15 @@ class Graphable(ABC):
             startBoundary = self.startBoundary
         if(endBoundary == None):
             endBoundary = self.endBoundary
+        if(graphCondition == None):
+            graphCondition = self.graphCondition
         
         if(self.isGraphable):
             trace = plot.graphFunction(self.value, title=self.graphTitle, resolution=resolution, 
                                        start=start, end=end, precision=precision, 
                                        xTitle=self.xTitle, yTitle=self.yTitle, 
-                                       startBoundary=startBoundary, endBoundary=endBoundary)
+                                       startBoundary=startBoundary, endBoundary=endBoundary, 
+                                       dash=self.dash, group=self.group, graphCondition = graphCondition)
         else: 
             trace = None
 

@@ -8,6 +8,7 @@ import operators
 from graphable import *
 import numpy as np
 from wavefunction import *
+from line import *
 
 class schrod(Graphable):
     
@@ -40,19 +41,35 @@ class schrod(Graphable):
         self.eigenValues = ev
         self.basis = basis
         
+        startBoundary =  lambda r : pes.value(r-1) if pes != None else None
+        endBoundary = lambda r : pes.value(r + 1000) if pes != None else None
+        
         for index, vector in enumerate(evc):
+            
+            group = self.graphTitle + str(index)
+            groupSquared = group + "S"
+            graphCondition = None if pes == None else lambda x, y : (abs(y - 7) > 1)
+
+            
+            startBoundary =  None
+            endBoundary = None
             
             #!!!TO DO TASK HERE!!
             #Allow objects to return two simultaneous traces at the same time
-            wf = wavefunction(vector, ev[index], basis, index).scale(1).setGraphVariables(
-                              startBoundary=pes.value if pes != None else None, 
-                              endBoundary= lambda r : pes.value(r + pow(10, 5)) if pes != None else None)
+            wf = wavefunction(vector, ev[index], basis, index).scale(1).setGraphVariables(group = group, 
+                                                                                          graphCondition=graphCondition).scale(5)
             
-            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(1).setGraphVariables(
-                               startBoundary=pes.value if pes != None else None, 
-                               endBoundary= lambda r : pes.value(r + pow(10, 5)) if pes != None else None)
+            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(1).setGraphVariables( group = groupSquared, 
+                                                                                                    graphCondition = graphCondition).scale(5)
             
+            lineGraphCondition = None if pes == None else lambda x, y : abs(wf.value(x) - y) > 0.00001 or wf.value(x) > pes.value(x)
+
+            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle=wf.graphTitle + " Energy", startBoundary = startBoundary, 
+                                                                                 endBoundary = endBoundary, group = group, graphCondition = lineGraphCondition))            
             self.addGraphableObject(wf)
+            
+            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", startBoundary = startBoundary, graphCondition = lineGraphCondition))
+                                    
             self.addGraphableObject(wf2)
         
         if(pes != None):
@@ -75,12 +92,14 @@ class schrod(Graphable):
     def getWidgets(self, traces, widgetD):
         
         #remove the pes from the list of traces
-        traces = traces[1:]
+        completeTraces = traces[1::]
+        traces = traces[1::2]
         
         #Scale Wavefunctions up or down to better be viewed when bound by the PES
         scaleWidget = widgets.BoundedIntText(
             value = 5, 
             min = 0, 
+            max = pow(10, 10),
             step = 1, 
             description = '<p style="font-family:verdana;font-size:15px">Scale</p>'
         )
@@ -98,8 +117,13 @@ class schrod(Graphable):
         
         def scaleUpdate(value):
             index = 1
-            for trace in traces: 
-                trace.update(plot.graphFunction(self.graphableObjects[index].scale(scaleWidget.value * 150).value, 
+            for trace in completeTraces: 
+            
+                #check if dealing with an actual wavefunction or an energy line
+                if(index % 2 == 1):
+                    self.graphableObjects[index].scale(scaleWidget.value).value
+                
+                trace.update(plot.graphFunction(self.graphableObjects[index].value,
                                                 title = trace.name,
                                                 resolution = widgetD[0].value,
                                                 precision = widgetD[3].value,
@@ -112,7 +136,8 @@ class schrod(Graphable):
         
         def visibleWavefunctionsUpdate(value, modeValue):               
             visibility = []
-
+            revCompleteTraces = completeTraces[::-1]
+            
             try:
                 for startEnd in value.split(";"):
                     if("-" in startEnd):
@@ -132,12 +157,16 @@ class schrod(Graphable):
             
             for index, trace in enumerate(traces[::-1]):     
                 visibleType = index % 2
-                index -= visibleType + index // 2
+                index2 = index - visibleType - index // 2
                 
-                if index in visibility and visibleType ^ mode: 
+                if index2 in visibility and visibleType ^ mode: 
                     trace.visible = True
+                    
                 else:
                     trace.visible = False
+                
+                #change visib of energy line
+                revCompleteTraces[2*index].visible = trace.visible
             
         scaleWidget.observe(scaleUpdate, names=["value"])
         

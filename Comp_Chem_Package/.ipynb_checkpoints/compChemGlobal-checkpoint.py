@@ -17,7 +17,7 @@ def integrate(f, lowerBound, upperBound):
 
 #@ddx
 from scipy.misc import derivative as internalDdx
-def ddx(f, x, n=1, dx=pow(10, -4)):
+def ddx(f, x, n=1, dx=pow(10, -2)):
     return internalDdx(f, x, n=n, dx=dx)
 
 #@exp
@@ -56,6 +56,9 @@ def eigh(matrix):
 #@Constant Variables Section
 #@pi
 from scipy.constants import pi
+
+#@e
+from scipy.constants import e
 
 #@c units of m/s
 from scipy.constants import c

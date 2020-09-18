@@ -34,7 +34,7 @@ pio.templates[pio.templates.default].layout.update(dict(
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
 def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
-                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None):
+                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", graphCondition=None):
     
     #print("Graph Function Called!")
     
@@ -43,11 +43,7 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
     
     dx = 1 / resolution 
     
-    if(startBoundary == None):
-        for step in range(int(abs( (end-start)/dx ))):
-            x.append(start + step * dx)
-            y.append(function(x[-1]))
-    else: 
+    if(startBoundary != None):
         for step in range(int(abs(end-start)/dx)):
             xValue = start + step * dx
             yValue = function(xValue)
@@ -58,18 +54,30 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
                     y.append(yValue)
                 else: 
                     break
+                    
+    elif (graphCondition != None):
+        for step in range(int(abs(end-start)/dx)):
+            xValue = start + step * dx
+            yValue = function(xValue)
+            if(graphCondition(xValue, yValue)):
+                x.append(xValue)
+                y.append(yValue)
+        
+    else: 
+          for step in range(int(abs( (end-start)/dx ))):
+            x.append(start + step * dx)
+            y.append(function(x[-1]))
 
     if(rawData):
         return (x, y)
     else:
-        return buildTrace(x, y, title, precision, xTitle, yTitle, hoverTemplate)
+        return buildTrace(x, y, title, precision, xTitle, yTitle, hoverTemplate, dash=dash, group=group)
 
 ###################################################################################
 
-def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines"):
+def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup=None, dash="solid", group=""):
     
     precision = "0." + str(precision)
-    
     return go.Scatter(
         x = x, y = y,
         name = title,
@@ -77,7 +85,9 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines"):
         hovertemplate = "<b>" + xTitle + " = %{x:" + precision + "f}</b><br>" + 
                         "<b>" + yTitle + " = %{y:" + precision + "f}</b>",
         hoverlabel_font_size = 16, 
-        mode = mode
+        mode = mode, 
+        line_dash = dash, 
+        legendgroup = group
     )
 
 ###################################################################################

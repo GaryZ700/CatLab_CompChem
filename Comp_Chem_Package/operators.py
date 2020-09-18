@@ -58,7 +58,7 @@ class TOperator(Operator):
             for j, b2 in enumerate(basisSet):
 
                 if(abs(i-j) == 2 or i == j):
-                    self.matrix[i, j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), 0, inf), precision)
+                    self.matrix[i, j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), self.integrationStart, inf), precision)
                 else: 
                     self.matrix[i, j] = 0
         return self
