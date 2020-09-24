@@ -47,8 +47,8 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
         for step in range(int(abs(end-start)/dx)):
             xValue = start + step * dx
             yValue = function(xValue)
-            
-            if(yValue >= startBoundary(xValue)):
+            print(startBoundary)
+            if(xValue >= startBoundary):
                 if(yValue <= endBoundary(xValue)):
                     x.append(xValue)
                     y.append(yValue)
@@ -148,7 +148,7 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                             title = trace.name,
                                                                             resolution = resolutionWidget.value,
                                                                             precision = precisionWidget.value,
-                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary[index], endBoundary = endBoundary[index]
+                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary
                                                                            )) 
                                                 for index, trace in enumerate(functionTraces)]
     

@@ -151,7 +151,7 @@ class Graphable(ABC):
         else: 
             traces = [trace]
             functions = [function]
-            boundaries = [[startBoundary], [endBoundary]]
+            boundaries = [startBoundary, endBoundary]
 
         widgets = []
         

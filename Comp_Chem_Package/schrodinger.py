@@ -68,7 +68,7 @@ class schrod(Graphable):
                                                                                  endBoundary = endBoundary, group = group, graphCondition = lineGraphCondition))            
             self.addGraphableObject(wf)
             
-            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", startBoundary = startBoundary, graphCondition = lineGraphCondition))
+            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", startBoundary = startBoundary, graphCondition = lineGraphCondition, group = groupSquared))
                                     
             self.addGraphableObject(wf2)
         
@@ -116,11 +116,10 @@ class schrod(Graphable):
         description = '<p style="font-family:verdana;font-size:15px">Mode</p>')
         
         def scaleUpdate(value):
-            index = 1
-            for trace in completeTraces: 
+            for index, trace in enumerate(completeTraces): 
             
                 #check if dealing with an actual wavefunction or an energy line
-                if(index % 2 == 1):
+                if(index % 2 == 0):
                     self.graphableObjects[index].scale(scaleWidget.value).value
                 
                 trace.update(plot.graphFunction(self.graphableObjects[index].value,
@@ -155,7 +154,7 @@ class schrod(Graphable):
             else:
                 mode = 2
             
-            for index, trace in enumerate(traces[::-1]):     
+            for index, trace in enumerate(completeTraces[::-1]):     
                 visibleType = index % 2
                 index2 = index - visibleType - index // 2
                 
@@ -166,7 +165,7 @@ class schrod(Graphable):
                     trace.visible = False
                 
                 #change visib of energy line
-                revCompleteTraces[2*index].visible = trace.visible
+                #revCompleteTraces[2*index].visible = trace.visible
             
         scaleWidget.observe(scaleUpdate, names=["value"])
         
