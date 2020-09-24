@@ -92,8 +92,12 @@ class schrod(Graphable):
     def getWidgets(self, traces, widgetD):
         
         #remove the pes from the list of traces
-        completeTraces = traces[1::]
-        traces = traces[1::2]
+        if(len(traces) % 2 == 0):
+            completeTraces = traces
+        else:
+            completeTraces = traces[1::]
+            
+        traces = completeTraces[1::2]
         
         #Scale Wavefunctions up or down to better be viewed when bound by the PES
         scaleWidget = widgets.BoundedIntText(
@@ -133,7 +137,9 @@ class schrod(Graphable):
                 index += 1
                                                             
         
-        def visibleWavefunctionsUpdate(value, modeValue):               
+        def visibleWavefunctionsUpdate(value, modeValue):
+            for trace in completeTraces:
+                print(trace.name)
             visibility = []
             revCompleteTraces = completeTraces[::-1]
             
@@ -153,19 +159,27 @@ class schrod(Graphable):
                 mode = 0 
             else:
                 mode = 2
-            
-            for index, trace in enumerate(completeTraces[::-1]):     
+            print(mode)
+            print(len(traces))
+            for index, trace in enumerate(traces[::-1]):     
                 visibleType = index % 2
                 index2 = index - visibleType - index // 2
-                
+                print(trace.name)
+                print(visibleType ^ mode)
                 if index2 in visibility and visibleType ^ mode: 
                     trace.visible = True
-                    
+                    print("visible")
                 else:
+                    print("not visible")
                     trace.visible = False
                 
+                
                 #change visib of energy line
-                #revCompleteTraces[2*index].visible = trace.visible
+                print("index: ", 2*index + 1)
+                revCompleteTraces[2*index + 1].visible = trace.visible 
+                    
+                print("@@@"*5)
+
             
         scaleWidget.observe(scaleUpdate, names=["value"])
         
@@ -176,52 +190,4 @@ class schrod(Graphable):
         visibleWavefunctions.observe(vsfWrapper)
         probability.observe(vsfWrapper)
         
-        
         return [[visibleWavefunctions, scaleWidget], [probability]]
-    
-#  def getFigureWidgets(self, figure, traces, functions, resolution, start, end, precision):
-                
-#         figureWidgets = self.basisFunctions[0].getFigureWidgets(figure, traces, functions, 
-#                                                                 resolution=resolution, 
-#                                                                 start=start, end=end, 
-#                                                                 precision=precision)
-        
-#         visibleWavefunctions = widgets.Text(
-#             value = "0-" + str(len(functions) // 2),
-#             description = '<p style="font-family:verdana;font-size:15px">Visible Ψs</p>'
-#         )
-#         visibleWavefunctions.observe(
-#             lambda change: self.figureWidgetUpdate(visibleWavefunctions.value, traces, figure, change),
-#                                                    "value"
-#         )
-        
-#         figureWidgets.children[1].children += tuple([visibleWavefunctions])
-        
-#         return figureWidgets
-    
-#     ###################################################################################
-    
-#     def figureWidgetUpdate(self, value, traces, figure, change):
-                        
-#         visibility = []
-                
-#         try:
-#             for startEnd in value.split(";"):
-#                 if("-" in startEnd):
-#                     startEnd = [int(value) for value in startEnd.split("-")]
-#                     visibility.extend( range(startEnd[0], startEnd[1]+1))
-#                 else:
-#                     visibility.append(int(startEnd))
-#         except:
-#             visibility = [False] * len(traces)
-        
-#         for index, trace in enumerate(traces):     
-#             index -= (index % 2) + (index // 2)
-
-#             if index in visibility: 
-#                 if("mode" not in trace["uid"]):
-#                     trace.visible = True
-#                 trace["uid"] = trace["uid"].replace("!", "")
-#             elif("!" not in trace["uid"]):
-#                 trace.visible = False
-#                 trace["uid"] += "!"
