@@ -41,14 +41,14 @@ class schrod(Graphable):
         self.eigenValues = ev
         self.basis = basis
         
-        startBoundary =  lambda r : pes.value(r-1) if pes != None else None
+       # startBoundary =  lambda r : pes.value(r-1) if pes != None else None
         endBoundary = lambda r : pes.value(r + 1000) if pes != None else None
         
         for index, vector in enumerate(evc):
             
             group = self.graphTitle + str(index)
             groupSquared = group + "S"
-            graphCondition = None if pes == None else lambda x, y : (abs(y - 7) > 1)
+            graphCondition = None if pes == None else lambda x, y : abs(y - ev[index]) > .1 
 
             
             startBoundary =  None
@@ -64,11 +64,10 @@ class schrod(Graphable):
             
             lineGraphCondition = None if pes == None else lambda x, y : abs(wf.value(x) - y) > 0.00001 or wf.value(x) > pes.value(x)
 
-            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle=wf.graphTitle + " Energy", startBoundary = startBoundary, 
-                                                                                 endBoundary = endBoundary, group = group, graphCondition = lineGraphCondition))            
+            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle=wf.graphTitle + " Energy", group = group, graphCondition = lineGraphCondition))            
             self.addGraphableObject(wf)
             
-            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", startBoundary = startBoundary, graphCondition = lineGraphCondition, group = groupSquared))
+            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", graphCondition = lineGraphCondition, group = groupSquared))
                                     
             self.addGraphableObject(wf2)
         
@@ -91,13 +90,16 @@ class schrod(Graphable):
 
     def getWidgets(self, traces, widgetD):
         
+        for trace in traces:
+            print(trace.name)
+        print(len(traces))
         #remove the pes from the list of traces
         if(len(traces) % 2 == 0):
             completeTraces = traces
         else:
             completeTraces = traces[1::]
             
-        traces = completeTraces[1::2]
+        traces = completeTraces[::2]
         
         #Scale Wavefunctions up or down to better be viewed when bound by the PES
         scaleWidget = widgets.BoundedIntText(
@@ -121,9 +123,9 @@ class schrod(Graphable):
         
         def scaleUpdate(value):
             for index, trace in enumerate(completeTraces): 
-            
+                
                 #check if dealing with an actual wavefunction or an energy line
-                if(index % 2 == 0):
+                if(index % 2 == len(self.graphableObjects) % 2):
                     self.graphableObjects[index].scale(scaleWidget.value).value
                 
                 trace.update(plot.graphFunction(self.graphableObjects[index].value,
@@ -132,8 +134,10 @@ class schrod(Graphable):
                                                 precision = widgetD[3].value,
                                                 start = widgetD[1].value, 
                                                 end = widgetD[2].value, 
-                                                startBoundary = self.graphableObjects[index].startBoundary, 
-                                                endBoundary = self.graphableObjects[index].endBoundary))
+                                                group = trace.legendgroup
+        
+                            ))
+                print(trace.legendgroup)
                 index += 1
                                                             
         
@@ -152,7 +156,7 @@ class schrod(Graphable):
                         visibility.append(int(startEnd))
             except:
                 return 
-            
+            print(visibility)
             if (modeValue == "Standard"):
                 mode = 1
             elif (modeValue == "Probability Distribution"):
@@ -176,7 +180,7 @@ class schrod(Graphable):
                 
                 #change visib of energy line
                 print("index: ", 2*index + 1)
-                revCompleteTraces[2*index + 1].visible = trace.visible 
+                revCompleteTraces[2*index].visible = trace.visible 
                     
                 print("@@@"*5)
 

@@ -42,8 +42,7 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
     y = []
     
     dx = 1 / resolution 
-    
-    if(startBoundary != None):
+    if(startBoundary != None and graphCondition == None and type(startBoundary) != list):
         for step in range(int(abs(end-start)/dx)):
             xValue = start + step * dx
             yValue = function(xValue)

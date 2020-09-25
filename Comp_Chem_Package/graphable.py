@@ -116,8 +116,7 @@ class Graphable(ABC):
                                              start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1])
         
         graph = widgetData[0]
-        print(len(graph.children[0].data))
-        print("P{}"*10)
+        
         parentWidgets = self.getWidgets(graph.children[0].data, widgetData[1])
         print(len(graph.children[0].data))
         if(parentWidgets != False):
