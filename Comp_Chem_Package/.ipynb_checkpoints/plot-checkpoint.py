@@ -9,6 +9,19 @@ import ipywidgets as widgets
 
 pio.renderers.default = "notebook+plotly_mimetype"
 
+#ser up renderers configuration
+config = {
+  'modeBarButtonsToAdd':['drawline',
+                                        'drawopenpath',
+                                        'drawclosedpath',
+                                        'drawcircle',
+                                        'drawrect',
+                                        'eraseshape'
+]}
+pio.renderers["notebook"].config = config
+pio.renderers["plotly_mimetype"].config = config
+pio.renderers["jupyterlab"].config = config
+
 #set up comp chem visual template
 pio.templates.default = "simple_white"
 
@@ -42,7 +55,6 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
     y = []
     
     dx = 1 / resolution 
-    print(title+ "$$4"*20)
     if(startBoundary != None and graphCondition == None and type(startBoundary) != list):
         for step in range(int(abs(end-start)/dx)):
             xValue = start + step * dx
@@ -137,7 +149,7 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                                precision = precisionWidget.value,
                                                                                xTitle = trace.hovertemplate.split("<b>")[0].split("=")[0],
                                                                                yTitle = trace.hovertemplate.split("<b>")[1].split("=")[0 ],
-                                                                               mode = "markers")) 
+                                                                               mode = "markers", group = trace.legendgroup)) 
                                                       for trace in traces[graphableData:]]
         precisionWidget.observe(observationFunctionWrapper, "value")
 
@@ -148,7 +160,7 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                             title = trace.name,
                                                                             resolution = resolutionWidget.value,
                                                                             precision = precisionWidget.value,
-                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary
+                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary, group = trace.legendgroup
                                                                            )) 
                                                 for index, trace in enumerate(functionTraces)]
     

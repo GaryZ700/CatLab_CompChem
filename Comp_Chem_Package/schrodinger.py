@@ -89,10 +89,7 @@ class schrod(Graphable):
 ###################################################################################
 
     def getWidgets(self, traces, widgetD):
-        
-        for trace in traces:
-            print(trace.name)
-        print(len(traces))
+
         #remove the pes from the list of traces
         if(len(traces) % 2 == 0):
             completeTraces = traces
@@ -137,13 +134,10 @@ class schrod(Graphable):
                                                 group = trace.legendgroup
         
                             ))
-                print(trace.legendgroup)
-                index += 1
-                                                            
+                index += 1                                                            
         
         def visibleWavefunctionsUpdate(value, modeValue):
-            for trace in completeTraces:
-                print(trace.name)
+         
             visibility = []
             revCompleteTraces = completeTraces[::-1]
             
@@ -156,34 +150,25 @@ class schrod(Graphable):
                         visibility.append(int(startEnd))
             except:
                 return 
-            print(visibility)
+            
             if (modeValue == "Standard"):
                 mode = 1
             elif (modeValue == "Probability Distribution"):
                 mode = 0 
             else:
                 mode = 2
-            print(mode)
-            print(len(traces))
+       
             for index, trace in enumerate(traces[::-1]):     
                 visibleType = index % 2
                 index2 = index - visibleType - index // 2
-                print(trace.name)
-                print(visibleType ^ mode)
+        
                 if index2 in visibility and visibleType ^ mode: 
                     trace.visible = True
-                    print("visible")
                 else:
-                    print("not visible")
                     trace.visible = False
                 
-                
                 #change visib of energy line
-                print("index: ", 2*index + 1)
                 revCompleteTraces[2*index].visible = trace.visible 
-                    
-                print("@@@"*5)
-
             
         scaleWidget.observe(scaleUpdate, names=["value"])
         
