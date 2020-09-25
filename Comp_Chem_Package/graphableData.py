@@ -1,4 +1,4 @@
-#Written by Gary Zeri
+    #Written by Gary Zeri
 #Member of the LaRue CatLab at Chapman University
 
 #Graphable Data Abstract class to provide a common interface for all graphable data objects in the Comp Chem Library

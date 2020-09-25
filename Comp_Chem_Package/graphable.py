@@ -111,14 +111,14 @@ class Graphable(ABC):
                                                 ), 
                                    data = data
                                   )
-        
+
         widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, resolution=self.resolution, 
-                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1])
+                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1], graphableObjects = self.graphableObjects)
         
         graph = widgetData[0]
         
         parentWidgets = self.getWidgets(graph.children[0].data, widgetData[1])
-        print(len(graph.children[0].data))
+
         if(parentWidgets != False):
             if(type(parentWidgets[0]) == list):
                 for sublist in parentWidgets: 

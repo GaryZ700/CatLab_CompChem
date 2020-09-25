@@ -44,30 +44,36 @@ class schrod(Graphable):
        # startBoundary =  lambda r : pes.value(r-1) if pes != None else None
         endBoundary = lambda r : pes.value(r + 1000) if pes != None else None
         
+        graphConditionBuilder = lambda ev : lambda x, y : y > pes.value(x) or abs(y - ev) > .01
+        if(pes != None):
+            lineCondition =  lambda x, y : y > pes.value(x)
+        else:
+            lineCondition = None
+        
         for index, vector in enumerate(evc):
             
             group = self.graphTitle + str(index)
             groupSquared = group + "S"
-            graphCondition = None if pes == None else lambda x, y : abs(y - ev[index]) > .1 
-
+            
+            graphCondition = None if pes == None else graphConditionBuilder(ev[index])
             
             startBoundary =  None
             endBoundary = None
             
             #!!!TO DO TASK HERE!!
             #Allow objects to return two simultaneous traces at the same time
-            wf = wavefunction(vector, ev[index], basis, index).scale(1).setGraphVariables(group = group, 
+            wf = wavefunction(vector, ev[index], basis, index).setGraphVariables(group = group, 
                                                                                           graphCondition=graphCondition).scale(5)
             
-            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(1).setGraphVariables( group = groupSquared, 
-                                                                                                    graphCondition = graphCondition).scale(5)
+            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(5).setGraphVariables( group = groupSquared, 
+                                                                                                    graphCondition = graphCondition)
             
             lineGraphCondition = None if pes == None else lambda x, y : abs(wf.value(x) - y) > 0.00001 or wf.value(x) > pes.value(x)
 
-            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle=wf.graphTitle + " Energy", group = group, graphCondition = lineGraphCondition))            
+            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle=wf.graphTitle + " Energy", group = group, graphCondition = lineCondition))            
             self.addGraphableObject(wf)
             
-            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", graphCondition = lineGraphCondition, group = groupSquared))
+            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", graphCondition = lineCondition, group = groupSquared))
                                     
             self.addGraphableObject(wf2)
         
@@ -119,20 +125,20 @@ class schrod(Graphable):
         description = '<p style="font-family:verdana;font-size:15px">Mode</p>')
         
         def scaleUpdate(value):
-            for index, trace in enumerate(completeTraces): 
-                
+            graphableObjects = self.graphableObjects[len(self.graphableObjects) % 2::]
+            for index, trace in enumerate(completeTraces):     
                 #check if dealing with an actual wavefunction or an energy line
-                if(index % 2 == len(self.graphableObjects) % 2):
-                    self.graphableObjects[index].scale(scaleWidget.value).value
+                if(index % 2 == 0):
+                    graphableObjects[index].scale(scaleWidget.value).value
                 
-                trace.update(plot.graphFunction(self.graphableObjects[index].value,
+                trace.update(plot.graphFunction(graphableObjects[index].value,
                                                 title = trace.name,
                                                 resolution = widgetD[0].value,
                                                 precision = widgetD[3].value,
                                                 start = widgetD[1].value, 
                                                 end = widgetD[2].value, 
-                                                group = trace.legendgroup
-        
+                                                group = trace.legendgroup,
+                                                graphCondition = graphableObjects[index].graphCondition
                             ))
                 index += 1                                                            
         
