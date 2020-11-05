@@ -12,8 +12,15 @@ from diatomicConstants import *
 #Otherwise returns false
 def getDiatomicConstants(diatomicIdentifier, state = "ground"):
     
-    diatomicIdentifier = str(diatomicIdentifier)
+    diatomicIdentifier = str(diatomicIdentifier).upper()
     state = state.strip()
+    
+    #check for common diatomics that NIST does not directly understand
+    #and convert the name to one that is understood by NIST
+    if(diatomicIdentifier == "HCL"):
+        diatomicIdentifier = "Hydrogen Chloride"
+    elif(diatomicIdentifier == "HF"):
+        diatomicIdentifier = "7664-39-3"
     
     #Translate text representation of greek letters in html code 
     #to actual unicode greek letters
