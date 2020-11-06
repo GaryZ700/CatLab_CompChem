@@ -26,6 +26,7 @@ class basisSet():
         self.diatomicConstants = diatomicConstants
         
         self.buildBasisSet()
+        
  ###################################################################################
     
     def buildBasisSet(self):
@@ -111,7 +112,7 @@ class basisSet():
         else:
             return traces
         
-     ###################################################################################
+    ###################################################################################
     
     def getFigureWidgets(self, figure, traces, functions, resolution, start, end, precision):
                 
