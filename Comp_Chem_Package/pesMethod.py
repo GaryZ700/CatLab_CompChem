@@ -53,7 +53,7 @@ class PESMethod(GraphableData):
             
 ###################################################################################
 
-    def compute(self, start=None, end=None, resolution=None):
+    def compute(self, start=None, end=None, resolut0ion=None):
         
         if(start == None):
             start = self.start
