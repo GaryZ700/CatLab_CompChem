@@ -11,3 +11,4 @@ ipywidgets
 bs4
 lxml
 mysql
+dill
