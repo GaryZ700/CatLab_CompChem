@@ -16,7 +16,7 @@ class schrod(Graphable):
     eigenValues = None 
     eigenVectors = None
     basis = None
-    maxWaveFunctions = None
+    maxWaveFunctions = 20
     
     
     def __init__(self, arg1=None, basis=None, pes=None):
