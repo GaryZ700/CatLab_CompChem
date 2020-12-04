@@ -16,6 +16,8 @@ class schrod(Graphable):
     eigenValues = None 
     eigenVectors = None
     basis = None
+    maxWaveFunctions = None
+    
     
     def __init__(self, arg1=None, basis=None, pes=None):
 
@@ -41,6 +43,8 @@ class schrod(Graphable):
         self.eigenValues = ev
         self.basis = basis
         
+       #All this code here is used soley for graphing and should probably be refactored elsewhere
+       #Thinking of updating graphing module so that there is a separate location to make graphing calls and setup
        # startBoundary =  lambda r : pes.value(r-1) if pes != None else None
         endBoundary = lambda r : pes.value(r + 1000) if pes != None else None
         
@@ -50,7 +54,10 @@ class schrod(Graphable):
         else:
             lineCondition = None
         
-        for index, vector in enumerate(evc):
+        if(self.maxWaveFunctions == None):
+            self.maxWaveFunctions = len(evc)    
+        
+        for index, vector in enumerate(evc[:self.maxWaveFunctions]):
             
             group = self.graphTitle + str(index)
             groupSquared = group + "S"
@@ -90,7 +97,8 @@ class schrod(Graphable):
 ###################################################################################
 
     def getWaveFunctions(self):
-        return [wavefunction(vector, self.eigenValues[index], self.basis, index) for index, vector in enumerate(self.eigenVectors)]
+
+        return [] if self.eigenVectors == None else [wavefunction(vector, self.eigenValues[index], self.basis, index) for index, vector in enumerate(self.eigenVectors)]
 
 ###################################################################################
 
