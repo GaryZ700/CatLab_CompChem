@@ -77,10 +77,10 @@ class schrod(Graphable):
             
             lineGraphCondition = None if pes == None else lambda x, y : abs(wf.value(x) - y) > 0.00001 or wf.value(x) > pes.value(x)
 
-            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle= wf.graphTitle + " Energy", group = group, graphCondition = lineCondition, resolution = 100))            
+            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle= wf.graphTitle + " Energy", group = group, graphCondition = lineCondition, resolution = 0.1))            
             self.addGraphableObject(wf)
             
-            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle= wf2.graphTitle + " Energy", graphCondition = lineCondition, group = groupSquared, resolution = 100))
+            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle= wf2.graphTitle + " Energy", graphCondition = lineCondition, group = groupSquared, resolution = 0.1))
                                     
             self.addGraphableObject(wf2)
         
@@ -182,7 +182,7 @@ class schrod(Graphable):
                     trace.visible = False
                 
                 #change visib of energy line
-                revCompleteTraces[2*index].visible = trace.visible 
+                revCompleteTraces[2*index].visible = False#trace.visible 
             
         scaleWidget.observe(scaleUpdate, names=["value"])
         
