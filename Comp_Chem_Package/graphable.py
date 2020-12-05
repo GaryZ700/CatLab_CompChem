@@ -5,6 +5,7 @@
 
 from abc import ABC, abstractmethod
 from compChemGlobal import plot
+import _thread as thread
 
 class Graphable(ABC):
     
@@ -157,6 +158,12 @@ class Graphable(ABC):
         widgets = []
         
         for graphableObject in self.graphableObjects:
+            
+            threadFunc = lambda : traces.append(graphableObject.graph(showGraph=False, 
+   start=self.start if graphableObject.forcedStart == None else graphableObject.forcedStart,      end=self.end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
+   precision=self.precision, startBoundary=graphableObject.startBoundary, endBoundary=graphableObject.endBoundary))
+            
+            thread.start_new_thread(threadFunc, ())
             
             traces.append(graphableObject.graph(showGraph=False, 
    start=self.start if graphableObject.forcedStart == None else graphableObject.forcedStart,      end=self.end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
