@@ -24,7 +24,7 @@ class schrod(Graphable):
         #Set up Graphing Properties
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavenumbers"
-        self.resolution = 100
+        self.resolution = 250
         self.isGraphable = False
         
         if(type(arg1) == operators.HOperator):
@@ -77,10 +77,10 @@ class schrod(Graphable):
             
             lineGraphCondition = None if pes == None else lambda x, y : abs(wf.value(x) - y) > 0.00001 or wf.value(x) > pes.value(x)
 
-            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle=wf.graphTitle + " Energy", group = group, graphCondition = lineCondition))            
+            self.addGraphableObject(line(m = 0, b = ev[index]).setGraphVariables(graphTitle= wf.graphTitle + " Energy", group = group, graphCondition = lineCondition, resolution = 100))            
             self.addGraphableObject(wf)
             
-            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle=wf2.graphTitle + " Energy", graphCondition = lineCondition, group = groupSquared))
+            self.addGraphableObject(line(m=0, b=ev[index]).setGraphVariables(graphTitle= wf2.graphTitle + " Energy", graphCondition = lineCondition, group = groupSquared, resolution = 100))
                                     
             self.addGraphableObject(wf2)
         
@@ -98,7 +98,7 @@ class schrod(Graphable):
 
     def getWaveFunctions(self):
 
-        return [] if self.eigenVectors == None else [wavefunction(vector, self.eigenValues[index], self.basis, index) for index, vector in enumerate(self.eigenVectors)]
+        return [] if (type(self.eigenVectors) == type(None)) else [wavefunction(vector, self.eigenValues[index], self.basis, index) for index, vector in enumerate(self.eigenVectors)]
 
 ###################################################################################
 
