@@ -70,9 +70,8 @@ class schrod(Graphable):
             #!!!TO DO TASK HERE!!
             #Allow objects to return two simultaneous traces at the same time
             wf = wavefunction(vector, ev[index], basis, index).setGraphVariables(group = group, 
-                                                                                          graphCondition=graphCondition).scale(5)
-            
-            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(5).setGraphVariables( group = groupSquared, 
+                                                                                          graphCondition=graphCondition).scale(500)
+            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(500).setGraphVariables( group = groupSquared, 
                                                                                                     graphCondition = graphCondition)
             
             lineGraphCondition = None if pes == None else lambda x, y : abs(wf.value(x) - y) > 0.00001 or wf.value(x) > pes.value(x)
