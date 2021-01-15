@@ -160,12 +160,8 @@ class Graphable(ABC):
             functions = [function]
             boundaries = [startBoundary, endBoundary]
 
-        traces.extend(parallelGraphing(self.graphableObjects))
+        traces.extend(parallelGraphing(self.graphableObjects, self.start, self.end))
         widgets = []
-        
-       # p = Pool(cpu_count())
-       # p.map(self.getObjectData, [ [traces, obj]  for obj in self.graphableObjects])
-        #changes code execution from serial to parallel
         
         for graphableObject in self.graphableObjects:
             
@@ -180,14 +176,6 @@ class Graphable(ABC):
 
         traces.extend(self.graphableData)
         return (traces, functions, widgets, boundaries)
-    
-###################################################################################
-
-    def getObjectData(data):
-        
-        #append data to traces
-        data[0].append(data[1].graph())
-        
         
 ###################################################################################
 

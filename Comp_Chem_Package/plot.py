@@ -199,13 +199,12 @@ def getWidgetDescription(description):
 ###################################################################################
 
 #Allows for parallel processing to help speed up the graphing process
-def parallelGraphing(graphableObjects):
+def parallelGraphing(graphableObjects, start, end):
     
-    p = Pool(1)
+    p = Pool(cpu_count())
     
-    print(graphableObjects[2])
     print("catmando")
-    results = p.map(parallelGraphingWorker, graphableObjects)
+    results = p.map(lambda graphableObject : parallelGraphingWorker(graphableObject, start, end), graphableObjects)
     
     print("waiting to close")
     p.close()
@@ -216,8 +215,8 @@ def parallelGraphing(graphableObjects):
 
 ###################################################################################
 
-def parallelGraphingWorker(graphableObject):
+def parallelGraphingWorker(graphableObject, start, end):
 
    return graphableObject.graph(showGraph=False, 
-   start = 0 if graphableObject.forcedStart == None else graphableObject.forcedStart, end=10 if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
+   start = start if graphableObject.forcedStart == None else graphableObject.forcedStart, end=end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
    precision = graphableObject.precision, startBoundary=graphableObject.startBoundary, endBoundary=graphableObject.endBoundary)
