@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from compChemGlobal import plot
 from plot import graphingParameters
 from plot import parallelGraphing
+from plot import cpu_count
 
 class Graphable(ABC):
     
@@ -34,12 +35,9 @@ class Graphable(ABC):
     graphableData = []
     
     #Graphable Settings
+    #is graphable refers to weather this object itself has the abillity to graph, or 
+    #is simply a container object to allow other objects to be graphed
     isGraphable = True
-    startBoundary = None
-    endBoundary = None
-    graphCondition = None
-    forcedStart = None
-    forcedEnd = None
     
     #Provide appropriate values for the global variables here in the child class
     #Make sure to call super in order or include the below two lines 
@@ -56,6 +54,8 @@ class Graphable(ABC):
 ###################################################################################
 
     #compute method that must be somewhere in the parent class in order to allow for graphing to occur
+    #if object is not graphable, then still must be included but simply put pass for the return value
+    #and set isGraphable to false
     @abstractmethod
     def value(self, r):
         pass
@@ -65,6 +65,8 @@ class Graphable(ABC):
     #method to return a list of widgets for this graphable object
     #if the graphable object is to have widgets beyond those which normally 
     #come with graphable objects
+    #x refers to 
+    #y refers to 
     def getWidgets(self, x=None, y=None):
         return False
     
@@ -72,43 +74,32 @@ class Graphable(ABC):
 
     #showGraph: if True, graph wil be generated, if False, graph trace will be returned instead
     #showGraph: if false, dictionary of x,y data will be returned instead
-    def graph(self, showGraph=True, resolution=None, start=None, end=None, precision=None, startBoundary=None, endBoundary=None, getGraph=False, graphCondition=None):
-                
-        if(resolution == None):
-            resolution = self.resolution 
-        if(start == None):
-            start = self.start
-        if(end == None):
-            end = self.end
-        if(precision == None):
-            precision = self.precision
-        if(startBoundary == None):
-            startBoundary = self.startBoundary
-        if(endBoundary == None):
-            endBoundary = self.endBoundary
-        if(graphCondition == None):
-            graphCondition = self.graphCondition
+    #getGraph refers to weather or not a reference to the graph object is returned
+    #**kwargs refers to parameters that can modify the graph settings, and are run 
+    #through setGraphVariables
+    def graph(self, showGraph=True, getGraph=False, **kargs):
+          
+        if(bool(kargs)):
+            self.setGraphVariables(_dictData_ = kargs)
         
         if(self.isGraphable):
-            trace = plot.graphFunction(self.value, title=self.graphTitle, resolution=resolution, 
-                                       start=start, end=end, precision=precision, 
-                                       xTitle=self.xTitle, yTitle=self.yTitle, 
-                                       startBoundary=startBoundary, endBoundary=endBoundary, 
-                                       dash=self.dash, group=self.group, graphCondition = graphCondition)
-        else: 
-            trace = None
+             self.graphableObjects.append(self)
+               
+        if(len(self.graphableObjects) > 0 and cpu_count() > 0):
+            traces, widgetObjs, functions = parallelGraphing(self.graphableObjects, self.precision, self.resolution, self.start, self.end)
 
         if(not showGraph):
-            return trace
-                
-        return self.buildGraph(trace, getGraph)
+            return traces[0]
         
+        return self.buildGraph(traces, widgetObjs, functions, getGraph) 
+    
 ###################################################################################
 
     #This is a private function that should not be overriden in the child class
-    def buildGraph(self, trace, getGraph=False):
+    #get graph refers to weather or not a reference to the graph object should be returned as well
+    def buildGraph(self, data, widgetObjs, functions, getGraph=False):
 
-        data, functions, widgetObjs, boundaries = self.getGraphData(trace, self.value, self.startBoundary, self.endBoundary)
+        #data, functions, widgetObjs = self.getGraphData(trace, self.value)
          
         fig = plot.go.FigureWidget(layout = dict( xaxis_title = self.xTitle, 
                                                   yaxis_title = self.yTitle, 
@@ -118,7 +109,7 @@ class Graphable(ABC):
                                   )
 
         widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, resolution=self.resolution, 
-                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1], graphableObjects = self.graphableObjects)
+                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), graphableObjects = self.graphableObjects)
         
         graph = widgetData[0]
         
@@ -149,12 +140,11 @@ class Graphable(ABC):
 ###################################################################################
 
     #This is private function that should not be overriden in the child class
-    def getGraphData(self, trace=None, function=None, startBoundary=None, endBoundary=None, graph=None):
+    def getGraphData(self, trace=None, function=None, graph=None):
         
         if(trace == None):
             traces = []
             functions = [] 
-            boundaries = [[], []]
         else: 
             traces = [trace]
             functions = [function]
@@ -169,13 +159,11 @@ class Graphable(ABC):
    #start=self.start if graphableObject.forcedStart == None else graphableObject.forcedStart,      end=self.end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
    #precision=self.precision, startBoundary=graphableObject.startBoundary, endBoundary=graphableObject.endBoundary))
             
-            boundaries[0].append(graphableObject.startBoundary)
-            boundaries[1].append(graphableObject.endBoundary)
             functions.append(graphableObject.value)
             widgets.append(graphableObject.getWidgets(0, 0))
 
         traces.extend(self.graphableData)
-        return (traces, functions, widgets, boundaries)
+        return (traces, functions, widgets)
         
 ###################################################################################
 
@@ -196,6 +184,9 @@ class Graphable(ABC):
 ###################################################################################
     
     def setGraphVariables(self, **kargs):
+        
+        if ("_dictData_" in kargs): 
+            kargs = kargs["_dictData_"]
         
         for name in kargs: 
             try:

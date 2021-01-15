@@ -199,24 +199,34 @@ def getWidgetDescription(description):
 ###################################################################################
 
 #Allows for parallel processing to help speed up the graphing process
-def parallelGraphing(graphableObjects, start, end):
+def parallelGraphing(graphableObjects, precision, resolution, start, end):
     
-    p = Pool(cpu_count())
+    p = Pool(1)
     
     print("catmando")
-    results = p.map(lambda graphableObject : parallelGraphingWorker(graphableObject, start, end), graphableObjects)
+    results = p.map(lambda graphableObject : parallelGraphingWorker(graphableObject, precision, resolution, start, end), graphableObjects)
     
     print("waiting to close")
     p.close()
     print("closing")
     p.join()
     print("joining")
-    return results
+    
+    traces = []
+    widgetObjs = []
+    functions = []
+    for objectData in results: 
+        traces.append(objectData[0])
+        widgetObjs.append(objectData[1])
+        functions.append(objectData[2])
+        
+    return traces, widgetObjs, functions
 
 ###################################################################################
 
-def parallelGraphingWorker(graphableObject, start, end):
+def parallelGraphingWorker(graphableObject, precision, resolution, start, end):
 
-   return graphableObject.graph(showGraph=False, 
-   start = start if graphableObject.forcedStart == None else graphableObject.forcedStart, end=end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
-   precision = graphableObject.precision, startBoundary=graphableObject.startBoundary, endBoundary=graphableObject.endBoundary)
+    return (graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, yTitle = graphableObject.yTitle, 
+                        dash = graphableObject.dash, group = graphableObject.group), 
+            graphableObject.getWidgets(0, 0),
+            graphableObject.value)
