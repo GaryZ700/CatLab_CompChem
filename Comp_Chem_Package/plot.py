@@ -6,6 +6,8 @@
 import plotly.graph_objects as go
 import plotly.io as pio
 import ipywidgets as widgets
+from multiprocess import Pool
+from multiprocess import cpu_count
 
 pio.renderers.default = "notebook+plotly_mimetype"
 
@@ -41,6 +43,14 @@ pio.templates[pio.templates.default].layout.update(dict(
     yaxis_title_font_size = 17,
     xaxis_title_font_size = 17,   
 ))
+
+#Global parameter for graphing structure
+graphingParameters = { "showGraph"      : False, 
+                       "forcedStart"    : None, 
+                       "forcedEnd"      : None,
+                       "precision"      : None, 
+                       "startBoundary"  : None, 
+                       "endBoundary"    : None}
 
 ###################################################################################
 
@@ -185,3 +195,29 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
 
 def getWidgetDescription(description):
     return '<p style="font-family:' + pio.templates[pio.templates.default]["layout"]["font"]["family"] + ';font-size:15px">' + description + '</p>' 
+
+###################################################################################
+
+#Allows for parallel processing to help speed up the graphing process
+def parallelGraphing(graphableObjects):
+    
+    p = Pool(1)
+    
+    print(graphableObjects[2])
+    print("catmando")
+    results = p.map(parallelGraphingWorker, graphableObjects)
+    
+    print("waiting to close")
+    p.close()
+    print("closing")
+    p.join()
+    print("joining")
+    return results
+
+###################################################################################
+
+def parallelGraphingWorker(graphableObject):
+
+   return graphableObject.graph(showGraph=False, 
+   start = 0 if graphableObject.forcedStart == None else graphableObject.forcedStart, end=10 if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
+   precision = graphableObject.precision, startBoundary=graphableObject.startBoundary, endBoundary=graphableObject.endBoundary)
