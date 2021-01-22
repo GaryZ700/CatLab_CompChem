@@ -20,6 +20,7 @@ class Graphable(ABC):
     yTitle = "y"
     dash = "solid"
     group = ""
+    fill = "none"
     
     #Graphing Parameters
     #for default widgets
@@ -85,8 +86,20 @@ class Graphable(ABC):
         if(self.isGraphable):
              self.graphableObjects.append(self)
                
-        if(len(self.graphableObjects) > 0 and cpu_count() > 0):
+        if(len(self.graphableObjects) > 4 and cpu_count() > 1):
             traces, widgetObjs, functions = parallelGraphing(self.graphableObjects, self.precision, self.resolution, self.start, self.end)
+        else: 
+            traces = []
+            widgetObjs = []
+            functions = []
+            
+            for graphableObject in self.graphableObjects: 
+                traces.append(plot.graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = self.precision, xTitle = graphableObject.xTitle, 
+                                            yTitle = graphableObject.yTitle, dash = graphableObject.dash, group = graphableObject.group, 
+                                            start = self.start, end = self.end, fill = graphableObject.fill))
+                widgetObjs.append(graphableObject.getWidgets(0, 0))
+                functions.append(graphableObject.value)
+           
 
         if(not showGraph):
             return traces[0]
@@ -136,6 +149,7 @@ class Graphable(ABC):
             return graph
         else:
             display(graph)
+            return self
         
 ###################################################################################
 

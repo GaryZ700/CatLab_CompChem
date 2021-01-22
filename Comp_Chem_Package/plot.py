@@ -57,8 +57,8 @@ graphingParameters = { "showGraph"      : False,
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
 def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
-                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", graphCondition=None):
-        
+                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", fill = "none", graphCondition=None):
+    
     x = []
     y = []
     
@@ -91,11 +91,13 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
     if(rawData):
         return (x, y)
     else:
-        return buildTrace(x, y, title, precision, xTitle, yTitle, hoverTemplate, dash=dash, group=group)
+        return buildTrace(x, y, title, precision, xTitle, yTitle, hoverTemplate, dash=dash, group=group, fill = fill)
 
 ###################################################################################
 
-def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup=None, dash="solid", group=""):
+#move this into a part of the graphable class,
+#maybe can take advatage of dict like props of trace to speed up graphing?
+def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup=None, dash="solid", group="", fill = "none"):
     
     precision = "0." + str(precision)
     return go.Scatter(
@@ -107,7 +109,8 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup
         hoverlabel_font_size = 16, 
         mode = mode, 
         line_dash = dash, 
-        legendgroup = group
+        legendgroup = group, 
+        fill = fill
     )
 
 ###################################################################################
@@ -201,7 +204,7 @@ def getWidgetDescription(description):
 #Allows for parallel processing to help speed up the graphing process
 def parallelGraphing(graphableObjects, precision, resolution, start, end):
     
-    p = Pool(1)
+    p = Pool(cpu_count())
     
     print("catmando")
     results = p.map(lambda graphableObject : parallelGraphingWorker(graphableObject, precision, resolution, start, end), graphableObjects)
@@ -227,6 +230,6 @@ def parallelGraphing(graphableObjects, precision, resolution, start, end):
 def parallelGraphingWorker(graphableObject, precision, resolution, start, end):
 
     return (graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, yTitle = graphableObject.yTitle, 
-                        dash = graphableObject.dash, group = graphableObject.group), 
+                        dash = graphableObject.dash, group = graphableObject.group, start = start, end = end, fill = graphableObject.fill), 
             graphableObject.getWidgets(0, 0),
             graphableObject.value)

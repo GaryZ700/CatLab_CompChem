@@ -16,12 +16,17 @@ class wavefunction(Graphable):
     squared = False
     
     def __init__(self, eigenVector, energy, basis, n, squared=False):
+        self.graphableObjects = []
+        self.graphableData = []
+        
         self.graphTitle = "Wavefunction n=" + str(n)
         if(squared):
             self.graphTitle = "Squared " + self.graphTitle
             
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavefunction Output"
+        
+        self.fill = "tozerox"
         
         self.energy = energy
         self.function = lambda r : sum( [ eigenVector[i]*basis[i](r) for i in range(basis.size)] )
@@ -36,6 +41,6 @@ class wavefunction(Graphable):
 
 ###################################################################################
 
-    def scale(self, scalingFactor=900):
+    def scale(self, scalingFactor):
         self.scalingFactor = scalingFactor
         return self
