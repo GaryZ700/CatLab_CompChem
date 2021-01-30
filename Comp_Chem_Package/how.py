@@ -17,8 +17,10 @@ class how(basisFunction):
         self.n = n
         self.re = diatomicConstants["re"]
         
-        self.functionName = "Harmonic Oscillator n=" + str(n)
         self.name = "Harmonic Oscillator"
+        self.graphTitle = "Harmonic Oscillator n=" + str(n)
+        self.xTitle = "Angstroms"
+        self.yTitle = "Wavenumbers"
         
         #calculate alpha and then the constant for the wavefunction
         self.alpha = (diatomicConstants["w"] * 200 * pi * c * diatomicConstants["u"]) / (hbar * 6.022 * pow(10, 46))

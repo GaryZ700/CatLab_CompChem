@@ -3,24 +3,20 @@
 
 #Class that specifies the methods and functionality of a basis set composed of basisfunctions
 
-from compChemGlobal import plot, widgets
+from compChemGlobal import plot, widgets, Graphable
 from how import *
 
-class basisSet():
+class basisSet(Graphable):
     
     #Declare all global variables here
-    basisFunctionClass = 0
-    size = 0
-    basisFunctions = []
-    diatomicConstants = 0
+    basisFunctionClass = None
+    basisFunctions = None
+    size = None
+    diatomicConstants = None
     
-    #Graphing Variables
-    graphTitle = ""
-    start = 0 
-    end = 0
     
     def __init__(self, diatomicConstants, basisFunctionClass=how, size=10):
-        
+        super().__init__()
         self.size = size
         self.basisFunctionClass = basisFunctionClass
         self.diatomicConstants = diatomicConstants
@@ -32,15 +28,19 @@ class basisSet():
     def buildBasisSet(self):
         
         self.basisFunctions = []
-        
+        graphableObjects = []
         for n in range(self.size):
             self.basisFunctions.append(self.basisFunctionClass(self.diatomicConstants, n))  
+            graphableObjects.append(self.basisFunctions[-1])
+            graphableObjects.append(squaredBasisFunction(self.basisFunctions[-1]))
         
         #get needed graphing data
+        self.addGraphableObject(graphableObjects[::-1])
         function =  self.basisFunctions[-1]
         self.graphTitle = function.name + " Basis Set"
         self.start = function.start 
         self.end = function.end
+        self.isGraphable = False
    
     ###################################################################################
     
@@ -65,101 +65,66 @@ class basisSet():
     #returns the nth specified basis function
     def getBasisFunction(self, n):
         return self.basisFunctions[n]
-    
-    ###################################################################################
-    
-    def graph(self, showGraph=True, resolution=200, start=None, end=None, precision=2):
-                
-        if(start == None):
-            start = self.start 
-        if(end == None):
-            end = self.end
-    
-        fig = plot.go.FigureWidget(layout=dict(
-                                               title=self.graphTitle, 
-                                               xaxis_title = "r in Angstroms", 
-                                               yaxis_title = "Basis Function Output",
-                                               showlegend = True
-                                              ))
-        
-        traces = [] 
-        functions = []
-        
-        for n in range(self.size):     
-            
-                #Add regular trace
-                fig.add_trace(self.basisFunctions[n].graph(showGraph=False, resolution=resolution, 
-                                                           start=start, end=end, precision=precision))
-                traces.append(fig.data[-1])
-                
-                #Add Squared Trace
-                squaredTrace = self.basisFunctions[n].graph(showGraph=False, squared=True, resolution=resolution, 
-                                                            start=start, end=end, precision=precision)
-                squaredTrace.visible = False
-                fig.add_trace(squaredTrace)
-                traces.append(fig.data[-1])
-                
-                basisFunction = self.basisFunctions[n]
-                functions.append(basisFunction.value)
-                functions.append(basisFunction.squaredValue)
-        
-                traces[-1]["uid"] = ""
-                traces[-2]["uid"] = ""
-        
-        if(showGraph):
-            display(self.getFigureWidgets(
-                    fig, traces, functions, resolution, start, end, precision))
-        else:
-            return traces
         
     ###################################################################################
     
-    def getFigureWidgets(self, figure, traces, functions, resolution, start, end, precision):
-                
-        figureWidgets = self.basisFunctions[0].getFigureWidgets(figure, traces, functions, 
-                                                                resolution=resolution, 
-                                                                start=start, end=end, 
-                                                                precision=precision)
+    def getWidgets(self, traces, widgetD):
         
+        revTraces = traces[::-1]
+        
+        #textbox used to show or hide wavefunctions
         visibleWavefunctions = widgets.Text(
-            value = "0-" + str(len(functions) // 2),
+            value = "0-" + str(len(traces) // 2),
             description = '<p style="font-family:verdana;font-size:15px">Visible Ψs</p>'
         )
-        visibleWavefunctions.observe(
-            lambda change: self.figureWidgetUpdate(visibleWavefunctions.value, traces, figure, change),
-                                                   "value"
-        )
         
-        figureWidgets.children[1].children += tuple([visibleWavefunctions])
+        probability = widgets.Dropdown( options = ["Standard", 
+                                                   "Probability Distribution", 
+                                                   "Standard & Probability"],
+        description = '<p style="font-family:verdana;font-size:15px">Mode</p>')
         
-        return figureWidgets
-    
-    ###################################################################################
-    
-    def figureWidgetUpdate(self, value, traces, figure, change):
-                        
-        visibility = []
-                
-        try:
-            for startEnd in value.split(";"):
-                if("-" in startEnd):
-                    startEnd = [int(value) for value in startEnd.split("-")]
-                    visibility.extend( range(startEnd[0], startEnd[1]+1))
-                else:
-                    visibility.append(int(startEnd))
-        except:
-            visibility = [False] * len(traces)
-        
-        for index, trace in enumerate(traces):     
-            index -= (index % 2) + (index // 2)
+        def visibleWavefunctionsUpdate(value, modeValue):
+         
+            visibility = []
+            
+            try:
+                for startEnd in value.split(";"):
+                    if("-" in startEnd):
+                        startEnd = [int(value) for value in startEnd.split("-")]
+                        visibility.extend( range(startEnd[0], startEnd[1]+1))
+                    else:
+                        visibility.append(int(startEnd))
+            except:
+                return 
+            
+            if (modeValue == "Standard"):
+                mode = 1
+            elif (modeValue == "Probability Distribution"):
+                mode = 0
+            else:
+                mode = 2
 
-            if index in visibility: 
-                if("mode" not in trace["uid"]):
+            for index, trace in enumerate(revTraces):    
+                #evens are squared
+                #odds are normal
+                visibleType = index % 2
+                
+                #maps square and normal function to a single index
+                index2 = index - visibleType - index // 2
+        
+                if index2 in visibility and visibleType ^ mode: 
                     trace.visible = True
-                trace["uid"] = trace["uid"].replace("!", "")
-            elif("!" not in trace["uid"]):
-                trace.visible = False
-                trace["uid"] += "!"
+                else:
+                    trace.visible = False
+                    
+        vsfWrapper = lambda value : visibleWavefunctionsUpdate(visibleWavefunctions.value, 
+                                                               probability.value)
+        vsfWrapper(0)
+        visibleWavefunctions.observe(vsfWrapper)
+        probability.observe(vsfWrapper)
+        
+        return [[visibleWavefunctions, 0], [probability, 1]]
+    
  ###################################################################################
     
     def __iter__(self):

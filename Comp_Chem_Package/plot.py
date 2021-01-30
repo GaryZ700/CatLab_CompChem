@@ -56,7 +56,7 @@ graphingParameters = { "showGraph"      : False,
 
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
-def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
+def graphFunction(function, title="", resolution=100, start=0, end=5, precision=2, 
                  xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", fill = "none", graphCondition=None):
     
     x = []
@@ -115,9 +115,11 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup
 
 ###################################################################################
 
-#returns the ipython widgets needed f
-def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
-                            resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None, graphableObjects=None):
+#returns the general ipython widgets that all graphable objects have
+#and connects them to all of the figure's traces
+#figure refers to the plotly figure widget object to which the widgets should associated with
+def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnWidgets=False,
+                            resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None):
     
     fontFamily = pio.templates[pio.templates.default]["layout"]["font"]["family"]
     startDescription = '<p style="font-family:' + fontFamily + ';font-size:15px">'
@@ -154,21 +156,22 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
     if(graphableData > 0):
         functionTraces = traces[:graphableData]     
 
-        observationFunctionWrapper = lambda change : [trace.update(buildTrace( x = trace.x, y = trace.y, 
-                                                                               title = trace.name,
-                                                                               precision = precisionWidget.value,
-                                                                               xTitle = trace.hovertemplate.split("<b>")[0].split("=")[0],
-                                                                               yTitle = trace.hovertemplate.split("<b>")[1].split("=")[0 ],
-                                                                               mode = "markers", group = trace.legendgroup,
-                                                                               graphCondition = graphableObjects[index].graphCondition
-                                                                               )) 
-                                                      for index, trace in enumerate(traces[graphableData:])]
-        precisionWidget.observe(observationFunctionWrapper, "value")
+     #   observationFunctionWrapper = lambda change : [trace.update(buildTrace( x = trace.x, y = trace.y, 
+     #                                                                          title = trace.name,
+     #                                                                          precision = precisionWidget.value,
+     #                                                                          xTitle = trace.hovertemplate.split("<b>")[0].split("=")[0],
+     #                                                                          yTitle = trace.hovertemplate.split("<b>")[1].split("=")[0 ],
+     #                                                                          mode = "markers", group = trace.legendgroup,
+     #                                                                          graphCondition = graphableObjects[index].graphCondition
+     #                                                                          )) 
+     #                                                 for index, trace in enumerate(traces[graphableData:])]
+     
+    #precisionWidget.observe(observationFunctionWrapper, "value")
 
     else: 
         functionTraces = traces
     
-    observationFunctionWrapper = lambda change : [trace.update(graphFunction(functions[index],
+    '''observationFunctionWrapper = lambda change : [trace.update(graphFunction(functions[index],
                                                                             title = trace.name,
                                                                             resolution = resolutionWidget.value,
                                                                             precision = precisionWidget.value,
@@ -176,23 +179,70 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                             group = trace.legendgroup,
                                                                             graphCondition = graphableObjects[index].graphCondition
                                                                            )) 
-                                                for index, trace in enumerate(functionTraces)]
+                                                for index, trace in enumerate(functionTraces)]'''
+        
+    #resolutionWidget.observe(observationFunctionWrapper, "value")
+    precisionWidget.observe(lambda change : widgetUpdates(traces, lambda trace : trace.update( 
+                                                         hovertemplate = "<b>" + "test"  + " = %{x:0." 
+                                                         + str(precisionWidget.value) + "f}</b><br>" + "<b>" + 
+                                                         "cat" + " = %{y:0." + str(precisionWidget.value) + "f}</b>")), "value")
     
-    resolutionWidget.observe(observationFunctionWrapper, "value")
-    precisionWidget.observe(observationFunctionWrapper, "value")
-    startWidget.observe(observationFunctionWrapper, "value")
-    endWidget.observe(observationFunctionWrapper, "value")      
-    
+    startWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionWidget.value, startWidget.value, endWidget.value, graphableObjects), "value")
+    #endWidget.observe(observationFunctionWrapper, "value")      
+        
     graphObject = widgets.VBox([
         figure,
         widgets.HBox([resolutionWidget, precisionWidget]),
         widgets.HBox([startWidget, endWidget])
     ])
+
+    for graphableObject in graphableObjects: 
+        graphableObject.oldStart = startWidget.value
+        graphableObject.oldEnd = endWidget.value
     
     if(returnWidgets):
         return (graphObject, [resolutionWidget, startWidget, endWidget, precisionWidget])
     else:
         return graphObject
+    
+###################################################################################
+
+def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
+    
+    #exit if invalid start, end values were provided
+    if(start >= end):
+        return
+    #int(abs(end-start)/dx
+        
+    if(graphableObjects[0].oldStart != start):
+        if(start < graphableObjects[0].oldStart):
+            for index, graphableObject in enumerate(graphableObjects):
+                x, y = graphFunction(graphableObject.value, resolution = resolution, start = start, end = graphableObject.oldStart, rawData = True)
+                print(x)
+                print(y)
+                print(traces[index])
+                traces[index].update(x = x + list(graphableObject.graphedData.x), y =  y + list(graphableObject.graphedData.y))
+                graphableObject.graphedData.update(traces[index])
+                graphableObject.oldStart = start
+                
+       # else:
+            
+               
+#    else if(end > graphableObjects[0].graphedData.x[-1]):
+#        pass
+        
+    #for index, trace in enumerate(traces): 
+                        
+                        
+        
+     #   trace.update(x = graphableObjects[index].graphedData["x"], y = graphableObjects[index].graphedData["y"])
+        
+###################################################################################
+
+def widgetUpdates(traces, updateFunction):
+    
+    for trace in traces: 
+        updateFunction(trace)
 
 ###################################################################################
 
@@ -203,27 +253,19 @@ def getWidgetDescription(description):
 
 #Allows for parallel processing to help speed up the graphing process
 def parallelGraphing(graphableObjects, precision, resolution, start, end):
-    
     p = Pool(cpu_count())
-    
-    print("catmando")
+
     results = p.map(lambda graphableObject : parallelGraphingWorker(graphableObject, precision, resolution, start, end), graphableObjects)
-    
-    print("waiting to close")
     p.close()
-    print("closing")
     p.join()
-    print("joining")
     
     traces = []
-    widgetObjs = []
     functions = []
     for objectData in results: 
         traces.append(objectData[0])
-        widgetObjs.append(objectData[1])
-        functions.append(objectData[2])
+        functions.append(objectData[1])
         
-    return traces, widgetObjs, functions
+    return traces, functions
 
 ###################################################################################
 
@@ -231,5 +273,4 @@ def parallelGraphingWorker(graphableObject, precision, resolution, start, end):
 
     return (graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, yTitle = graphableObject.yTitle, 
                         dash = graphableObject.dash, group = graphableObject.group, start = start, end = end, fill = graphableObject.fill), 
-            graphableObject.getWidgets(0, 0),
             graphableObject.value)

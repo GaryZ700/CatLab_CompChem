@@ -31,9 +31,12 @@ class Graphable(ABC):
 
     #Graphing data
     #Objects refer to other graphable objects, 
-    #while data refers to raw data to graph
+    #while graphableData refers to raw data to graph
+    #lastly, graphedData refers to data that has been alreadly graphed but is stored here
+    #to speed up graphing changes that are made
     graphableObjects = []
     graphableData = []
+    graphedData = []
     
     #Graphable Settings
     #is graphable refers to weather this object itself has the abillity to graph, or 
@@ -66,9 +69,9 @@ class Graphable(ABC):
     #method to return a list of widgets for this graphable object
     #if the graphable object is to have widgets beyond those which normally 
     #come with graphable objects
-    #x refers to 
-    #y refers to 
-    def getWidgets(self, x=None, y=None):
+    #traces refers to the traces of the figure
+    #widgets refers to the other widgets on the figure
+    def getWidgets(self, traces = None, widgets = None):
         return False
     
 ###################################################################################
@@ -79,40 +82,39 @@ class Graphable(ABC):
     #**kwargs refers to parameters that can modify the graph settings, and are run 
     #through setGraphVariables
     def graph(self, showGraph=True, getGraph=False, **kargs):
-          
+        
         if(bool(kargs)):
             self.setGraphVariables(_dictData_ = kargs)
         
         if(self.isGraphable):
              self.graphableObjects.append(self)
-               
-        if(len(self.graphableObjects) > 4 and cpu_count() > 1):
-            traces, widgetObjs, functions = parallelGraphing(self.graphableObjects, self.precision, self.resolution, self.start, self.end)
+        
+        if(len(self.graphableObjects) > 9 and cpu_count() > 1):
+            traces, functions = parallelGraphing(self.graphableObjects, self.precision, self.resolution, self.start, self.end)
         else: 
             traces = []
-            widgetObjs = []
             functions = []
             
             for graphableObject in self.graphableObjects: 
                 traces.append(plot.graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = self.precision, xTitle = graphableObject.xTitle, 
                                             yTitle = graphableObject.yTitle, dash = graphableObject.dash, group = graphableObject.group, 
                                             start = self.start, end = self.end, fill = graphableObject.fill))
-                widgetObjs.append(graphableObject.getWidgets(0, 0))
+                graphableObject.graphedData = traces[-1]
                 functions.append(graphableObject.value)
-           
-
+        
+        #Add graphable data
+        traces.extend(self.graphableData)
+        
         if(not showGraph):
             return traces[0]
         
-        return self.buildGraph(traces, widgetObjs, functions, getGraph) 
+        return self.buildGraph(traces, functions, getGraph) 
     
 ###################################################################################
 
     #This is a private function that should not be overriden in the child class
     #get graph refers to weather or not a reference to the graph object should be returned as well
-    def buildGraph(self, data, widgetObjs, functions, getGraph=False):
-
-        #data, functions, widgetObjs = self.getGraphData(trace, self.value)
+    def buildGraph(self, data, functions, getGraph=False):
          
         fig = plot.go.FigureWidget(layout = dict( xaxis_title = self.xTitle, 
                                                   yaxis_title = self.yTitle, 
@@ -129,21 +131,19 @@ class Graphable(ABC):
         parentWidgets = self.getWidgets(graph.children[0].data, widgetData[1])
 
         if(parentWidgets != False):
-            if(type(parentWidgets[0]) == list):
-                for sublist in parentWidgets: 
-                    widgetObjs.append(sublist)
-            else: 
-                widgetObjs.append(parentWidgets)
-        
-        index = 1
-        for widgetList in widgetObjs:
-            if(widgetList == False):
-                continue
-            
-            if(index > len(graph.children)-1):
-                graph.children += tuple([plot.widgets.HBox([])])
-            graph.children[index].children += tuple(widgetList)
-            index += 1
+            for widgetList in parentWidgets:
+                if(widgetList == False):
+                    continue
+
+                if(type(widgetList[-1]) == int):
+                    index = widgetList.pop() + 1
+                else:
+                    index = -1
+                
+                if(index == -1):
+                    graph.children += tuple([plot.widgets.HBox([])])
+                
+                graph.children[index].children += tuple(widgetList)
         
         if(getGraph):
             return graph
@@ -153,36 +153,11 @@ class Graphable(ABC):
         
 ###################################################################################
 
-    #This is private function that should not be overriden in the child class
-    def getGraphData(self, trace=None, function=None, graph=None):
+    def addGraphableObject(self, graphableObjects):
         
-        if(trace == None):
-            traces = []
-            functions = [] 
-        else: 
-            traces = [trace]
-            functions = [function]
-            boundaries = [startBoundary, endBoundary]
-
-        traces.extend(parallelGraphing(self.graphableObjects, self.start, self.end))
-        widgets = []
-        
-        for graphableObject in self.graphableObjects:
+        if(type(graphableObjects) != list):
+            graphableObjects = [graphableObjects]
             
-           # traces.append(graphableObject.graph(showGraph=False, 
-   #start=self.start if graphableObject.forcedStart == None else graphableObject.forcedStart,      end=self.end if graphableObject.forcedEnd == None else graphableObject.forcedEnd,          
-   #precision=self.precision, startBoundary=graphableObject.startBoundary, endBoundary=graphableObject.endBoundary))
-            
-            functions.append(graphableObject.value)
-            widgets.append(graphableObject.getWidgets(0, 0))
-
-        traces.extend(self.graphableData)
-        return (traces, functions, widgets)
-        
-###################################################################################
-
-    def addGraphableObject(self, graphableObject):
-        graphableObjects = [graphableObject]
         graphableObjects.extend(self.graphableObjects)
         self.graphableObjects = graphableObjects
         

@@ -66,7 +66,6 @@ class PESMethod(GraphableData):
                                   start=start, end=end, resolution=resolution, rawData=True)
         
         self.data = dict(r=r, E=E)
-       # self.data["D"] = max(self.data[""], key=lambda i: self.data["E"] if self.data["r"] > self.diatomicConstants.re else -maxint) - min(self.data["E"]) 
         
         self.addGraphableData(dict(x=r, y=E))
         
