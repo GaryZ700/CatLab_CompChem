@@ -61,7 +61,6 @@ def graphFunction(function, title="", resolution=100, start=0, end=5, precision=
     
     x = []
     y = []
-    
     dx = 1 / resolution 
     if(startBoundary != None and graphCondition == None and type(startBoundary) != list):
         for step in range(int(abs(end-start)/dx)):
@@ -82,7 +81,7 @@ def graphFunction(function, title="", resolution=100, start=0, end=5, precision=
             if(graphCondition(xValue, yValue)):
                 x.append(xValue)
                 y.append(yValue)
-        
+                
     else: 
           for step in range(int(abs( (end-start)/dx ))):
             x.append(start + step * dx)
@@ -155,40 +154,18 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
     
     if(graphableData > 0):
         functionTraces = traces[:graphableData]     
-
-     #   observationFunctionWrapper = lambda change : [trace.update(buildTrace( x = trace.x, y = trace.y, 
-     #                                                                          title = trace.name,
-     #                                                                          precision = precisionWidget.value,
-     #                                                                          xTitle = trace.hovertemplate.split("<b>")[0].split("=")[0],
-     #                                                                          yTitle = trace.hovertemplate.split("<b>")[1].split("=")[0 ],
-     #                                                                          mode = "markers", group = trace.legendgroup,
-     #                                                                          graphCondition = graphableObjects[index].graphCondition
-     #                                                                          )) 
-     #                                                 for index, trace in enumerate(traces[graphableData:])]
-     
-    #precisionWidget.observe(observationFunctionWrapper, "value")
-
     else: 
         functionTraces = traces
-    
-    '''observationFunctionWrapper = lambda change : [trace.update(graphFunction(functions[index],
-                                                                            title = trace.name,
-                                                                            resolution = resolutionWidget.value,
-                                                                            precision = precisionWidget.value,
-                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary, 
-                                                                            group = trace.legendgroup,
-                                                                            graphCondition = graphableObjects[index].graphCondition
-                                                                           )) 
-                                                for index, trace in enumerate(functionTraces)]'''
         
     #resolutionWidget.observe(observationFunctionWrapper, "value")
     precisionWidget.observe(lambda change : widgetUpdates(traces, lambda trace : trace.update( 
-                                                         hovertemplate = "<b>" + "test"  + " = %{x:0." 
-                                                         + str(precisionWidget.value) + "f}</b><br>" + "<b>" + 
-                                                         "cat" + " = %{y:0." + str(precisionWidget.value) + "f}</b>")), "value")
+                                                         hovertemplate = "<b>" + "test"  + " = %{x:0." + 
+                                                                         str(precisionWidget.value) + "f}</b><br>" + "<b>" +
+                                                                         "cat" + " = %{y:0." + str(precisionWidget.value) + 
+                                                                         "f}</b>")), "value")
     
     startWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionWidget.value, startWidget.value, endWidget.value, graphableObjects), "value")
-    #endWidget.observe(observationFunctionWrapper, "value")      
+    endWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionWidget.value, startWidget.value, endWidget.value, graphableObjects), "value")      
         
     graphObject = widgets.VBox([
         figure,
@@ -212,30 +189,36 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
     #exit if invalid start, end values were provided
     if(start >= end):
         return
-    #int(abs(end-start)/dx
-        
+    
     if(graphableObjects[0].oldStart != start):
         if(start < graphableObjects[0].oldStart):
             for index, graphableObject in enumerate(graphableObjects):
                 x, y = graphFunction(graphableObject.value, resolution = resolution, start = start, end = graphableObject.oldStart, rawData = True)
-                print(x)
-                print(y)
-                print(traces[index])
-                traces[index].update(x = x + list(graphableObject.graphedData.x), y =  y + list(graphableObject.graphedData.y))
-                graphableObject.graphedData.update(traces[index])
-                graphableObject.oldStart = start
+                graphableObject.graphedData.update(x = x + list(graphableObject.graphedData.x), y = y + list(graphableObject.graphedData.y))
                 
-       # else:
+                graphableObject.oldStart = start    
+                endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
+                traces[index].update(x = graphableObject.graphedData.x[:endIndex], y = graphableObject.graphedData.y[:])
+        else:
+            startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
+            endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
+            for index, graphableObject in enumerate(graphableObjects):
+                traces[index].update(x = graphableObject.graphedData.x[startIndex:endIndex],y = graphableObject.graphedData.y[startIndex:endIndex])
             
-               
-#    else if(end > graphableObjects[0].graphedData.x[-1]):
-#        pass
-        
-    #for index, trace in enumerate(traces): 
-                        
-                        
-        
-     #   trace.update(x = graphableObjects[index].graphedData["x"], y = graphableObjects[index].graphedData["y"])
+    else:
+        if(end > graphableObjects[0].oldEnd):
+            for index, graphableObject in enumerate(graphableObjects):
+                x, y = graphFunction(graphableObject.value, resolution = resolution, start = graphableObject.oldEnd, end = end, rawData = True)
+                graphableObject.graphedData.update(x = list(graphableObject.graphedData.x) + x, y = list(graphableObject.graphedData.y) + y)
+
+                graphableObject.oldEnd = end    
+                startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
+                traces[index].update(x = graphableObject.graphedData.x[startIndex::], y = graphableObject.graphedData.y[startIndex::])
+        else:
+            startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
+            endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
+            for index, graphableObject in enumerate(graphableObjects):
+                traces[index].update(x = graphableObject.graphedData.x[startIndex:endIndex],y = graphableObject.graphedData.y[startIndex:endIndex])          
         
 ###################################################################################
 
@@ -261,16 +244,17 @@ def parallelGraphing(graphableObjects, precision, resolution, start, end):
     
     traces = []
     functions = []
-    for objectData in results: 
+    for index, objectData in enumerate(results): 
         traces.append(objectData[0])
         functions.append(objectData[1])
+        graphableObjects[index].graphedData = objectData[0]
         
     return traces, functions
 
 ###################################################################################
 
 def parallelGraphingWorker(graphableObject, precision, resolution, start, end):
-
+    
     return (graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, yTitle = graphableObject.yTitle, 
-                        dash = graphableObject.dash, group = graphableObject.group, start = start, end = end, fill = graphableObject.fill), 
+                        dash = graphableObject.dash, group = graphableObject.group, start = start, end = end, fill = graphableObject.fill, resolution = resolution), 
             graphableObject.value)

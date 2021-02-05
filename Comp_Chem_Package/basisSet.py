@@ -36,7 +36,7 @@ class basisSet(Graphable):
         
         #get needed graphing data
         self.addGraphableObject(graphableObjects[::-1])
-        function =  self.basisFunctions[-1]
+        function = self.basisFunctions[-1]
         self.graphTitle = function.name + " Basis Set"
         self.start = function.start 
         self.end = function.end

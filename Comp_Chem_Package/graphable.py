@@ -98,7 +98,7 @@ class Graphable(ABC):
             for graphableObject in self.graphableObjects: 
                 traces.append(plot.graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = self.precision, xTitle = graphableObject.xTitle, 
                                             yTitle = graphableObject.yTitle, dash = graphableObject.dash, group = graphableObject.group, 
-                                            start = self.start, end = self.end, fill = graphableObject.fill))
+                                            start = self.start, end = self.end, fill = graphableObject.fill, resolution = self.resolution))
                 graphableObject.graphedData = traces[-1]
                 functions.append(graphableObject.value)
         
