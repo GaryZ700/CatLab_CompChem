@@ -27,7 +27,6 @@ class schrod(Graphable):
         self.graphableData = []
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavenumbers"
-        self.resolution = 250
         self.isGraphable = False
         self.wavefunctions = []
         
@@ -50,7 +49,7 @@ class schrod(Graphable):
         if(basis.size == 1):
             scaleFactor = 500
         else: 
-            scaleFactor = (ev[1] - ev[0]) / 7
+            scaleFactor = (ev[1] - ev[0]) * 0.12
         
        #All this code here is used soley for graphing and should probably be refactored elsewhere
        #Thinking of updating graphing module so that there is a separate location to make graphing calls and setup
@@ -164,4 +163,4 @@ class schrod(Graphable):
         visibleWavefunctions.observe(vsfWrapper)
         probability.observe(vsfWrapper)
         
-        return [[visibleWavefunctions, scaleWidget], [probability]]
+        return [[visibleWavefunctions, scaleWidget, 0], [probability, 1]]

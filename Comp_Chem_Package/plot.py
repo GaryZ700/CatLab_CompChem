@@ -52,6 +52,12 @@ graphingParameters = { "showGraph"      : False,
                        "startBoundary"  : None, 
                        "endBoundary"    : None}
 
+
+#internal resolution dictionary
+resolutionValue = { "High"   : 800, 
+                    "Medium" : 400, 
+                    "Low"    : 200}
+
 ###################################################################################
 
 #Global Plot Helper Functions Declared Here
@@ -124,13 +130,19 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
     startDescription = '<p style="font-family:' + fontFamily + ';font-size:15px">'
     endDescription = '</p>'
     
-    resolutionWidget = widgets.BoundedFloatText(
+    resolutionWidget = widgets.Dropdown(
+        options = ['Low', 'Medium', 'High'],
+        value = 'Medium',
+        description = startDescription + "Resolution" + endDescription,
+    )
+
+    '''resolutionWidget = widgets.BoundedFloatText(
         value = resolution,
         min = 0.001, 
         max = pow(10, 300),
         step = 0.1,
         description = startDescription + "Resolution" + endDescription
-    )
+    )'''
     
     precisionWidget = widgets.BoundedIntText(
         value = precision, 
@@ -157,15 +169,15 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
     else: 
         functionTraces = traces
         
-    #resolutionWidget.observe(observationFunctionWrapper, "value")
+    resolutionWidget.observe(lambda change : resolutionWidgetUpdate(functionTraces, graphableObjects, change["new"], change["old"], precisionWidget.value, startWidget.value, endWidget.value), "value")
     precisionWidget.observe(lambda change : widgetUpdates(traces, lambda trace : trace.update( 
                                                          hovertemplate = "<b>" + "test"  + " = %{x:0." + 
                                                                          str(precisionWidget.value) + "f}</b><br>" + "<b>" +
                                                                          "cat" + " = %{y:0." + str(precisionWidget.value) + 
                                                                          "f}</b>")), "value")
     
-    startWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionWidget.value, startWidget.value, endWidget.value, graphableObjects), "value")
-    endWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionWidget.value, startWidget.value, endWidget.value, graphableObjects), "value")      
+    startWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionValue[resolutionWidget.value], startWidget.value, endWidget.value, graphableObjects), "value")
+    endWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionValue[resolutionWidget.value], startWidget.value, endWidget.value, graphableObjects), "value")      
         
     graphObject = widgets.VBox([
         figure,
@@ -181,7 +193,14 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
         return (graphObject, [resolutionWidget, startWidget, endWidget, precisionWidget])
     else:
         return graphObject
-    
+
+###################################################################################
+
+def resolutionWidgetUpdate(traces, graphableObjects, newResolution, oldResolution, precision, start, end):
+
+    for index, trace in enumerate(graphObjects(graphableObjects, precision, resolutionValue[newResolution], start, end)[0]):
+        traces[index].update(trace)
+
 ###################################################################################
 
 def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
@@ -223,7 +242,6 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
 ###################################################################################
 
 def widgetUpdates(traces, updateFunction):
-    
     for trace in traces: 
         updateFunction(trace)
 
@@ -258,3 +276,21 @@ def parallelGraphingWorker(graphableObject, precision, resolution, start, end):
     return (graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, yTitle = graphableObject.yTitle, 
                         dash = graphableObject.dash, group = graphableObject.group, start = start, end = end, fill = graphableObject.fill, resolution = resolution), 
             graphableObject.value)
+
+###################################################################################
+
+def graphObjects(graphableObjects, precision, resolution, start, end):
+    if(len(graphableObjects) > 9 and cpu_count() > 1):
+        traces, functions = parallelGraphing(graphableObjects, precision, resolution, start, end)
+    else: 
+        traces = []
+        functions = []
+
+        for graphableObject in graphableObjects: 
+            traces.append(graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, 
+                                        yTitle = graphableObject.yTitle, dash = graphableObject.dash, group = graphableObject.group, 
+                                        start = start, end = end, fill = graphableObject.fill, resolution = resolution))
+            graphableObject.graphedData = traces[-1]
+            functions.append(graphableObject.value)
+
+    return traces, functions

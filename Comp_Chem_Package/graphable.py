@@ -8,6 +8,7 @@ from compChemGlobal import plot
 from plot import graphingParameters
 from plot import parallelGraphing
 from plot import cpu_count
+from plot import graphObjects
 
 class Graphable(ABC):
     
@@ -25,7 +26,7 @@ class Graphable(ABC):
     #Graphing Parameters
     #for default widgets
     precision = 2
-    resolution = 200
+    resolution = "Medium"
     start = 0 
     end = 5
 
@@ -37,6 +38,7 @@ class Graphable(ABC):
     graphableObjects = []
     graphableData = []
     graphedData = []
+    highestResData = []
     
     #Graphable Settings
     #is graphable refers to weather this object itself has the abillity to graph, or 
@@ -89,18 +91,7 @@ class Graphable(ABC):
         if(self.isGraphable):
              self.graphableObjects.append(self)
         
-        if(len(self.graphableObjects) > 9 and cpu_count() > 1):
-            traces, functions = parallelGraphing(self.graphableObjects, self.precision, self.resolution, self.start, self.end)
-        else: 
-            traces = []
-            functions = []
-            
-            for graphableObject in self.graphableObjects: 
-                traces.append(plot.graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = self.precision, xTitle = graphableObject.xTitle, 
-                                            yTitle = graphableObject.yTitle, dash = graphableObject.dash, group = graphableObject.group, 
-                                            start = self.start, end = self.end, fill = graphableObject.fill, resolution = self.resolution))
-                graphableObject.graphedData = traces[-1]
-                functions.append(graphableObject.value)
+        traces, functions = graphObjects(self.graphableObjects, precision = self.precision, resolution = plot.resolutionValue[self.resolution], start = self.start, end = self.end)
         
         #Add graphable data
         traces.extend(self.graphableData)
