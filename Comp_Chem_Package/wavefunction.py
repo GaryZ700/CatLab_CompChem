@@ -3,7 +3,7 @@
 
 #Class that represents the wavefunction that is a solutoin from solving the schrodinger equation
 
-from graphable import *
+from compChemGlobal import Graphable
 
 #Wavefunction derives from basis function as a wavefunction can also be used as a basis set as well
 class wavefunction(Graphable):
@@ -16,16 +16,19 @@ class wavefunction(Graphable):
     squared = False
     
     def __init__(self, eigenVector, energy, basis, n, squared=False):
+        self.graphableObjects = []
+        self.graphableData = []
+        
         self.graphTitle = "Wavefunction n=" + str(n)
         if(squared):
             self.graphTitle = "Squared " + self.graphTitle
             
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavefunction Output"
+        self.fill = "tozerox"
         
         self.energy = energy
         self.function = lambda r : sum( [ eigenVector[i]*basis[i](r) for i in range(basis.size)] )
-        
         self.squared = squared
 
 ###################################################################################
@@ -36,6 +39,6 @@ class wavefunction(Graphable):
 
 ###################################################################################
 
-    def scale(self, scalingFactor=900):
+    def scale(self, scalingFactor):
         self.scalingFactor = scalingFactor
         return self

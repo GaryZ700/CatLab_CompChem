@@ -135,7 +135,9 @@ class rkr(PESMethod):
             data = dict(r=[], E=[])
             derivatives = dict(ddr=[], ddE=[], ddE2=[])
 
-            while(EPrime > self.EPrimeCutoff):                
+            iterations = 0
+            
+            while(EPrime > self.EPrimeCutoff and iterations < 500):                
                 energy = self.E(v)
                 
                 if(leftAsympCutOff):
@@ -160,6 +162,7 @@ class rkr(PESMethod):
                             cutOffIndex = len(data["E"])
 
                 v += dv
+                iterations += 1
                 EPrime = self.EPrime(v)
                 loadingBar.value = -EPrime
     
