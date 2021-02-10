@@ -28,6 +28,7 @@ pio.renderers["jupyterlab"].config = config
 pio.templates.default = "simple_white"
 
 fontFamily = "Verdana"
+cutoffLimit = pow(10, -12)
 
 #modify the default template to better fit into the program
 pio.templates[pio.templates.default].layout.update(dict(
@@ -39,7 +40,7 @@ pio.templates[pio.templates.default].layout.update(dict(
     
     yaxis_showgrid = True,
     xaxis_showgrid = True,
-    
+
     yaxis_title_font_size = 17,
     xaxis_title_font_size = 17,   
 ))
@@ -63,33 +64,30 @@ resolutionValue = { "High"   : 800,
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
 def graphFunction(function, title="", resolution=100, start=0, end=5, precision=2, 
-                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", fill = "none", graphCondition=None):
+                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, dash="solid", group="", fill = "none", yEqualsCutoff = None):
     
     x = []
     y = []
     dx = 1 / resolution 
-    if(startBoundary != None and graphCondition == None and type(startBoundary) != list):
-        for step in range(int(abs(end-start)/dx)):
+   
+    if(yEqualsCutoff != None):
+        leftSide = True
+        for step in range(int(abs( (end-start)/dx ))):
+
             xValue = start + step * dx
             yValue = function(xValue)
-          
-            if(xValue >= startBoundary):
-                if(yValue <= endBoundary(xValue)):
-                    x.append(xValue)
-                    y.append(yValue)
-                else: 
+            
+            if(abs(yValue - yEqualsCutoff) <= cutoffLimit):
+                if(leftSide):
+                    continue
+                    leftSide = False 
+                else:
                     break
-                    
-    elif (graphCondition != None):
-        for step in range(int(abs(end-start)/dx)):
-            xValue = start + step * dx
-            yValue = function(xValue)
-            if(graphCondition(xValue, yValue)):
-                x.append(xValue)
-                y.append(yValue)
-                
-    else: 
-          for step in range(int(abs( (end-start)/dx ))):
+            x.append(xValue)
+            y.append(yValue)
+
+    else:
+        for step in range(int(abs( (end-start)/dx ))):
             x.append(start + step * dx)
             y.append(function(x[-1]))
 
@@ -135,14 +133,6 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
         value = 'Medium',
         description = startDescription + "Resolution" + endDescription,
     )
-
-    '''resolutionWidget = widgets.BoundedFloatText(
-        value = resolution,
-        min = 0.001, 
-        max = pow(10, 300),
-        step = 0.1,
-        description = startDescription + "Resolution" + endDescription
-    )'''
     
     precisionWidget = widgets.BoundedIntText(
         value = precision, 
@@ -203,6 +193,11 @@ def resolutionWidgetUpdate(traces, graphableObjects, newResolution, oldResolutio
 
 ###################################################################################
 
+def cutoffCheck(yEqualsCutoff, start, end, minX, maxX):
+    return False if yEqualsCutoff == None else (start >= minX and end <= maxX)
+        
+###################################################################################
+
 def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
     
     #exit if invalid start, end values were provided
@@ -212,6 +207,8 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
     if(graphableObjects[0].oldStart != start):
         if(start < graphableObjects[0].oldStart):
             for index, graphableObject in enumerate(graphableObjects):
+                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                    continue
                 x, y = graphFunction(graphableObject.value, resolution = resolution, start = start, end = graphableObject.oldStart, rawData = True)
                 graphableObject.graphedData.update(x = x + list(graphableObject.graphedData.x), y = y + list(graphableObject.graphedData.y))
                 
@@ -222,11 +219,15 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
             startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
             endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
             for index, graphableObject in enumerate(graphableObjects):
+                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                    continue
                 traces[index].update(x = graphableObject.graphedData.x[startIndex:endIndex],y = graphableObject.graphedData.y[startIndex:endIndex])
             
     else:
         if(end > graphableObjects[0].oldEnd):
             for index, graphableObject in enumerate(graphableObjects):
+                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                    continue
                 x, y = graphFunction(graphableObject.value, resolution = resolution, start = graphableObject.oldEnd, end = end, rawData = True)
                 graphableObject.graphedData.update(x = list(graphableObject.graphedData.x) + x, y = list(graphableObject.graphedData.y) + y)
 
@@ -237,6 +238,8 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
             startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
             endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
             for index, graphableObject in enumerate(graphableObjects):
+                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                    continue
                 traces[index].update(x = graphableObject.graphedData.x[startIndex:endIndex],y = graphableObject.graphedData.y[startIndex:endIndex])          
         
 ###################################################################################
@@ -289,7 +292,7 @@ def graphObjects(graphableObjects, precision, resolution, start, end):
         for graphableObject in graphableObjects: 
             traces.append(graphFunction(graphableObject.value, title = graphableObject.graphTitle, precision = precision, xTitle = graphableObject.xTitle, 
                                         yTitle = graphableObject.yTitle, dash = graphableObject.dash, group = graphableObject.group, 
-                                        start = start, end = end, fill = graphableObject.fill, resolution = resolution))
+                                        start = start, end = end, fill = graphableObject.fill, resolution = resolution, yEqualsCutoff = graphableObject.yEqualsCutoff))
             graphableObject.graphedData = traces[-1]
             functions.append(graphableObject.value)
 

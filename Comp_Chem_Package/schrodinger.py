@@ -19,7 +19,6 @@ class schrod(Graphable):
     maxWaveFunctions = None
     wavefunctions = []
     
-    
     def __init__(self, arg1=None, basis=None, pes=None):
         
         #Set up Graphing Properties
@@ -61,7 +60,11 @@ class schrod(Graphable):
             
             #Allow objects to return two simultaneous traces at the same time
             wf = wavefunction(vector, ev[index], basis, index).scale(scaleFactor)
-            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(scaleFactor) 
+            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(scaleFactor)
+            
+            if(pes != None):
+                wf.setGraphVariables(yEqualsCutoff = ev[index])
+                wf2.setGraphVariables(yEqualsCutoff = ev[index])
             
             self.addGraphableObject(wf)
             self.addGraphableObject(wf2)

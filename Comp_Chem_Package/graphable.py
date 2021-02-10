@@ -22,6 +22,7 @@ class Graphable(ABC):
     dash = "solid"
     group = ""
     fill = "none"
+    yEqualsCutoff = None
     
     #Graphing Parameters
     #for default widgets
