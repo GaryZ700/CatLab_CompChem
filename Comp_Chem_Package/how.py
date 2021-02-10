@@ -14,6 +14,8 @@ class how(basisFunction):
     constant = 0
     
     def __init__(self, diatomicConstants, n):
+        self.graphableData = []
+        self.graphableObjects = []
         self.n = n
         self.re = diatomicConstants["re"]
         
