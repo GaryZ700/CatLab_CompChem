@@ -111,9 +111,9 @@ class Graphable(ABC):
                                                 ), 
                                    data = data
                                   )
-
+        
         widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, resolution=self.resolution, 
-                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1], graphableObjects = self.graphableObjects)
+                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1])
         
         graph = widgetData[0]
         

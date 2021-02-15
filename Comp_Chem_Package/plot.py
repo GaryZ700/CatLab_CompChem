@@ -63,8 +63,15 @@ resolutionValue = { "High"   : 800,
 
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
+<<<<<<< HEAD
 def graphFunction(function, title="", resolution=100, start=0, end=5, precision=2, 
                  xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, dash="solid", group="", fill = "none", yEqualsCutoff = None):
+=======
+def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
+                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", graphCondition=None):
+    
+    #print("Graph Function Called!")
+>>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
     
     x = []
     y = []
@@ -76,12 +83,21 @@ def graphFunction(function, title="", resolution=100, start=0, end=5, precision=
 
             xValue = start + step * dx
             yValue = function(xValue)
+<<<<<<< HEAD
             
             if(abs(yValue - yEqualsCutoff) <= cutoffLimit):
                 if(leftSide):
                     continue
                     leftSide = False 
                 else:
+=======
+            print(startBoundary)
+            if(xValue >= startBoundary):
+                if(yValue <= endBoundary(xValue)):
+                    x.append(xValue)
+                    y.append(yValue)
+                else: 
+>>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
                     break
             x.append(xValue)
             y.append(yValue)
@@ -118,15 +134,21 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup
 
 ###################################################################################
 
+<<<<<<< HEAD
 #returns the general ipython widgets that all graphable objects have
 #and connects them to all of the figure's traces
 #figure refers to the plotly figure widget object to which the widgets should associated with
 def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnWidgets=False,
+=======
+#returns the ipython widgets needed f
+def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
+>>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
                             resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None):
     
     fontFamily = pio.templates[pio.templates.default]["layout"]["font"]["family"]
     startDescription = '<p style="font-family:' + fontFamily + ';font-size:15px">'
     endDescription = '</p>'
+
     
     resolutionWidget = widgets.Dropdown(
         options = ['Low', 'Medium', 'High'],
@@ -156,6 +178,19 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
     
     if(graphableData > 0):
         functionTraces = traces[:graphableData]     
+<<<<<<< HEAD
+=======
+
+        observationFunctionWrapper = lambda change : [trace.update(buildTrace( x = trace.x, y = trace.y, 
+                                                                               title = trace.name,
+                                                                               precision = precisionWidget.value,
+                                                                               xTitle = trace.hovertemplate.split("<b>")[0].split("=")[0],
+                                                                               yTitle = trace.hovertemplate.split("<b>")[1].split("=")[0 ],
+                                                                               mode = "markers", group = trace.legendgroup)) 
+                                                      for trace in traces[graphableData:]]
+        precisionWidget.observe(observationFunctionWrapper, "value")
+
+>>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
     else: 
         functionTraces = traces
         
@@ -166,9 +201,25 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnW
                                                                          "cat" + " = %{y:0." + str(precisionWidget.value) + 
                                                                          "f}</b>")), "value")
     
+<<<<<<< HEAD
     startWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionValue[resolutionWidget.value], startWidget.value, endWidget.value, graphableObjects), "value")
     endWidget.observe(lambda change : endPointWidgetUpdate(functionTraces, resolutionValue[resolutionWidget.value], startWidget.value, endWidget.value, graphableObjects), "value")      
         
+=======
+    observationFunctionWrapper = lambda change : [trace.update(graphFunction(functions[index],
+                                                                            title = trace.name,
+                                                                            resolution = resolutionWidget.value,
+                                                                            precision = precisionWidget.value,
+                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary, group = trace.legendgroup
+                                                                           )) 
+                                                for index, trace in enumerate(functionTraces)]
+    
+    resolutionWidget.observe(observationFunctionWrapper, "value")
+    precisionWidget.observe(observationFunctionWrapper, "value")
+    startWidget.observe(observationFunctionWrapper, "value")
+    endWidget.observe(observationFunctionWrapper, "value")      
+    
+>>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
     graphObject = widgets.VBox([
         figure,
         widgets.HBox([resolutionWidget, precisionWidget]),
