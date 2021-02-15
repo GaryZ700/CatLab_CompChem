@@ -114,14 +114,18 @@ class Graphable(ABC):
                                                 ), 
                                    data = data
                                   )
-
+        
         widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, resolution=self.resolution, 
+<<<<<<< HEAD
                                              start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), graphableObjects = self.graphableObjects)
+=======
+                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1])
+>>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
         
         graph = widgetData[0]
         
         parentWidgets = self.getWidgets(graph.children[0].data, widgetData[1])
-
+        print(len(graph.children[0].data))
         if(parentWidgets != False):
             for widgetList in parentWidgets:
                 if(widgetList == False):

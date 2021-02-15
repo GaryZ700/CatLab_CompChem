@@ -48,7 +48,9 @@ pio.templates[pio.templates.default].layout.update(dict(
 #Returns a line trace from a given function
 def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
                  xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", graphCondition=None):
-        
+    
+    #print("Graph Function Called!")
+    
     x = []
     y = []
     
@@ -57,7 +59,7 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
         for step in range(int(abs(end-start)/dx)):
             xValue = start + step * dx
             yValue = function(xValue)
-          
+            print(startBoundary)
             if(xValue >= startBoundary):
                 if(yValue <= endBoundary(xValue)):
                     x.append(xValue)
@@ -104,11 +106,12 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup
 
 #returns the ipython widgets needed f
 def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
-                            resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None, graphableObjects=None):
+                            resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None):
     
     fontFamily = pio.templates[pio.templates.default]["layout"]["font"]["family"]
     startDescription = '<p style="font-family:' + fontFamily + ';font-size:15px">'
     endDescription = '</p>'
+
     
     resolutionWidget = widgets.BoundedFloatText(
         value = resolution,
@@ -146,10 +149,8 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                                precision = precisionWidget.value,
                                                                                xTitle = trace.hovertemplate.split("<b>")[0].split("=")[0],
                                                                                yTitle = trace.hovertemplate.split("<b>")[1].split("=")[0 ],
-                                                                               mode = "markers", group = trace.legendgroup,
-                                                                               graphCondition = graphableObjects[index].graphCondition
-                                                                               )) 
-                                                      for index, trace in enumerate(traces[graphableData:])]
+                                                                               mode = "markers", group = trace.legendgroup)) 
+                                                      for trace in traces[graphableData:]]
         precisionWidget.observe(observationFunctionWrapper, "value")
 
     else: 
@@ -159,9 +160,7 @@ def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
                                                                             title = trace.name,
                                                                             resolution = resolutionWidget.value,
                                                                             precision = precisionWidget.value,
-                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary, 
-                                                                            group = trace.legendgroup,
-                                                                            graphCondition = graphableObjects[index].graphCondition
+                                                                            start = startWidget.value, end = endWidget.value, startBoundary = startBoundary, endBoundary = endBoundary, group = trace.legendgroup
                                                                            )) 
                                                 for index, trace in enumerate(functionTraces)]
     
