@@ -63,15 +63,8 @@ resolutionValue = { "High"   : 800,
 
 #Global Plot Helper Functions Declared Here
 #Returns a line trace from a given function
-<<<<<<< HEAD
 def graphFunction(function, title="", resolution=100, start=0, end=5, precision=2, 
                  xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, dash="solid", group="", fill = "none", yEqualsCutoff = None):
-=======
-def graphFunction(function, title, resolution=100, start=0, end=5, precision=2, 
-                 xTitle="x", yTitle="y", hoverTemplate=None, rawData=False, startBoundary=None, endBoundary=None, dash="solid", group="", graphCondition=None):
-    
-    #print("Graph Function Called!")
->>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
     
     x = []
     y = []
@@ -83,22 +76,14 @@ def graphFunction(function, title, resolution=100, start=0, end=5, precision=2,
 
             xValue = start + step * dx
             yValue = function(xValue)
-<<<<<<< HEAD
             
             if(abs(yValue - yEqualsCutoff) <= cutoffLimit):
                 if(leftSide):
                     continue
                     leftSide = False 
                 else:
-=======
-            print(startBoundary)
-            if(xValue >= startBoundary):
-                if(yValue <= endBoundary(xValue)):
-                    x.append(xValue)
-                    y.append(yValue)
-                else: 
->>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
                     break
+                    
             x.append(xValue)
             y.append(yValue)
 
@@ -134,16 +119,10 @@ def buildTrace(x, y, title, precision, xTitle, yTitle, mode="lines", legendgroup
 
 ###################################################################################
 
-<<<<<<< HEAD
 #returns the general ipython widgets that all graphable objects have
 #and connects them to all of the figure's traces
 #figure refers to the plotly figure widget object to which the widgets should associated with
-def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnWidgets=False,
-=======
-#returns the ipython widgets needed f
-def getGraphFunctionWidgets(figure, traces, functions, returnWidgets=False,
->>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
-                            resolution=100, start=0, end=5, precision=2, graphableData=0, endBoundary=None, startBoundary=None):
+def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, returnWidgets=False):
     
     fontFamily = pio.templates[pio.templates.default]["layout"]["font"]["family"]
     startDescription = '<p style="font-family:' + fontFamily + ';font-size:15px">'
