@@ -36,7 +36,7 @@ class DiatomicPotential(Graphable):
     
 ###################################################################################
 
-    def getWidgets(self):
+    def getWidgets(self, traces = None, widgets = None):
         return False
     
 ###################################################################################
@@ -53,9 +53,10 @@ class DiatomicPotential(Graphable):
 ###################################################################################
 
     #data must be the dictionary output from a PES Method Computation
-    def __init__(self, diatomicConstants, data=None):
+    def __init__(self, diatomicConstants=None, data=None):
         self.diatomicConstants = diatomicConstants
-        
+        self.graphableData = []
+        self.graphableObjects = []
         if(data != None):
             self.fit(data)
             

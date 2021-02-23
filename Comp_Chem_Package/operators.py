@@ -57,36 +57,12 @@ class TOperator(Operator):
             
 ###################################################################################
     
-    def operatesOn(self, basisSet, precision=pow(10, 10)):
+    def operatesOn(self, basisSet, precision=5):
         
         #Declare variables needed for the calculation
         self.matrix = np.zeros( [basisSet.size, basisSet.size] )
         
         constant = -hbar*hbar*jToWavenumbers / (2*basisSet.diatomicConstants["u"]*aToM2*amuToKg)
-
-        
-        '''  p = Pool(cpu_count())
-        integrationFunction = lambda index : integrate(lambda r : basisSet[index[0]].value(r) * constant * ddx(basisSet[index[1]].value, r, n=2), self.integrationStart, inf)
-        
-        basisPairs = []
-        for i in range(basisSet.size):
-            j = i + 2
-            if(j < basisSet.size):
-                basisPairs.append([i, j])
-                basisPairs.append([j, i])
-             #   self.matrix[i, j] = round(integrate( lambda r : basisSet[i].value(r) * constant * ddx(basisSet[j].value, r, n=2), self.integrationStart, inf), precision)
-             #   self.matrix[j, i] = round(integrate( lambda r : basisSet[j].value(r) * constant * ddx(basisSet[i].value, r, n=2), self.integrationStart, inf), precision)
-        
-            #self.matrix[i, i] = round(integrate( lambda r : basisSet[i].value(r) * constant * ddx(basisSet[i].value, r, n=2), self.integrationStart, inf), precision)
-            basisPairs.append([i, i])
-         
-
-        p.map(integrationFunction, basisPairs)
-        p.close()
-        p.join() 
-        
-        for pair in basisPairs: 
-            self.matrix[pair[0], pair[1]] = integrationFunction(pair)'''
         
         for i, b1 in enumerate(basisSet):
             for j, b2 in enumerate(basisSet):
@@ -171,14 +147,14 @@ class HOperator(Operator):
     #Declare global variables here
     matrix = None
     
-    def __init__(self, arg1=None, arg2=None, precision=pow(10,10)):
+    def __init__(self, arg1=None, arg2=None, precision=5):
         
         if(arg1 != None):
             self.operatesOn(arg1, arg2, precision)
 
 ###################################################################################
         
-    def operatesOn(self, arg1, arg2, precision=pow(10,10)):
+    def operatesOn(self, arg1, arg2, precision=5):
         if(type(arg1) == VOperator or type(arg1) == TOperator):
                 self.matrix = (arg1 + arg2).matrix
         else: 
@@ -211,11 +187,6 @@ class HOperator(Operator):
                 
                 if(abs(basisIndex[0]-basisIndex[1]) != 2):
                     self.matrix[basisIndex[1], basisIndex[0]] = results[resultsIndex]
-               
-            
-            #for i, b1 in enumerate(basis):
-            #    for j, b2 in enumerate(basis):
-            #        self.matrix[i,j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), 0, inf), precision) + integrate(lambda r : b1.value(r) * pes.value(r) * b2.value(r), self.integrationStart, inf)
     
 ###################################################################################
 

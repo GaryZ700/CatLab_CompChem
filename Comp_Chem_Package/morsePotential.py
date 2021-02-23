@@ -16,11 +16,6 @@ class morsePotential(DiatomicPotential):
     end = 20
     
     def implementation(self, r):
-        #print(self.pesData)
-        #print(min(self.pesData["r"]))
-        #print(self.pesData["r"].index(min(self.pesData["r"])))
-        #print(min(self.pesData["r"], key = lambda rTest : abs(rTest - r)))
-        #print(self.a)
         aValue = self.a[self.pesData["r"].index(min(self.pesData["r"], key = lambda rTest : abs(rTest - r)))]
         
         return self.pesData["D"] if aValue == 0 else self.pesData["D"] * pow(1 - exp(-aValue * (r - self.diatomicConstants["re"])), 2) 
@@ -43,7 +38,7 @@ class morsePotential(DiatomicPotential):
         
         for index, r in enumerate(data["r"]):
             
-            if(self.diatomicConstants["re"] == r):
+            if(data["E"][index] == 0):
                 self.a.append(1)
                 continue
             
@@ -54,7 +49,7 @@ class morsePotential(DiatomicPotential):
                 
             if(r > self.diatomicConstants["re"]):
                 squareRoot *= -1
-            
+
             self.a.append( -log(1 + squareRoot) / (r - self.diatomicConstants["re"]) )
 
 ###################################################################################

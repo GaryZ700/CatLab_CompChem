@@ -15,6 +15,8 @@ class PESMethod(GraphableData):
     #Global private variables
     data = None
     diatomicConstants = None
+    start = 0.5
+    end = 5
 
     #if no widgets are desired for the child class, then have this function return False
     @abstractmethod
@@ -53,7 +55,7 @@ class PESMethod(GraphableData):
             
 ###################################################################################
 
-    def compute(self, start=None, end=None, resolut0ion=None):
+    def compute(self, start=None, end=None, resolution=None):
         
         if(start == None):
             start = self.start
@@ -66,9 +68,7 @@ class PESMethod(GraphableData):
                                   start=start, end=end, resolution=resolution, rawData=True)
         
         self.data = dict(r=r, E=E)
-        
-        self.addGraphableData(dict(x=r, y=E))
-        
+                
         return self.data
 
 ###################################################################################

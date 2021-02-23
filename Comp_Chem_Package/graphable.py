@@ -93,6 +93,8 @@ class Graphable(ABC):
              self.graphableObjects.append(self)
         
         traces, functions = graphObjects(self.graphableObjects, precision = self.precision, resolution = plot.resolutionValue[self.resolution], start = self.start, end = self.end)
+        print("graph objects called")
+        
         
         #Add graphable data
         traces.extend(self.graphableData)
@@ -115,12 +117,8 @@ class Graphable(ABC):
                                    data = data
                                   )
         
-        widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, resolution=self.resolution, 
-<<<<<<< HEAD
+        widgetData = plot.getGraphFunctionWidgets(fig, fig.data, functions, 
                                              start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), graphableObjects = self.graphableObjects)
-=======
-                                             start=self.start, end=self.end, precision=self.precision, returnWidgets=True, graphableData=len(self.graphableData), startBoundary=boundaries[0], endBoundary=boundaries[1])
->>>>>>> parent of 917e0bd (Adds working version for Dr. LaRue Lab)
         
         graph = widgetData[0]
         

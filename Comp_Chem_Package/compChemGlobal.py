@@ -94,3 +94,8 @@ from plot import widgets
 
 #allow things to be graphable
 from graphable import *
+
+#Create global unit conversion objects
+from collections import namedtuple
+unitBase = namedtuple("unitConversion", ["hartree"])
+units = unitBase(hartree="hartree")

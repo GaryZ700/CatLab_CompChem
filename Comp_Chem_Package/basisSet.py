@@ -20,7 +20,8 @@ class basisSet(Graphable):
         self.size = size
         self.basisFunctionClass = basisFunctionClass
         self.diatomicConstants = diatomicConstants
-        
+        self.xTitle = "r in Angstroms"
+        self.yTitle = "Wavenumbers"
         self.buildBasisSet()
         
  ###################################################################################

@@ -8,7 +8,6 @@ from compChemGlobal import Graphable
 #Wavefunction derives from basis function as a wavefunction can also be used as a basis set as well
 class wavefunction(Graphable):
     
-    
     #Declare global variables here
     function = None
     energy = 0
