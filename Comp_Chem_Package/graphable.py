@@ -40,6 +40,7 @@ class Graphable(ABC):
     graphableData = []
     graphedData = []
     highestResData = []
+    firstGraph = True
     
     #Graphable Settings
     #is graphable refers to weather this object itself has the abillity to graph, or 
@@ -89,8 +90,9 @@ class Graphable(ABC):
         if(bool(kargs)):
             self.setGraphVariables(_dictData_ = kargs)
         
-        if(self.isGraphable):
+        if(self.isGraphable and self.firstGraph):
              self.graphableObjects.append(self)
+             self.firstGraph = False
         
         traces, functions = graphObjects(self.graphableObjects, precision = self.precision, resolution = plot.resolutionValue[self.resolution], start = self.start, end = self.end)
         print("graph objects called")
