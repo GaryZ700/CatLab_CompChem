@@ -26,6 +26,8 @@ class PESMethod(GraphableData):
 ###################################################################################
 
     #for a given r, returns the specified PES value
+    #r will be passed in units of angstroms
+    #PES value must be returned in units of wavenumbers
     @abstractmethod
     def implementation(self, r):
         pass
@@ -67,7 +69,15 @@ class PESMethod(GraphableData):
         r, E = plot.graphFunction(self.implementation, title=self.graphTitle, 
                                   start=start, end=end, resolution=resolution, rawData=True)
         
-        self.data = dict(r=r, E=E)
+        #force PES to be positive
+        minE = min(E)
+        if(minE < 0):
+            minE *= -1
+            for i in range(len(E)):
+                E[i] += minE
+            
+        
+        self.data = dict(r=r, E=E, D = minE)
                 
         return self.data
 

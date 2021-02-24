@@ -11,9 +11,13 @@ class hartreeFock(PESMethod):
     
     #Override global variables
     name = "Hartree-Fock"
-    start = 0.7
+    start = 0.3
     end = 10
     resolution = 10
+    dash = ''
+    group = ''
+    fill = ''
+    yEqualsCutoff = 2
     
     #local variables
     system = None
@@ -33,9 +37,15 @@ class hartreeFock(PESMethod):
 
     #r in units of angstroms
     def implementation(self, r):   
-        self.system.atomData[0].coord.z = self.system.atomData[1].coord.z + r
+        #end number converts from angstroms to bohr radius units
+        self.system.atomData[0].coord.z = self.system.atomData[1].coord.z + r / 0.529177
         return self.scf()
 
+###################################################################################
+
+    def value(self, r):
+        return self.implementation(r)
+    
 ###################################################################################
 
     def scf(self):
@@ -75,7 +85,8 @@ class hartreeFock(PESMethod):
                     return False
             cycles += 1
 
-        return E[-1] + self.nuclearRepulsion()
+        #number is conversion factor from Hartree Energy to wavenumbers
+        return (E[-1] + self.nuclearRepulsion()) / 0.0000046
     
 ###################################################################################
     
