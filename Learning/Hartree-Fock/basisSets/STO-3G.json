@@ -1,0 +1,83 @@
+{
+    "name": "STO-3G",
+    "names": [
+        "STO-3G"
+    ],
+    "flags": [],
+    "family": "sto",
+    "description": "STO-3G Minimal Basis (3 functions/AO)",
+    "role": "orbital",
+    "auxiliaries": {},
+    "function_types": [
+        "spherical_gto"
+    ],
+    "version": "1",
+    "revision_description": "Data from Gaussian09",
+    "elements": {
+        "1": {
+            "references": [
+                {
+                    "reference_description": "STO-3G Minimal Basis (3 functions/AO)",
+                    "reference_keys": [
+                        "hehre1969a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.3425250914E+01",
+                        "0.6239137298E+00",
+                        "0.1688554040E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.1543289673E+00",
+                            "0.5353281423E+00",
+                            "0.4446345422E+00"
+                        ]
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "references": [
+                {
+                    "reference_description": "STO-3G Minimal Basis (3 functions/AO)",
+                    "reference_keys": [
+                        "hehre1969a",
+                        "hehre1970a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.6362421394E+01",
+                        "0.1158922999E+01",
+                        "0.3136497915E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.1543289673E+00",
+                            "0.5353281423E+00",
+                            "0.4446345422E+00"
+                        ]
+                    ]
+                }
+            ]
+        }
+    }
+}

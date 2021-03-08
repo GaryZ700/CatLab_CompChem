@@ -1,0 +1,87 @@
+{
+    "name": "STO-4G",
+    "names": [
+        "STO-4G"
+    ],
+    "flags": [],
+    "family": "sto",
+    "description": "STO-4G Minimal Basis (4 functions/AO)",
+    "role": "orbital",
+    "auxiliaries": {},
+    "function_types": [
+        "spherical_gto"
+    ],
+    "version": "1",
+    "revision_description": "Data from Gaussian09",
+    "elements": {
+        "1": {
+            "references": [
+                {
+                    "reference_description": "STO-4G Minimal Basis (4 functions/AO)",
+                    "reference_keys": [
+                        "hehre1969a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.8021420155E+01",
+                        "0.1467821061E+01",
+                        "0.4077767635E+00",
+                        "0.1353374420E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.5675242080E-01",
+                            "0.2601413550E+00",
+                            "0.5328461143E+00",
+                            "0.2916254405E+00"
+                        ]
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "references": [
+                {
+                    "reference_description": "STO-4G Minimal Basis (4 functions/AO)",
+                    "reference_keys": [
+                        "hehre1969a",
+                        "hehre1970a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.1489982967E+02",
+                        "0.2726485258E+01",
+                        "0.7574474599E+00",
+                        "0.2513900027E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.5675242080E-01",
+                            "0.2601413550E+00",
+                            "0.5328461143E+00",
+                            "0.2916254405E+00"
+                        ]
+                    ]
+                }
+            ]
+        }
+    }
+}

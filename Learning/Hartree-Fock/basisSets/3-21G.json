@@ -1,0 +1,111 @@
+{
+    "name": "3-21G",
+    "names": [
+        "3-21G"
+    ],
+    "flags": [],
+    "family": "pople",
+    "description": "3-21G Split-valence basis set",
+    "role": "orbital",
+    "auxiliaries": {},
+    "function_types": [
+        "cartesian_gto",
+        "spherical_gto"
+    ],
+    "version": "1",
+    "revision_description": "Data from Gaussian 09",
+    "elements": {
+        "1": {
+            "references": [
+                {
+                    "reference_description": "21G Split-valence basis set for H,He",
+                    "reference_keys": [
+                        "binkley1980a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "valence",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.5447178000E+01",
+                        "0.8245472400E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.1562849787E+00",
+                            "0.9046908767E+00"
+                        ]
+                    ]
+                },
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "valence",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.1831915800E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "1.0000000"
+                        ]
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "references": [
+                {
+                    "reference_description": "21G Split-valence basis set for H,He",
+                    "reference_keys": [
+                        "binkley1980a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "valence",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.1362670000E+02",
+                        "0.1999350000E+01"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.1752298718E+00",
+                            "0.8934823465E+00"
+                        ]
+                    ]
+                },
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "valence",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.3829930000E+00"
+                    ],
+                    "coefficients": [
+                        [
+                            "1.0000000"
+                        ]
+                    ]
+                }
+            ]
+        }
+    }
+}

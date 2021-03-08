@@ -1,0 +1,135 @@
+{
+    "name": "def2-SV(P)",
+    "names": [
+        "def2-SV(P)"
+    ],
+    "flags": [],
+    "family": "ahlrichs",
+    "description": "def2-SV(P)",
+    "role": "orbital",
+    "auxiliaries": {
+        "jkfit": "def2-sv(p)-jkfit",
+        "jfit": "def2-universal-jfit",
+        "rifit": "def2-sv(p)-rifit"
+    },
+    "function_types": [
+        "scalar_ecp",
+        "spherical_gto"
+    ],
+    "version": "1",
+    "revision_description": "Data from Turbomole 7.3",
+    "elements": {
+        "1": {
+            "references": [
+                {
+                    "reference_description": "Common base shells for def2-SV* basis sets",
+                    "reference_keys": [
+                        "weigend2005a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "13.0107010",
+                        "1.9622572",
+                        "0.44453796"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.19682158E-01",
+                            "0.13796524",
+                            "0.47831935"
+                        ]
+                    ]
+                },
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.12194962"
+                    ],
+                    "coefficients": [
+                        [
+                            "1.0000000"
+                        ]
+                    ]
+                }
+            ]
+        },
+        "2": {
+            "references": [
+                {
+                    "reference_description": "Common base shells for def2-SV* basis sets",
+                    "reference_keys": [
+                        "weigend2005a"
+                    ]
+                }
+            ],
+            "electron_shells": [
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "38.354936737",
+                        "5.7689081479",
+                        "1.2399407035"
+                    ],
+                    "coefficients": [
+                        [
+                            "0.23814288905E-01",
+                            "0.15490906777",
+                            "0.46998096633"
+                        ]
+                    ]
+                },
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        0
+                    ],
+                    "exponents": [
+                        "0.29757815953"
+                    ],
+                    "coefficients": [
+                        [
+                            "1.0000000"
+                        ]
+                    ]
+                },
+                {
+                    "function_type": "gto",
+                    "harmonic_type": "spherical",
+                    "region": "",
+                    "angular_momentum": [
+                        1
+                    ],
+                    "exponents": [
+                        "1.0000000"
+                    ],
+                    "coefficients": [
+                        [
+                            "1.0000000"
+                        ]
+                    ]
+                }
+            ]
+        }
+    }
+}

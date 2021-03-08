@@ -1,3 +1,0 @@
-This folder contains Python classes files for various Cmoputational Chemistry methods, theories, approximations, data structures and potential surfaces. The purpose of this package is to place all such classes together into a single folder from where each individual class can be easily leveraged as needed, instead of having to import different Computational Chemistry classes from different locations.
-
-All Code Written by Gary Zeri, Chapman University Student and Member of the LaRue CatLab.
