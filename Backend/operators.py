@@ -39,10 +39,14 @@ class Operator(ABC):
     def __str__(self):
         return str(self.matrix)
     
-    def test(self, expression, index1, index2):
-        print(index1, index2)
-        self.matrix[index1, index2] = 1#expression(index1, index2)
-    
+###################################################################################
+
+    def __eq__(self, obj):
+        if(type(obj) == type(self)):
+            return self.matrix == obj.matrix
+        else:
+            return False
+
 #----------------------------------------------------------------------------------
 
 #Kinetic Energy 
@@ -59,10 +63,16 @@ class TOperator(Operator):
     
     def operatesOn(self, basisSet, precision=5):
         
+        #check if basisset has a pre-built calculation for the KE
+        T = basisSet.kineticEnergy()
+        if(type(T) != bool):
+            self.matrix = T
+            return self
+        
         #Declare variables needed for the calculation
         self.matrix = np.zeros( [basisSet.size, basisSet.size] )
         
-        constant = -hbar*hbar*jToWavenumbers / (2*basisSet.diatomicConstants["u"]*aToM2*amuToKg)
+        constant = -hbar*hbar*jToWavenumbers / (2*basisSet.diatomicConstants["u"]*a2ToM2*amuToKg)
         
         for i, b1 in enumerate(basisSet):
             for j, b2 in enumerate(basisSet):
@@ -155,8 +165,12 @@ class HOperator(Operator):
 ###################################################################################
         
     def operatesOn(self, arg1, arg2, precision=5):
+        
+        #T + V 
         if(type(arg1) == VOperator or type(arg1) == TOperator):
                 self.matrix = (arg1 + arg2).matrix
+                
+        #Assume one is basis and other is pes
         else: 
             if(type(arg1) == basisSet):
                 basis = arg1
@@ -164,29 +178,42 @@ class HOperator(Operator):
             else: 
                 pes = arg1 
                 basis = arg2
-                
+            
             self.matrix = np.zeros([basis.size, basis.size])
-            constant = -hbar*hbar*jToWavenumbers / (2*basis.diatomicConstants["u"]*aToM2*amuToKg)
+            constant = -hbar*hbar*jToWavenumbers / (2*basis.diatomicConstants["u"]*a2ToM2*amuToKg)
 
-            basisPairs = []
-            for i in range(basis.size):
-                for j in range(i, basis.size):
-                    basisPairs.append([i, j]) 
+           # basisPairs = []
+           # for i in range(basis.size):
+           #     for j in range(i, basis.size):
+           #         basisPairs.append([i, j]) 
                 
-                    if(abs(i - j) == 2): 
-                        basisPairs.append([j, i])
+            #        if(abs(i - j) == 2): 
+            #            basisPairs.append([j, i])
                     
-
-            integrationFunction = lambda index : round(integrate( lambda r : basis[index[0]].value(r) * constant * ddx(basis[index[1]].value, r, n=2), 0, inf), precision) + integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf)
-            
-            p = Pool(cpu_count())
-            results = p.map(integrationFunction, basisPairs) 
-            
-            for resultsIndex, basisIndex in enumerate(basisPairs):            
-                self.matrix[basisIndex[0], basisIndex[1]] = results[resultsIndex]
+            #checkif integration is required for KE
+            #if yes, build full integration lamabda function 
+            #otherwise just integrate for the potential energy of the system
+            T = basis.kineticEnergy()
+            if(type(T) == bool):
+                integrationFunction = lambda index : round(integrate( lambda r : basis[index[0]].value(r) * constant * ddx(basis[index[1]].value, r, n=2), 0, inf), precision) + round(integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf), precision)
+            else: 
+                self.matrix += T 
+                integrationFunction = lambda index : round(integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf), precision)
                 
-                if(abs(basisIndex[0]-basisIndex[1]) != 2):
-                    self.matrix[basisIndex[1], basisIndex[0]] = results[resultsIndex]
+            p = Pool(cpu_count())
+            results = p.map(integrationFunction, [(i,j) for j in range(basis.size) for i in range(basis.size)]) 
+            
+            #for resultsIndex, basisIndex in enumerate(basisPairs):            
+            #    self.matrix[basisIndex[0], basisIndex[1]] += results[resultsIndex]
+                
+            #    if(abs(basisIndex[0]-basisIndex[1]) != 2):
+            #        self.matrix[basisIndex[1], basisIndex[0]] += results[resultsIndex]
+            
+            for i in range(basis.size):
+                offset = basis.size * i
+                for j in range(basis.size):
+                    self.matrix[i, j] += results[j + offset]
+            
     
 ###################################################################################
 

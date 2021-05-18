@@ -4,6 +4,7 @@
 #Concrete class to implement the Harmonic Oscillator Wavefunction
 
 from basisFunction import *
+from compChemGlobal import np
 
 class how(basisFunction):
 
@@ -32,8 +33,25 @@ class how(basisFunction):
         self.start = round(diatomicConstants["re"] - sqrt(-2 * log(pow(10, -10-n)) / self.alpha), 2)
         self.end = round(-self.start + 2*diatomicConstants["re"], 2)
     
-    ###################################################################################
+###################################################################################
     
     def value(self, r):
         r = r-self.re
         return self.constant * hermitePolynomials(self.n, sqrt(self.alpha)*r) * exp(-self.alpha * pow(r,2) / 2)
+    
+###################################################################################
+    
+    #KE analytic equation originates from Dr. Jerry LaRue's Matematica Notebook for Diatomic Molecules
+    def kineticEnergy(self, basisSet):
+        T = np.zeros([basisSet.size, basisSet.size])
+        for i in range(basisSet.size):
+            T[i, i] = diagTerm = 2*i + 1
+            if(i + 2 < basisSet.size):
+                T[i, i + 2] = -sqrt( (i + 1) * (i + 2))
+            if(i >= 2):
+                T[i, i - 2] = -sqrt( i * (i - 1)) 
+                
+        return T * basisSet.diatomicConstants["w"] / 4
+                
+    
+                 

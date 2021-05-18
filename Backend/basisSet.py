@@ -14,7 +14,6 @@ class basisSet(Graphable):
     size = None
     diatomicConstants = None
     
-    
     def __init__(self, diatomicConstants, basisFunctionClass=how, size=10):
         super().__init__()
         self.size = size
@@ -125,7 +124,12 @@ class basisSet(Graphable):
         probability.observe(vsfWrapper)
         
         return [[visibleWavefunctions, 0], [probability, 1]]
-    
+
+ ###################################################################################
+
+    def kineticEnergy(self):
+        return self.basisFunctions[0].kineticEnergy(self)
+ 
  ###################################################################################
     
     def __iter__(self):

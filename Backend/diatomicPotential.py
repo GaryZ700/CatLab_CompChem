@@ -75,6 +75,8 @@ class DiatomicPotential(Graphable):
             return self.implementation(r)
         else:
             print("Please fit the " + self.name + ", using the 'fit' method.")
+            exit()
+            
             
 ###################################################################################
 

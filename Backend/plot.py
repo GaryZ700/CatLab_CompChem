@@ -28,7 +28,7 @@ pio.renderers["jupyterlab"].config = config
 pio.templates.default = "simple_white"
 
 fontFamily = "Verdana"
-cutoffLimit = pow(10, -12)
+cutoffLimit = pow(10, -4)
 
 #modify the default template to better fit into the program
 pio.templates[pio.templates.default].layout.update(dict(
@@ -71,7 +71,6 @@ def graphFunction(function, title="", resolution=100, start=0, end=5, precision=
     dx = 1 / resolution 
    
     if(yEqualsCutoff != None):
-        print("YESSS!! " + title)
         leftSide = True
         for step in range(int(abs( (end-start)/dx ))):
 

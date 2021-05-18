@@ -13,6 +13,7 @@ class GraphableData(ABC):
     xTitle = ""
     yTitle = ""
     precision = 2
+    resolution = 100 
     
     #Can be "markers", "lines" or "lines+markers"
     mode = "markers"

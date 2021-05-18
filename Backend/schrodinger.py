@@ -16,9 +16,12 @@ class schrod(Graphable):
     eigenValues = None 
     eigenVectors = None
     basis = None
+    pes = None
     maxWaveFunctions = None
+    scaleFactor = None
+    pesLocations = []
     wavefunctions = []
-    
+
     def __init__(self, arg1=None, basis=None, pes=None):
         
         #Set up Graphing Properties
@@ -28,8 +31,9 @@ class schrod(Graphable):
         self.yTitle = "Wavenumbers"
         self.isGraphable = False
         self.wavefunctions = []
+        self.pesLocations = []
         
-        if(type(arg1) == operators.HOperator):
+        if(type(arg1) == operators.HOperator and basis != None):
             self.solve(arg1, basis, pes)
 
 ###################################################################################
@@ -44,11 +48,12 @@ class schrod(Graphable):
         self.eigenVectors = evc 
         self.eigenValues = ev
         self.basis = basis
+        self.pes = pes
         
         if(basis.size == 1):
-            scaleFactor = 500
+            self.scaleFactor = 500
         else: 
-            scaleFactor = (ev[1] - ev[0]) * 0.12
+            self.scaleFactor = (ev[1] - ev[0]) * 0.12
 
        #All this code here is used soley for graphing and should probably be refactored elsewhere
        #Thinking of updating graphing module so that there is a separate location to make graphing calls and setup
@@ -59,8 +64,8 @@ class schrod(Graphable):
         for index, vector in enumerate(evc[:self.maxWaveFunctions]):
             
             #Allow objects to return two simultaneous traces at the same time
-            wf = wavefunction(vector, ev[index], basis, index).scale(scaleFactor)
-            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(scaleFactor)
+            wf = wavefunction(vector, ev[index], basis, index).scale(self.scaleFactor)
+            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(self.scaleFactor)
             
             if(pes != None):
                 wf.setGraphVariables(yEqualsCutoff = ev[index])
@@ -75,6 +80,8 @@ class schrod(Graphable):
             self.start = pes.start
             self.end = pes.end
             self.addGraphableObject(pes)
+            self.pesLocations.append(len(self.graphableObjects) - 1)
+            
                     
 ###################################################################################
 
@@ -84,21 +91,41 @@ class schrod(Graphable):
 ###################################################################################
 
     def getWaveFunctions(self):
-
         return self.wavefunctions
 
 ###################################################################################
 
-    def getWidgets(self, traces, widgetD):
+    #combines this objects solution with the solution of another solved schrodinger object
+    #sol refers to the other solved schordinger object
+    #nameModifier refers to a string value that will be used to distingish the first solution from the second solution
+    def combineSolutions(self, sol, nameModifier):
+        if(type(sol) != schrod):
+            print("Warning! Object passed to conmbine meethod of the Schrodinger class is not a Schrodinger object.\n Method will quit now.")
+            return 
+
+        self.graphableObjects.extend( [obj.setGraphVariables(graphTitle = obj.graphTitle + nameModifier) for obj in sol.graphableObjects] )
         
-        #remove the pes from the list of traces
-        if(len(traces) % 2 != 0):
-            traces = traces[1::]
-        revTraces = traces[::-1]
+        if(len(sol.graphableObjects) % 2 != 0):
+            self.pesLocations.append(len(self.graphableObjects) - 1)
+
+###################################################################################
+
+    def getWidgets(self, traces, widgetD):
+                
+        traces = list(traces)[::-1]
+        for offSet, pesIndex in enumerate(self.pesLocations): 
+            del traces[pesIndex - offSet]
+        revTraces = traces
+        traces = traces[::-1]
+        
+        #for trace in revTraces: 
+        #    print(trace["name"])
+        
+        pesLocationsSize = len(self.pesLocations)
         
         #Scale Wavefunctions up or down to better be viewed when bound by the PES
         scaleWidget = widgets.BoundedIntText(
-            value = 5, 
+            value = self.scaleFactor, 
             min = 0, 
             max = pow(10, 10),
             step = 1, 
@@ -107,7 +134,7 @@ class schrod(Graphable):
         
         #textbox used to show or hide wavefunctions
         visibleWavefunctions = widgets.Text(
-            value = "0-" + str(len(traces) // 2),
+            value = "0-" + str(len(traces) // (2 * pesLocationsSize)),
             description = '<p style="font-family:verdana;font-size:15px">Visible Ψs</p>'
         )
         
@@ -117,13 +144,16 @@ class schrod(Graphable):
         description = '<p style="font-family:verdana;font-size:15px">Mode</p>')
         
         def scaleUpdate(value):
-            graphableObjects = self.graphableObjects if len(self.graphableObjects) % 2 == 0 else self.graphableObjects[1::]
-            scaleFactor = value["new"] / value["old"]
+            
+            #remove pes objects
+            pesLocations = [val - self.pesLocations[0] for val in self.pesLocations]
+            graphableObjects = [obj for index, obj in enumerate(self.graphableObjects) if (index not in pesLocations)]
+                
+            self.scaleFactor = value["new"] / value["old"]
             for index, wavefunction in enumerate(graphableObjects): 
                 traces[index].update(
-                    {"y" : [ (y - wavefunction.energy) * scaleFactor + wavefunction.energy for y in traces[index].y]}
+                    {"y" : [ (y - wavefunction.energy) * self.scaleFactor + wavefunction.energy for y in traces[index].y]}
                 )
-            
         def visibleWavefunctionsUpdate(value, modeValue):
          
             visibility = []
@@ -132,9 +162,12 @@ class schrod(Graphable):
                 for startEnd in value.split(";"):
                     if("-" in startEnd):
                         startEnd = [int(value) for value in startEnd.split("-")]
-                        visibility.extend( range(startEnd[0], startEnd[1]+1))
+                        for offset in self.pesLocations: 
+                            offset -= self.pesLocations[0]
+                            visibility.extend(range(startEnd[0] + offset, startEnd[1]+1+offset))
                     else:
-                        visibility.append(int(startEnd))
+                        value = int(startEnd)
+                        visibility.extend([value + offset - self.pesLocations[0] for offset in self.pesLocations])
             except:
                 return 
             
@@ -145,10 +178,19 @@ class schrod(Graphable):
             else:
                 mode = 2
 
-            for index, trace in enumerate(revTraces):    
+          
+            pesOffset = 0
+            offsetIndex = 0
+            
+            for index, trace in enumerate(revTraces):
+                if(pesLocationsSize != offsetIndex and index == self.pesLocations[offsetIndex]):
+                    pesOffset += self.pesLocations[offsetIndex]
+                    offsetIndex += 1
+                index -= pesOffset
+
                 #evens are squared
                 #odds are normal
-                visibleType = index % 2
+                visibleType = index % 2 
                 
                 #maps square and normal function to a single index
                 index2 = index - visibleType - index // 2

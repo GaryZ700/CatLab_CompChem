@@ -95,7 +95,6 @@ class Graphable(ABC):
              self.firstGraph = False
         
         traces, functions = graphObjects(self.graphableObjects, precision = self.precision, resolution = plot.resolutionValue[self.resolution], start = self.start, end = self.end)
-        print("graph objects called")
         
         
         #Add graphable data
@@ -125,7 +124,6 @@ class Graphable(ABC):
         graph = widgetData[0]
         
         parentWidgets = self.getWidgets(graph.children[0].data, widgetData[1])
-        print(len(graph.children[0].data))
         if(parentWidgets != False):
             for widgetList in parentWidgets:
                 if(widgetList == False):

@@ -6,7 +6,7 @@
 import requests
 import re
 from bs4 import BeautifulSoup as soup
-from diatomicConstants import *
+from diatomicConstants import buildDiatomicConstants
 
 #Returns a diatomics constants object if the operation was sucessful
 #Otherwise returns false
@@ -130,7 +130,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         
         if(len(valueRows) == 0):
             print("Warning! " + diatomicIdentifier + " " + state + " state missing diatomic constants on the NIST WebBook.")
-            return
+            return False
         
         values = []        
         #parse out any uneeded subscripts from the final value

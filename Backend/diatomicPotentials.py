@@ -90,9 +90,7 @@ class extendedRydberg:
     
     #fitPotential functions fits the potential to the proivided (x,y) coordinate data
     def fitPotential(self, R, E, flex=.0000001):
-        
-        #internalEquation(self, r, D, Re, a1, a2, a3, c):
-        
+                
         minE = min(E)
         maxE = max(E)
         Re = (R[0] + R[1]) / 2

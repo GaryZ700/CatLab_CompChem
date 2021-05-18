@@ -17,7 +17,7 @@ class basisFunction(Graphable):
     def __init__(self, diatomicConstants, n):
         super().__init__()
     
-   ###################################################################################
+###################################################################################
     
     #computes the value of the wavefunction at the specified value of r
     #r will be in units of Angstroms
@@ -26,7 +26,17 @@ class basisFunction(Graphable):
     def value(self, r):
         pass
     
-    ###################################################################################
+###################################################################################
+
+    #shortcut method to make computation of the kinetic energy computationally
+    #easier if the basisfunction in question allows for an analytical solution
+    #must return a numpy matrix of the kinetic energy operator for the wavefunction, 
+    #and the given basis function
+    #can return false if not analytical method exists for the basis function
+    def kineticEnergy(self, basisSet):
+        return False
+
+###################################################################################
 
     def squaredValue(self, r):
         return self.value(r) ** 2
@@ -38,7 +48,7 @@ class basisFunction(Graphable):
     #trace should be added to a figure object
     def graph(self, showGraph=True, getGraph=False, **kargs):
         self.addGraphableObject(squaredBasisFunction(self))
-        super().graph(showGraph = showGraph, getGraph = getGraph, **kargs)
+        return super().graph(showGraph = showGraph, getGraph = getGraph, **kargs)
         
     ###################################################################################
     

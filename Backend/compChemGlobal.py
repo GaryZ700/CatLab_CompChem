@@ -17,7 +17,7 @@ def integrate(f, lowerBound, upperBound):
 
 #@ddx
 from scipy.misc import derivative as internalDdx
-def ddx(f, x, n=1, dx=pow(10, -1.9)):
+def ddx(f, x, n=1, dx=pow(10, -4)):
     return internalDdx(f, x, n=n, dx=dx)
 
 #@exp
@@ -72,11 +72,15 @@ from scipy.constants import h
 #@mToA converts meters to Angstroms
 mToA = pow(10, 10)
 
-#@aToM2 converts Angstroms to meters squared
-aToM2 = pow(10, -20)
+#@aToM2 converts Angstroms squared to meters squared
+a2ToM2 = pow(10, -20)
 
 #@jToWavenumbers
 jToWavenumbers = 5.034116 * pow(10, 22)
+#hcw * 100
+
+#wavenumbersToHz
+wavenumbersToHz = 2.99793 * pow(10,10)
 
 #@amuToKg
 amuToKg = 1.6605 * pow(10, -27)
@@ -99,3 +103,6 @@ from graphable import *
 from collections import namedtuple
 unitBase = namedtuple("unitConversion", ["hartree"])
 units = unitBase(hartree="hartree")
+
+#general useful packages 
+import numpy as np

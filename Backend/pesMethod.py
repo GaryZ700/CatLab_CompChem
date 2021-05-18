@@ -5,7 +5,6 @@
 
 from compChemGlobal import * 
 from graphableData import * 
-from sys import maxsize
 
 class PESMethod(GraphableData):
     
