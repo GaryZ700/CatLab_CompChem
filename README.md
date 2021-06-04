@@ -10,4 +10,4 @@ Individuals looking to use or contribute to this project are encouraged to do so
 
 Project developed and implemented by Gary Zeri, under the guidance of Dr. Jerry LaRue at Chapman University. 
 
-<a href = "https://gist.github.com/bollwyvl/b5443c87c58b2e04ac5faba4d62ff232"><i>Using pypy on binder</i></a> was used as a reference when configuring the binder files for this project. 
+<a href = "https://gist.github.com/bollwyvl/b5443c87c58b2e04ac5faba4d62ff232">Using pypy on binder</a> was used as a reference when configuring the binder files for this project. 
