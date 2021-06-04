@@ -6,3 +6,12 @@ channels:
 
 dependencies: 
     - jupyterlab
+    - numpy 
+    - scipy 
+    - plotly
+    - ipywidgets
+    - bs4
+    - lxml
+    - mysql
+    - dill
+    - multiprocess
