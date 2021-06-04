@@ -8,4 +8,5 @@ time jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
 time jupyter labextension install --no-build  jupyterlab-plotly@4.14.3
 time jupyter lab build --dev-build=False --minimize=True
 time jupyter lab clean
-time jlpm cache cleantime conda clean -yaf
+time jlpm cache clean
+time conda clean -yaf
