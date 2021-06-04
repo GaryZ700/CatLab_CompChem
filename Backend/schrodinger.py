@@ -81,6 +81,8 @@ class schrod(Graphable):
             self.end = pes.end
             self.addGraphableObject(pes)
             self.pesLocations.append(len(self.graphableObjects) - 1)
+        else:
+            self.pesLocations = [-1]
             
                     
 ###################################################################################
@@ -113,15 +115,16 @@ class schrod(Graphable):
     def getWidgets(self, traces, widgetD):
                 
         traces = list(traces)[::-1]
-        for offSet, pesIndex in enumerate(self.pesLocations): 
-            del traces[pesIndex - offSet]
+        if(self.pesLocations[0] !=  -1):
+            for offSet, pesIndex in enumerate(self.pesLocations): 
+                del traces[pesIndex - offSet]
         revTraces = traces
         traces = traces[::-1]
         
         #for trace in revTraces: 
         #    print(trace["name"])
         
-        pesLocationsSize = len(self.pesLocations)
+        pesLocationsSize = len(self.pesLocations) 
         
         #Scale Wavefunctions up or down to better be viewed when bound by the PES
         scaleWidget = widgets.BoundedIntText(
@@ -134,7 +137,7 @@ class schrod(Graphable):
         
         #textbox used to show or hide wavefunctions
         visibleWavefunctions = widgets.Text(
-            value = "0-" + str(len(traces) // (2 * pesLocationsSize)),
+            value = "0-" + str(len(traces) // ( (2 * pesLocationsSize) if (pesLocationsSize != 0) else 2) - pesLocationsSize),
             description = '<p style="font-family:verdana;font-size:15px">Visible Ψs</p>'
         )
         
@@ -146,7 +149,7 @@ class schrod(Graphable):
         def scaleUpdate(value):
             
             #remove pes objects
-            pesLocations = [val - self.pesLocations[0] for val in self.pesLocations]
+            pesLocations = [val - self.pesLocations[0] for val in self.pesLocations] if self.pesLocations[0] != -1 else []
             graphableObjects = [obj for index, obj in enumerate(self.graphableObjects) if (index not in pesLocations)]
                 
             self.scaleFactor = value["new"] / value["old"]
@@ -181,7 +184,6 @@ class schrod(Graphable):
           
             pesOffset = 0
             offsetIndex = 0
-            
             for index, trace in enumerate(revTraces):
                 if(pesLocationsSize != offsetIndex and index == self.pesLocations[offsetIndex]):
                     pesOffset += self.pesLocations[offsetIndex]
@@ -191,10 +193,9 @@ class schrod(Graphable):
                 #evens are squared
                 #odds are normal
                 visibleType = index % 2 
-                
                 #maps square and normal function to a single index
                 index2 = index - visibleType - index // 2
-        
+
                 if index2 in visibility and visibleType ^ mode: 
                     trace.visible = True
                 else:
