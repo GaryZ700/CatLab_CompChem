@@ -1,0 +1,8 @@
+name: CatLab_CompChem_Package
+
+channels: 
+    - conda-forge
+    - nodefaults
+
+dependencies: 
+    - jupyterlab
