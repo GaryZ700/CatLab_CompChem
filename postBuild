@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+source activate 
+set -eux
+time conda env update --prefix ${CONDA_DIR} --file environment_mamba.yml
+rm -rf ${NB_PYTHON_PREFIX}
+time mamba env update -p ${NB_PYTHON_PREFIX} --file environment.yml
+time conda clean -yaf
