@@ -1,0 +1,7 @@
+name: _mamba
+channels:
+- conda-forge
+- nodefaults
+dependencies:
+- mamba
+- pybind11
