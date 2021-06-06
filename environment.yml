@@ -8,6 +8,7 @@ dependencies:
     - jupyterlab >=2.2.0,<3.0.0a0
     - notebook
     - nodejs
+    - matplotlib-base
     - numpy 
     - scipy 
     - plotly
