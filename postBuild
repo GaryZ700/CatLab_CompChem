@@ -5,7 +5,7 @@ time conda env update --prefix ${CONDA_DIR} --file environment-mamba.yml
 rm -rf ${NB_PYTHON_PREFIX}
 time mamba env update -p ${NB_PYTHON_PREFIX} --file environment-pypy.yml 
 time jupyter labextension install --no-build jupyterlab-plotly@4.14.3
-time jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager plotlywidget
+time jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
 time jupyter lab build --dev-build=False --minimize=True
 time jupyter lab clean
 time jlpm cache clean
