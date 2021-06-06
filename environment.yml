@@ -6,7 +6,6 @@ channels:
 
 dependencies: 
     - jupyterlab
-    - nodejs
     - numpy 
     - scipy 
     - plotly
