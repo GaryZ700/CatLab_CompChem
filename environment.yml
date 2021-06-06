@@ -15,3 +15,4 @@ dependencies:
     - mysql
     - dill
     - multiprocess
+    - pypy
