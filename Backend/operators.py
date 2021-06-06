@@ -114,30 +114,30 @@ class VOperator(Operator):
         if(potentialFunction == None):
             potentialFunction = lambda r : pes.value(r)
         
-        
-        p = Pool(cpu_count())
-        integrationFunction = lambda index : integrate(lambda r : basisSet[index[0]].value(r) * potentialFunction(r) * basisSet[index[1]].value(r), self.integrationStart, inf)
-        
-        basisPairs = []
-        for i in range(basisSet.size):
-            for j in range(i, basisSet.size):
-                basisPairs.append([i, j]) 
-            
-        results = p.map(integrationFunction, basisPairs)
-        
-        for resultsIndex, matrixIndex in enumerate(basisPairs):
-            self.matrix[matrixIndex[0], matrixIndex[1]] = results[resultsIndex]
-            self.matrix[matrixIndex[1], matrixIndex[0]] = results[resultsIndex]
-                
-        
-        '''for i, b1 in enumerate(basisSet):
-            for j, b2 in enumerate(basisSet):
-                
-                if(i > j):
-                    self.matrix[i, j] = self.matrix[j,i]
-                else:
-                    print(str(i)  + "  " + str(j))
-                    self.matrix[i, j] = integrate(lambda r : b1.value(r) * potentialFunction(r) * b2.value(r), self.integrationStart, inf)'''
+        #Decide if multiprocessing or single processing should be used
+        #based on number of cpus availble
+        cpuCount = cpu_count()
+        if(cpuCount >= minNumCPUs):
+            p = Pool(cpu_count())
+            integrationFunction = lambda index : integrate(lambda r : basisSet[index[0]].value(r) * potentialFunction(r) * basisSet[index[1]].value(r), self.integrationStart, inf)
+
+            basisPairs = []
+            for i in range(basisSet.size):
+                for j in range(i, basisSet.size):
+                    basisPairs.append([i, j]) 
+
+            results = p.map(integrationFunction, basisPairs)
+
+            for resultsIndex, matrixIndex in enumerate(basisPairs):
+                self.matrix[matrixIndex[0], matrixIndex[1]] = results[resultsIndex]
+                self.matrix[matrixIndex[1], matrixIndex[0]] = results[resultsIndex]
+        else:
+            for i, b1 in enumerate(basisSet):
+                for j, b2 in enumerate(basisSet):   
+                    if(i > j):
+                        self.matrix[i, j] = self.matrix[j,i]
+                    else:
+                        self.matrix[i, j] = integrate(lambda r : b1.value(r) * potentialFunction(r) * b2.value(r), self.integrationStart, inf)
         
         return self
     

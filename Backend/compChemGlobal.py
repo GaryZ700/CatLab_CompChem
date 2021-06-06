@@ -106,3 +106,6 @@ units = unitBase(hartree="hartree")
 
 #general useful packages 
 import numpy as np
+
+#Global Settings Variable Definitions
+minNumCPUs = 10
