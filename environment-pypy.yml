@@ -7,9 +7,6 @@ channels:
 dependencies:
   - ipywidgets
   - jupyterlab >=2.2.0,<3.0.0a0
-  - matplotlib-base
   - nodejs
-  - notebook
   - numpy
-  - pandas
   - pypy
