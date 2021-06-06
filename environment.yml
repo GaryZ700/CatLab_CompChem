@@ -1,0 +1,17 @@
+name: CatLab_CompChem_Package
+
+channels: 
+    - conda-forge
+    - nodefaults
+
+dependencies: 
+    - jupyterlab
+    - numpy 
+    - scipy 
+    - plotly
+    - ipywidgets
+    - bs4
+    - lxml
+    - mysql
+    - dill
+    - multiprocess
