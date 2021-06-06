@@ -18,4 +18,5 @@ dependencies:
     - mysql
     - dill
     - multiprocess
+    - pandas
     - pypy
