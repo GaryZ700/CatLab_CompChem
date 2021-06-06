@@ -10,3 +10,8 @@ dependencies:
   - nodejs
   - numpy
   - pypy
+  - plotly
+  - scipy 
+  - bs4
+  - lxml 
+  - multiprocess
