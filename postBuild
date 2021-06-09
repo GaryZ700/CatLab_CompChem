@@ -1,4 +1,4 @@
 time jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager plotlywidget
-!jupyter labextension install --no-build jupyterlab-plotly@4.14.3
+time jupyter labextension install --no-build jupyterlab-plotly@4.14.3
 time jupyter lab build --dev-build=False --minimize=True
 time jupyter lab clean
