@@ -108,4 +108,4 @@ units = unitBase(hartree="hartree")
 import numpy as np
 
 #Global Settings Variable Definitions
-minNumCPUs = 10
+minNumCPUs = np.inf
