@@ -1,0 +1,8 @@
+numpy
+plotly 
+scipy
+ipywidgets
+bs4
+lxml 
+multiprocess
+cython
