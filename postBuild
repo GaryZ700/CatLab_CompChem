@@ -1,4 +1,12 @@
-jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager plotlywidget
-jupyter labextension install --no-build jupyterlab-plotly@4.14.3
-jupyter lab build --dev-build=False --minimize=True
-jupyter lab clean
+#!/usr/bin/env bash
+source activate
+set -eux
+time conda env update --prefix ${CONDA_DIR} --file mamba.yml
+rm -rf ${NB_PYTHON_PREFIX}
+time mamba env update -p ${NB_PYTHON_PREFIX} --file requirements.yml
+time jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager plotlywidget
+time jupyter labextension install --no-build jupyterlab-plotly@4.14.3
+time jupyter lab build --dev-build=False --minimize=True
+time jupyter lab clean
+time jlpm cache clean
+time conda clean -yaf
