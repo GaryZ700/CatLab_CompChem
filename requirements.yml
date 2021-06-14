@@ -1,0 +1,18 @@
+name: pypy-notebook
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - ipywidgets
+  - jupyterlab
+  - nodejs
+  - numpy
+  - plotly
+  - scipy
+  - bs4
+  - lxml 
+  - multiprocess
+  - cython 
+  - numba
