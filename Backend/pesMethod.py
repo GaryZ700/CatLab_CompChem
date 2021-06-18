@@ -35,8 +35,6 @@ class PESMethod(GraphableData):
 
     def __init__(self, diatomicConstants):
         
-        
-        
         self.diatomicConstants = diatomicConstants
         
         #Set up the Graphable class here
@@ -78,8 +76,8 @@ class PESMethod(GraphableData):
                 E[i] += minE
             
         
-        self.data = dict(r=r, E=E, D = minE)
-                
+        self.data = dict(r=r, E=E, D = minE, method = this.name)
+
         return self.data
 
 ###################################################################################
@@ -91,3 +89,5 @@ class PESMethod(GraphableData):
 
     def getGraphData(self):
         return [self.data["r"], self.data["E"]]
+    
+###################################################################################

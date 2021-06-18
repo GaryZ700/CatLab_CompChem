@@ -173,5 +173,7 @@ class rkr(PESMethod):
             #compute the well depth
             data["D"] = max(data["E"][cutOffIndex:]) 
             
+            data["method"] = self.name
+            
             self.data = data
             return self.data

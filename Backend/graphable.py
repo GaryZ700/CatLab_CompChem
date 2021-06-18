@@ -4,11 +4,12 @@
 #Graphable Abstract class to provide a common interface for all graphable objects in the CompChem Library
 
 from abc import ABC, abstractmethod
-from compChemGlobal import plot
+from compChemGlobal import *
 from plot import graphingParameters
 from plot import parallelGraphing
 from plot import cpu_count
 from plot import graphObjects
+import plot
 
 class Graphable(ABC):
     

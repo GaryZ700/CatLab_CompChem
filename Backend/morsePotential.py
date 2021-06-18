@@ -11,7 +11,7 @@ class morsePotential(DiatomicPotential):
     
     #Declare and override global variables as needed here
     name = "Morse Potential"
-    a = ""
+    a = None
     pesData = []
     end = 20
     
@@ -56,4 +56,33 @@ class morsePotential(DiatomicPotential):
 
     def getWidgets(self, a, b):
         return False
+    
+###################################################################################
 
+    def save(self):
+        if (not super().save()):
+            return False
+        
+        globalDB.connect()
+        globalDB.write("morse_potentials", "(molecule, method, a)", "(?, ?, ?)", 
+                       (self.diatomicConstants["name"], self.pesData["method"], 
+                        globalDB.flatArrayToDB(self.a)))
+        globalDB.close()
+        
+        return True
+    
+###################################################################################
+
+    def load(self, molecule, method):
+        if(not super().load(molecule, method)):
+            return False
+        
+        globalDB.connect()
+        
+        data = globalDB.getData("morse_potentials", ["molecule", "method"], [molecule, method])
+        if(data == []):
+            return False
+        self.a = list(globalDB.dbToFlatArray(data[0][2]))
+        globalDB.close()
+        
+        return True

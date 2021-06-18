@@ -4,7 +4,7 @@
 #File that contains structures and functions related to diatomic constants
 
 #allows access to the getDiatomicConstants function that 
-#scrapes the NIST webook for diatomic constants
+#scrapes the NIST webook for diatomic constants, as well as its use in the database
 from nistScraper import * 
 
 #function that builds a diatomic constants dict from 
@@ -17,4 +17,4 @@ def buildDiatomicConstants(name="", state="", T=0,
         return dict(name = name, state = state,           
                     T = T, w = w, wx = wx, wy = wy, 
                     wz = wz, B = B, a = a, y = y, 
-                    D = D, re = re, u = u)
+                    D = D, re = re, u = u)    

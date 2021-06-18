@@ -4,6 +4,7 @@
 #Class that specifies the methods and functionality of a basis set composed of basisfunctions
 
 from compChemGlobal import plot, widgets, Graphable
+from compChemHelpers import dataToBasisFunction
 from how import *
 
 class basisSet(Graphable):
@@ -17,7 +18,7 @@ class basisSet(Graphable):
     def __init__(self, diatomicConstants, basisFunctionClass=how, size=10):
         super().__init__()
         self.size = size
-        self.basisFunctionClass = basisFunctionClass
+        self.basisFunctionClass = dataToBasisFunction(basisFunctionClass)
         self.diatomicConstants = diatomicConstants
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavenumbers"

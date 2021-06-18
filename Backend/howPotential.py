@@ -3,7 +3,8 @@
 
 #Concrete Class to define the properties of a Harmonic Oscillator Potential Energy Surface
 
-from diatomicPotential import * 
+from compChemGlobal import * 
+from diatomicPotential import DiatomicPotential
 
 class howPotential(DiatomicPotential):
     
@@ -11,7 +12,6 @@ class howPotential(DiatomicPotential):
     name = "Harmonic Oscillator PES"
     
     #Global private variables
-    isFit = True
     start = -4
     end = 4
     
@@ -30,14 +30,22 @@ class howPotential(DiatomicPotential):
     
 ###################################################################################
 
-    def __init__(self, diatomicConstants):
+    def __init__(self, diatomicConstants = None):
         
         self.graphableData = []
         self.graphableObjects = []
         self.graphedObjects = []
         self.graphedData = []
-        self.diatomicConstants = diatomicConstants
+        self.pesData = {"method":"Analytical"}
         
+        if(diatomicConstants != None):
+            self.internalFit(diatomicConstants)
+
+###################################################################################
+
+    def internalFit(self, diatomicConstants):
+        self.diatomicConstants = diatomicConstants
+        self.isFit = True
 
         #unit analysis
         #K should be in units of Kg/s^2 A^2->M^2
@@ -49,8 +57,20 @@ class howPotential(DiatomicPotential):
         self.graphTitle = self.name + " for " + diatomicConstants["name"] 
         self.xTitle = "r in Angstroms"
         self.yTitle = "Wavenumbers"
-
+    
 ###################################################################################
 
-    def internalFit(self, data):
-        pass
+    def save(self):
+        if(not self.isFit):
+            return False
+        globalDB.writeDiatomicConstants(self.diatomicConstants)
+        
+###################################################################################
+
+    def load(self, molecule, method = None):
+        dc = globalDB.getDiatomicConstants(molecule)
+        if(dc != False):
+            self.internalFit(dc)
+            return True
+        else: 
+            return dc

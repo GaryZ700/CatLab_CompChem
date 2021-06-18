@@ -3,7 +3,7 @@
 
 #Abstract Class to define the properties of a diatomic potential used to fit a PES 
 
-from compChemGlobal import *
+from compChemGlobal import * 
 
 class DiatomicPotential(Graphable):
     
@@ -17,7 +17,6 @@ class DiatomicPotential(Graphable):
     isFit = False
     
     pesData = []
-    
     diatomicConstants = None
     
     #has implementation of the diatomic potential provides a value in 1/cm for each 
@@ -89,3 +88,41 @@ class DiatomicPotential(Graphable):
         self.internalFit(data)
         self.isFit = True
         return self
+
+###################################################################################
+
+    def save(self):
+        
+        if(not self.isFit):
+            return False
+        
+        globalDB.connect()
+        globalDB.write("pes_methods", "(molecule, method, r, E, D, start, end)", "(?,?,?,?,?,?,?)", (self.diatomicConstants["name"], 
+                        self.pesData["method"], globalDB.flatArrayToDB(self.pesData["r"]), 
+                        globalDB.flatArrayToDB(self.pesData["E"]), self.pesData["D"], self.start, self.end))
+        
+        globalDB.close()
+        
+        return True
+    
+###################################################################################
+
+    def load(self, molecule, method):
+        
+        globalDB.connect()
+        
+        data = globalDB.getData("pes_methods", ["molecule", "method"], [molecule, method])
+        if(data == []):
+            return False
+        
+        data = data[0]
+        self.name = data[1]
+        self.pesData = dict(method = data[1], r = list(globalDB.dbToFlatArray(data[2])), E = list(globalDB.dbToFlatArray(data[3])), D = float(data[4]))
+        self.start = data[5]
+        self.end = data[6]
+        self.isFit = True
+        
+        self.diatomicConstants = globalDB.getDiatomicConstants(molecule)
+        
+        globalDB.close()
+        return True

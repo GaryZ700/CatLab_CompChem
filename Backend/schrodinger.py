@@ -9,6 +9,9 @@ from graphable import *
 import numpy as np
 from wavefunction import *
 from line import *
+from basisSet import * 
+from diatomicPotential import * 
+from compChemHelpers import dataToDiatomicPotential
 
 class schrod(Graphable):
     
@@ -39,9 +42,7 @@ class schrod(Graphable):
 ###################################################################################
 
     def solve(self, H, basis, pes=None):
-        
-        self.graphTitle = basis.diatomicConstants["name"] + " Schrödinger Solution"
-        
+                
         ev, evc = eigh(H.matrix)
         
         self.wavefunctions = []
@@ -49,37 +50,44 @@ class schrod(Graphable):
         self.eigenValues = ev
         self.basis = basis
         self.pes = pes
+
+        self.buildWavefunctions()
         
-        if(basis.size == 1):
+###################################################################################
+
+    def buildWavefunctions(self):        
+        self.graphTitle = self.basis.diatomicConstants["name"] + " Schrödinger Solution"
+
+        if(self.basis.size == 1):
             self.scaleFactor = 500
         else: 
-            self.scaleFactor = (ev[1] - ev[0]) * 0.12
+            self.scaleFactor = (self.eigenValues[1] - self.eigenValues[0]) * 0.12
 
        #All this code here is used soley for graphing and should probably be refactored elsewhere
        #Thinking of updating graphing module so that there is a separate location to make graphing calls and setup
         
         if(self.maxWaveFunctions == None):
-            self.maxWaveFunctions = len(evc)    
+            self.maxWaveFunctions = len(self.eigenVectors)    
         
-        for index, vector in enumerate(evc[:self.maxWaveFunctions]):
+        for index, vector in enumerate(self.eigenVectors[:self.maxWaveFunctions]):
             
             #Allow objects to return two simultaneous traces at the same time
-            wf = wavefunction(vector, ev[index], basis, index).scale(self.scaleFactor)
-            wf2 = wavefunction(vector, ev[index], basis, index, squared=True).scale(self.scaleFactor)
+            wf = wavefunction(vector, self.eigenValues[index], self.basis, index).scale(self.scaleFactor)
+            wf2 = wavefunction(vector, self.eigenValues[index], self.basis, index, squared=True).scale(self.scaleFactor)
             
-            if(pes != None):
-                wf.setGraphVariables(yEqualsCutoff = ev[index])
-                wf2.setGraphVariables(yEqualsCutoff = ev[index])
+            if(self.pes != None):
+                wf.setGraphVariables(yEqualsCutoff = self.eigenValues[index])
+                wf2.setGraphVariables(yEqualsCutoff = self.eigenValues[index])
             
             self.addGraphableObject(wf)
 
             self.addGraphableObject(wf2)
             self.wavefunctions.append(wf)
         
-        if(pes != None):
-            self.start = pes.start
-            self.end = pes.end
-            self.addGraphableObject(pes)
+        if(self.pes != None):
+            self.start = self.pes.start
+            self.end = self.pes.end
+            self.addGraphableObject(self.pes)
             self.pesLocations.append(len(self.graphableObjects) - 1)
         else:
             self.pesLocations = [-1]
@@ -211,3 +219,54 @@ class schrod(Graphable):
         probability.observe(vsfWrapper)
         
         return [[visibleWavefunctions, scaleWidget, 0], [probability, 1]]
+    
+###################################################################################
+
+    def save(self): 
+        
+        if(self.basis == None):
+            print("Can not save an empty Schrödinger solution. Please run the solve method on this object and then run the save method.\n")
+            return False
+        
+        globalDB.connect()
+        globalDB.write("schrodinger_solutions", "(molecule, basis, size, eigen_values, eigen_vectors, max_wavefunctions, pes, method)", "(?,?,?,?,?,?,?,?)", 
+                       (self.basis.diatomicConstants["name"], self.basis[0].name, self.basis.size, 
+                        globalDB.flatArrayToDB(self.eigenValues), globalDB.arrayToDB(self.eigenVectors),
+                        self.maxWaveFunctions, "None" if self.pes == None else self.pes.name, 
+                        "None" if self.pes == None else self.pes.pesData["method"]
+                       )
+                      )
+        globalDB.close()
+        
+        globalDB.writeDiatomicConstants(self.basis.diatomicConstants)
+        if(self.pes != None):
+            self.pes.save()
+
+        return True
+    
+###################################################################################
+
+    def load(self, molecule, basis, size, pes, method):
+        globalDB.connect()
+        
+        data = globalDB.getData("schrodinger_solutions", ["molecule", "basis", "size", "pes", "method"], [molecule, basis, size, pes, method])
+        
+        if(data == []):
+            print("A Schrödinger solution for " + molecule + " with a " + basis + " basis set of size " + str(size) + " was not found in the database.")
+            return False
+        else: 
+            #load data from database into the schrod solution object
+            data = data[0]
+            self.eigenValues = globalDB.dbToFlatArray(data[3])
+            self.eigenVectors = globalDB.dbToArray(data[4])
+            self.basis = basisSet(globalDB.getDiatomicConstants(molecule), basisFunctionClass = basis, size = data[2])
+            self.pes = dataToDiatomicPotential(data[6])
+            self.maxWavefunctions = data[5]
+
+        globalDB.close()
+        if(self.pes != None):
+            self.pes = self.pes()
+            self.pes.load(molecule, data[7])
+    
+        self.buildWavefunctions()
+        return True
