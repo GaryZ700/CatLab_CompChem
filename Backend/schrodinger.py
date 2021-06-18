@@ -25,7 +25,7 @@ class schrod(Graphable):
     pesLocations = []
     wavefunctions = []
 
-    def __init__(self, arg1=None, basis=None, pes=None):
+    def __init__(self, arg1=None, basis=None, pes=None, maxWaveFunctions=None):
         
         #Set up Graphing Properties
         self.graphableObjects = []
@@ -35,6 +35,7 @@ class schrod(Graphable):
         self.isGraphable = False
         self.wavefunctions = []
         self.pesLocations = []
+        self.maxWaveFunctions = maxWaveFunctions
         
         if(type(arg1) == operators.HOperator and basis != None):
             self.solve(arg1, basis, pes)
@@ -261,7 +262,7 @@ class schrod(Graphable):
             self.eigenVectors = globalDB.dbToArray(data[4])
             self.basis = basisSet(globalDB.getDiatomicConstants(molecule), basisFunctionClass = basis, size = data[2])
             self.pes = dataToDiatomicPotential(data[6])
-            self.maxWavefunctions = data[5]
+            self.maxWaveFunctions = data[5]
 
         globalDB.close()
         if(self.pes != None):
