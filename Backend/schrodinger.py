@@ -59,10 +59,12 @@ class schrod(Graphable):
     def buildWavefunctions(self):        
         self.graphTitle = self.basis.diatomicConstants["name"] + " Schrödinger Solution"
 
-        if(self.basis.size == 1):
-            self.scaleFactor = 500
-        else: 
-            self.scaleFactor = (self.eigenValues[1] - self.eigenValues[0]) * 0.12
+        #check if scale factor is provided or if it needs to be computed from scratch
+        if(self.scaleFactor == None):
+            if(self.basis.size == 1):
+                self.scaleFactor = 500
+            else: 
+                self.scaleFactor = (self.eigenValues[1] - self.eigenValues[0]) * 0.12
 
        #All this code here is used soley for graphing and should probably be refactored elsewhere
        #Thinking of updating graphing module so that there is a separate location to make graphing calls and setup
@@ -114,7 +116,6 @@ class schrod(Graphable):
             print("Warning! Object passed to conmbine meethod of the Schrodinger class is not a Schrodinger object.\nMethod will quit now.")
             return 
 
-        print(sol.graphableObjects)
         self.graphableObjects.extend( [obj.setGraphVariables(graphTitle = obj.graphTitle + nameModifier) for obj in sol.graphableObjects] )
         
         if(len(sol.graphableObjects) % 2 != 0):
@@ -130,9 +131,6 @@ class schrod(Graphable):
                 del traces[pesIndex - offSet]
         revTraces = traces
         traces = traces[::-1]
-        
-        #for trace in revTraces: 
-        #    print(trace["name"])
         
         pesLocationsSize = len(self.pesLocations) 
         
