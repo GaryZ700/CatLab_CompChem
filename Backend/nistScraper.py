@@ -21,6 +21,8 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         diatomicIdentifier = "Hydrogen Chloride"
     elif(diatomicIdentifier == "HF"):
         diatomicIdentifier = "7664-39-3"
+    elif(diatomicIdentifier == "OH"):
+        diatomicIdentifier = "3352-57-6"
     
     #Translate text representation of greek letters in html code 
     #to actual unicode greek letters
@@ -141,7 +143,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
 
             #use regex to clean up the data
             value = re.sub("<.*?>.*?<.*?>|[^0-9.E\-]", "", value)
-            1
+            
             #determine if the data type has a valid value or if it should be none
             if(value == ""):
                 values.append(None)
@@ -207,7 +209,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
                     y = 0 if values[6] == None else values[6], 
                     D = values[7], re = values[9], 
                     u = (masses[0] * masses[1]) / sum(masses) 
-                   ) 
+                   )
     else:
         print('Warning!! Could not find state "' + state + '"! ' +
               'Please check to ensure the state you specified exists for ' +

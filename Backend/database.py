@@ -66,7 +66,7 @@ class dataBase():
 
     def getDiatomicConstants(self, moleculeName):
         self.connect()
-        data = self.getData("diatomic_constants", ["molecule"], [moleculeName.upper()])
+        data = self.getData("diatomic_constants", ["molecule"], [moleculeName])
         if(data == []):
             print("Diatomic constants for " + moleculeName + " not found in the database.")
             return False

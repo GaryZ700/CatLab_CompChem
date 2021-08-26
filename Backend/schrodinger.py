@@ -111,9 +111,10 @@ class schrod(Graphable):
     #nameModifier refers to a string value that will be used to distingish the first solution from the second solution
     def combineSolutions(self, sol, nameModifier):
         if(type(sol) != schrod):
-            print("Warning! Object passed to conmbine meethod of the Schrodinger class is not a Schrodinger object.\n Method will quit now.")
+            print("Warning! Object passed to conmbine meethod of the Schrodinger class is not a Schrodinger object.\nMethod will quit now.")
             return 
 
+        print(sol.graphableObjects)
         self.graphableObjects.extend( [obj.setGraphVariables(graphTitle = obj.graphTitle + nameModifier) for obj in sol.graphableObjects] )
         
         if(len(sol.graphableObjects) % 2 != 0):
@@ -247,7 +248,7 @@ class schrod(Graphable):
     
 ###################################################################################
 
-    def load(self, molecule, basis, size, pes, method):
+    def load(self, molecule, basis, size, pes, method, scaleFactor = None):
         globalDB.connect()
         
         data = globalDB.getData("schrodinger_solutions", ["molecule", "basis", "size", "pes", "method"], [molecule, basis, size, pes, method])
@@ -269,5 +270,6 @@ class schrod(Graphable):
             self.pes = self.pes()
             self.pes.load(molecule, data[7])
     
+        self.scaleFactor = scaleFactor
         self.buildWavefunctions()
         return True
