@@ -8,6 +8,13 @@ import re
 from bs4 import BeautifulSoup as soup
 from diatomicConstants import buildDiatomicConstants
 
+#Declare global variables here
+identifierOverride = { "HCL" : "Hydrogen Chloride", 
+                       "HF"  : "7664-39-3", 
+                       "OH"  : "3352-57-6", 
+                       "DCL" : "7698-05-7"
+                     }
+
 #Returns a diatomics constants object if the operation was sucessful
 #Otherwise returns false
 def getDiatomicConstants(diatomicIdentifier, state = "ground"):
@@ -17,12 +24,8 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
     
     #check for common diatomics that NIST does not directly understand
     #and convert the name to one that is understood by NIST
-    if(diatomicIdentifier == "HCL"):
-        diatomicIdentifier = "Hydrogen Chloride"
-    elif(diatomicIdentifier == "HF"):
-        diatomicIdentifier = "7664-39-3"
-    elif(diatomicIdentifier == "OH"):
-        diatomicIdentifier = "3352-57-6"
+    if(diatomicIdentifier in identifierOverride):
+        diatomicIdentifier = identifierOverride[diatomicIdentifier]
     
     #Translate text representation of greek letters in html code 
     #to actual unicode greek letters
@@ -197,6 +200,9 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
             massData = isotopeMassData[0::2]
         
             masses.append(massData[isotopeData.index(max(isotopeData))])
+            
+            #if(atom == "H"):
+            #    masses[-1] += 1
             
 ###################################################################################
         #webscraping has been completed 
