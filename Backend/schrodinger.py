@@ -79,8 +79,8 @@ class schrod(Graphable):
             wf2 = wavefunction(vector, self.eigenValues[index], self.basis, index, squared=True).scale(self.scaleFactor)
             
             if(self.pes != None):
-                wf.setGraphVariables(yEqualsCutoff = self.eigenValues[index])
-                wf2.setGraphVariables(yEqualsCutoff = self.eigenValues[index])
+                wf.setGraphVariables(yEqualsCutoff = self.eigenValues[index], color = self.color)
+                wf2.setGraphVariables(yEqualsCutoff = self.eigenValues[index], color = self.color)
             
             self.addGraphableObject(wf)
 
@@ -246,7 +246,7 @@ class schrod(Graphable):
     
 ###################################################################################
 
-    def load(self, molecule, basis, size, pes, method, scaleFactor = None):
+    def load(self, molecule, basis, size, pes, method, scaleFactor = None, color = None):
         globalDB.connect()
         
         data = globalDB.getData("schrodinger_solutions", ["molecule", "basis", "size", "pes", "method"], [molecule, basis, size, pes, method])
@@ -267,7 +267,9 @@ class schrod(Graphable):
         if(self.pes != None):
             self.pes = self.pes()
             self.pes.load(molecule, data[7])
+            self.pes.color = color
     
         self.scaleFactor = scaleFactor
+        self.color = color
         self.buildWavefunctions()
         return True

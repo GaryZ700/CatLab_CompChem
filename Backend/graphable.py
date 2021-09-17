@@ -24,6 +24,8 @@ class Graphable(ABC):
     group = ""
     fill = "none"
     yEqualsCutoff = None
+    color = None
+    
     
     #Graphing Parameters
     #for default widgets

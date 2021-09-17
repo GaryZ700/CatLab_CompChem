@@ -4,6 +4,7 @@
 #Abstract Class to define the properties of a diatomic potential used to fit a PES 
 
 from compChemGlobal import * 
+from nistScraper import getDiatomicConstants
 
 class DiatomicPotential(Graphable):
     
@@ -121,6 +122,9 @@ class DiatomicPotential(Graphable):
         self.start = data[5]
         self.end = data[6]
         self.isFit = True
+        
+        self.diatomicConstants = getDiatomicConstants(molecule)
+        self.fit(self.pesData)
         
         self.diatomicConstants = globalDB.getDiatomicConstants(molecule)
         

@@ -8,6 +8,7 @@
 from how import * 
 from morsePotential import * 
 from howPotential import * 
+from extendedRydberg import *
 
 #used to convert data, such as a string, into the class definition of the 
 #associated basis function
@@ -28,7 +29,9 @@ def dataToDiatomicPotential(data):
             return howPotential
         elif(data == "Morse Potential"):
             return morsePotential
-        else: 
+        elif(data == "Extended Rydberg Potential"):
+            return extendedRydberg
+        else:
             return None
     else: 
         return data
