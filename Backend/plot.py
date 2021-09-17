@@ -193,9 +193,11 @@ def resolutionWidgetUpdate(traces, graphableObjects, newResolution, oldResolutio
 
 ###################################################################################
 
-def cutoffCheck(yEqualsCutoff, start, end, minX, maxX):
-    return False if yEqualsCutoff == None else (start >= minX and end <= maxX)
-        
+#Allows for more advanced cutoff checking if neededs
+#def cutoffCheck(yEqualsCutoff, start, end, minX, maxX):
+    #return False if yEqualsCutoff == None else (start >= minX and end <= maxX)
+    #return yEqualsCutoff != None
+    
 ###################################################################################
 
 def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
@@ -204,10 +206,11 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
     if(start >= end):
         return
     
+    #Determine if object is being graphed at a new position
     if(graphableObjects[0].oldStart != start):
         if(start < graphableObjects[0].oldStart):
             for index, graphableObject in enumerate(graphableObjects):
-                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                if(graphableObject.yEqualsCutoff != None):
                     continue
                 x, y = graphFunction(graphableObject.value, resolution = resolution, start = start, end = graphableObject.oldStart, rawData = True)
                 graphableObject.graphedData.update(x = x + list(graphableObject.graphedData.x), y = y + list(graphableObject.graphedData.y))
@@ -219,14 +222,15 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
             startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
             endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
             for index, graphableObject in enumerate(graphableObjects):
-                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                if(graphableObject.yEqualsCutoff != None):
                     continue
                 traces[index].update(x = graphableObject.graphedData.x[startIndex:endIndex],y = graphableObject.graphedData.y[startIndex:endIndex])
-            
+    
+    #oter
     else:
         if(end > graphableObjects[0].oldEnd):
             for index, graphableObject in enumerate(graphableObjects):
-                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                if(graphableObject.yEqualsCutoff != None):
                     continue
                 x, y = graphFunction(graphableObject.value, resolution = resolution, start = graphableObject.oldEnd, end = end, rawData = True)
                 graphableObject.graphedData.update(x = list(graphableObject.graphedData.x) + x, y = list(graphableObject.graphedData.y) + y)
@@ -238,7 +242,7 @@ def endPointWidgetUpdate(traces, resolution, start, end, graphableObjects):
             startIndex = int((start - graphableObjects[0].graphedData.x[0]) * resolution)
             endIndex = int((end - graphableObjects[0].graphedData.x[0]) * resolution)
             for index, graphableObject in enumerate(graphableObjects):
-                if(cutoffCheck(graphableObject.yEqualsCutoff, start, end, graphableObject.graphedData.x[0], graphableObject.graphedData.x[-1])):
+                if(graphableObject.yEqualsCutoff != None):
                     continue
                 traces[index].update(x = graphableObject.graphedData.x[startIndex:endIndex],y = graphableObject.graphedData.y[startIndex:endIndex])          
         
