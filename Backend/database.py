@@ -16,8 +16,6 @@ class dataBase():
     dbPath = ""
     flatArrayToDBSep = ",  "
     arrayToDBSep = "\n"
-    
-    
         
     def __init__(self):
         self.dbPath = "/".join(__file__.split("/")[:-1] + ["compChemDB.db"]) if os.name == "posix" else "\\".join(__file__.split("\\")[:-1] + ["compChemDB.db"])  
@@ -86,7 +84,6 @@ class dataBase():
 ###################################################################################
 
     #Data Helper Methods are defined here
-    
     #Only 1D array
     def flatArrayToDB(self, array):
         return self.flatArrayToDBSep.join([str(val) for val in array])

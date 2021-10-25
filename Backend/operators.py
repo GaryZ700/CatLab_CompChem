@@ -20,11 +20,12 @@ class Operator(ABC):
     integrationStart = 0
     
     @abstractmethod
-    def __init__(self, integrationStart=0):
+    def __init__(self, integrationStart=-np.inf):
         self.integrationStart = integrationStart
         
     
 ###################################################################################  
+
     @abstractmethod
     def operatesOn(self, other):
         pass
@@ -52,7 +53,7 @@ class Operator(ABC):
 #Kinetic Energy 
 class TOperator(Operator):
 
-    def __init__(self, basisSet=None, integrationStart=0):
+    def __init__(self, basisSet=None, integrationStart=-inf):
 
         self.integrationStart = integrationStart
         
@@ -69,6 +70,7 @@ class TOperator(Operator):
             self.matrix = T
             return self
         
+        print("Calculating KE")
         #Declare variables needed for the calculation
         self.matrix = np.zeros( [basisSet.size, basisSet.size] )
         
@@ -79,6 +81,7 @@ class TOperator(Operator):
 
                 if(abs(i-j) == 2 or i == j):
                     self.matrix[i, j] = round(integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), self.integrationStart, inf), precision)
+                    #self.matrix[i, j] = integrate( lambda r : b1.value(r) * constant * ddx(b2.value, r, n=2), self.integrationStart, inf)
         return self
 
 ###################################################################################
@@ -97,8 +100,6 @@ class VOperator(Operator):
     matrix = None
     
     def __init__(self, basisSet=None, pes=None, potentialFunction=None, integrationStart=0):
-        
-        self.integrationStart = integrationStart
         
         if(basisSet != None):
             if(pes != None):
@@ -119,25 +120,26 @@ class VOperator(Operator):
         cpuCount = cpu_count()
         if(cpuCount >= minNumCPUs):
             p = Pool(cpu_count())
-            integrationFunction = lambda index : integrate(lambda r : basisSet[index[0]].value(r) * potentialFunction(r) * basisSet[index[1]].value(r), self.integrationStart, inf)
-
+            integrationFunction = lambda index : integrate(lambda r : basisSet[index[0]].value(r) * potentialFunction(r) * basisSet[index[1]].value(r), -0.4, 3)
             basisPairs = []
             for i in range(basisSet.size):
                 for j in range(i, basisSet.size):
                     basisPairs.append([i, j]) 
 
             results = p.map(integrationFunction, basisPairs)
-
             for resultsIndex, matrixIndex in enumerate(basisPairs):
-                self.matrix[matrixIndex[0], matrixIndex[1]] = results[resultsIndex]
-                self.matrix[matrixIndex[1], matrixIndex[0]] = results[resultsIndex]
+                
+                self.matrix[matrixIndex[0], matrixIndex[1]] = round(results[resultsIndex], 8)
+                self.matrix[matrixIndex[1], matrixIndex[0]] = round(results[resultsIndex], 8)
         else:
             for i, b1 in enumerate(basisSet):
                 for j, b2 in enumerate(basisSet):   
                     if(i > j):
                         self.matrix[i, j] = self.matrix[j,i]
                     else:
-                        self.matrix[i, j] = integrate(lambda r : b1.value(r) * potentialFunction(r) * b2.value(r), self.integrationStart, inf)
+                        
+                        print(self.integrationStart)
+                        self.matrix[i, j] = round(integrate(lambda r : b1.value(r) * potentialFunction(r) * b2.value(r), self.integrationStart, inf), 5)
         
         return self
     
@@ -195,10 +197,12 @@ class HOperator(Operator):
             #otherwise just integrate for the potential energy of the system
             T = basis.kineticEnergy()
             if(type(T) == bool):
-                integrationFunction = lambda index : round(integrate( lambda r : basis[index[0]].value(r) * constant * ddx(basis[index[1]].value, r, n=2), 0, inf), precision) + round(integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf), precision)
+                #integrationFunction = lambda index : round(integrate( lambda r : basis[index[0]].value(r) * constant * ddx(basis[index[1]].value, r, n=2), 0, inf), precision) + round(integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf), precision)
+                integrationFunction = lambda index : integrate( lambda r : basis[index[0]].value(r) * constant * ddx(basis[index[1]].value, r, n=2), 0, inf) + integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf)
             else: 
                 self.matrix += T 
-                integrationFunction = lambda index : round(integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf), precision)
+                #integrationFunction = lambda index : round(integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf), precision)
+                integrationFunction = lambda index : integrate(lambda r : basis[index[0]].value(r) * pes.value(r) * basis[index[1]].value(r), self.integrationStart, inf)
                 
             p = Pool(cpu_count())
             results = p.map(integrationFunction, [(i,j) for j in range(basis.size) for i in range(basis.size)]) 

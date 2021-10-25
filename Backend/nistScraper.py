@@ -12,7 +12,8 @@ from diatomicConstants import buildDiatomicConstants
 identifierOverride = { "HCL" : "Hydrogen Chloride", 
                        "HF"  : "7664-39-3", 
                        "OH"  : "3352-57-6", 
-                       "DCL" : "7698-05-7"
+                       "DCL" : "7698-05-7",
+                       "SIO" : "10097-28-6"
                      }
 
 #Returns a diatomics constants object if the operation was sucessful

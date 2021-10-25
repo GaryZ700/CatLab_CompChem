@@ -28,7 +28,7 @@ pio.renderers["jupyterlab"].config = config
 pio.templates.default = "simple_white"
 
 fontFamily = "Verdana"
-cutoffLimit = pow(10, -4)
+cutoffLimit = pow(10, -2)
 
 #modify the default template to better fit into the program
 pio.templates[pio.templates.default].layout.update(dict(
@@ -55,7 +55,8 @@ graphingParameters = { "showGraph"      : False,
 
 
 #internal resolution dictionary
-resolutionValue = { "High"   : 800, 
+resolutionValue = { "Ultra"  : 2500,
+                    "High"   : 800, 
                     "Medium" : 400, 
                     "Low"    : 200}
 
@@ -71,18 +72,25 @@ def graphFunction(function, title="", resolution=100, start=0, end=5, precision=
     dx = 1 / resolution 
    
     if(yEqualsCutoff != None):
+        
+        #allows squared wavefunctions and regular wavefunctions to 
+        #be cut off at the same location
+        #squared wavefunctions pass in 
+        #yequals cutoff as a list containing a single value
+        exp = 6
+        if(type(yEqualsCutoff) == list):
+            yEqualsCutoff = yEqualsCutoff[0]
+            exp = 1
+        
         leftSide = True
         for step in range(int(abs( (end-start)/dx ))):
 
             xValue = start + step * dx
             yValue = function(xValue)
             
-            if(abs(yValue - yEqualsCutoff) <= cutoffLimit):
-                if(leftSide):
-                    continue
-                    leftSide = False 
-                else:
-                    break
+            if( pow(yValue - yEqualsCutoff, exp) <= cutoffLimit):
+                continue
+            
             x.append(xValue)
             y.append(yValue)
 
@@ -130,7 +138,7 @@ def getGraphFunctionWidgets(figure, traces, functions, graphableObjects, graphab
 
     
     resolutionWidget = widgets.Dropdown(
-        options = ['Low', 'Medium', 'High'],
+        options = ['Low', 'Medium', 'High', 'Ultra'],
         value = 'Medium',
         description = startDescription + "Resolution" + endDescription,
     )

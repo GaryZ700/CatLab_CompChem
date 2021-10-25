@@ -72,6 +72,8 @@ class DiatomicPotential(Graphable):
     
     def value(self, r):
         if(self.isFit):
+            if(r < -100):
+                return 0
             return self.implementation(r)
         else:
             print("Please fit the " + self.name + ", using the 'fit' method.")
@@ -122,11 +124,14 @@ class DiatomicPotential(Graphable):
         self.start = data[5]
         self.end = data[6]
         self.isFit = True
-        
-        self.diatomicConstants = getDiatomicConstants(molecule)
+        print("molecule2", molecule)
+        self.diatomicConstants = globalDB.getDiatomicConstants(molecule)
+        #self.diatomicConstants = getDiatomicConstants(molecule)
+        print(self.diatomicConstants)
         self.fit(self.pesData)
         
-        self.diatomicConstants = globalDB.getDiatomicConstants(molecule)
+        print("molecule3", molecule)
+        
         
         globalDB.close()
         return True
