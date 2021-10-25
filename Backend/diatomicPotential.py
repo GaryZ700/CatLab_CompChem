@@ -124,14 +124,10 @@ class DiatomicPotential(Graphable):
         self.start = data[5]
         self.end = data[6]
         self.isFit = True
-        print("molecule2", molecule)
+        
         self.diatomicConstants = globalDB.getDiatomicConstants(molecule)
-        #self.diatomicConstants = getDiatomicConstants(molecule)
-        print(self.diatomicConstants)
-        self.fit(self.pesData)
-        
-        print("molecule3", molecule)
-        
+
+        self.fit(self.pesData)        
         
         globalDB.close()
         return True

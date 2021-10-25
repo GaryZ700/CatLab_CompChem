@@ -248,7 +248,6 @@ class schrod(Graphable):
 
     def load(self, molecule, basis, size, pes, method, scaleFactor = None, color = None):
         globalDB.connect()
-        print("MOLECULE", molecule)
         data = globalDB.getData("schrodinger_solutions", ["molecule", "basis", "size", "pes", "method"], [molecule, basis, size, pes, method])
         
         if(data == []):

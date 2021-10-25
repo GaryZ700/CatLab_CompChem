@@ -138,7 +138,6 @@ class VOperator(Operator):
                         self.matrix[i, j] = self.matrix[j,i]
                     else:
                         
-                        print(self.integrationStart)
                         self.matrix[i, j] = round(integrate(lambda r : b1.value(r) * potentialFunction(r) * b2.value(r), self.integrationStart, inf), 5)
         
         return self

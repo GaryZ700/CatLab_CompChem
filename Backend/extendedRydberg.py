@@ -35,11 +35,8 @@ class extendedRydberg(DiatomicPotential):
     def internalFit(self, data):
         self.pesData = data
         self.D = data["D"]
-        #print(self.D)
         self.c = min(data["E"])
         optimizedParameters = curve_fit(self.optimizationFunction, data["r"], data["E"], p0 = [self.D, 1, -1, 1], bounds = [[0, 0, -inf, 0], [inf, inf, 0, inf]]) [0]
-        
-        #print("OP", optimizedParameters)
         
 ###################################################################################        
         
