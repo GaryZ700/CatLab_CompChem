@@ -257,7 +257,7 @@ class schrod(Graphable):
             #load data from database into the schrod solution object
             data = data[0]
             self.eigenValues = globalDB.dbToFlatArray(data[3])
-            self.eigenVectors = globalDB.dbToArray(data[4])
+            self.eigenVectors = [ [-val for val in vec] for vec in globalDB.dbToArray(data[4]) ]
             self.basis = basisSet(globalDB.getDiatomicConstants(molecule), basisFunctionClass = basis, size = data[2])
             self.pes = dataToDiatomicPotential(data[6])
             self.maxWaveFunctions = data[5]
