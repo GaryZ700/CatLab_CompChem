@@ -18,7 +18,7 @@ identifierOverride = { "HCL" : "Hydrogen Chloride",
 
 #Returns a diatomics constants object if the operation was sucessful
 #Otherwise returns false
-def getDiatomicConstants(diatomicIdentifier, state = "ground"):
+def getDiatomicConstants(diatomicIdentifier, state = "ground", returnStates=False):
     
     diatomicIdentifier = str(diatomicIdentifier).upper()
     state = state.strip()
@@ -79,6 +79,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
     #iterate over all of the raw rows from NIST
     #to find the row with the specified state
     foundState = False
+    rowStates = []
     for row in fullRowsRaw: 
         
         #Check if the row contains the appropriate subrow containing diatomic data
@@ -116,13 +117,17 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         #Remove extra starting and ending spaces from the rowState string
         rowStateWithHref = (rowState + endingHrefNum).strip()
         rowState = rowState.strip()
+        rowStates.append(rowState)
         
         #determine if the specified state was found
-        if( (state.lower() == "ground" and "X" in rowState) or
-             state == rowState or state == rowStateWithHref):                
+        if( not returnStates and ((state.lower() == "ground" and "X" in rowState) or
+             state == rowState or state == rowStateWithHref) ):                
     
             foundState = True
             break
+            
+    if(returnStates):
+        return rowStates
     
 ###################################################################################    
     #State was found, proceed to parse out all the needed diatomic data for the state
@@ -202,8 +207,8 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
         
             masses.append(massData[isotopeData.index(max(isotopeData))])
             
-            #if(atom == "H"):
-            #    masses[-1] += 1
+            if(atom == "D"):
+                masses[-1] += 1
             
 ###################################################################################
         #webscraping has been completed 
@@ -211,7 +216,7 @@ def getDiatomicConstants(diatomicIdentifier, state = "ground"):
 
         return buildDiatomicConstants(name = moleculeName, state = state,           
                     T = values[0], w = values[1], wx = values[2], 
-                    wy = 0 if values[3] == None else  values[3], 
+                    wy = 0 if values[3] == None else values[3], 
                     wz = 0, B = values[4], a = values[5], 
                     y = 0 if values[6] == None else values[6], 
                     D = values[7], re = values[9], 
